@@ -1,14 +1,16 @@
-package my.mma.fighter.entity;
+package my.mma.event.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import my.mma.fighter.entity.BaseEntity;
+import my.mma.fighter.entity.Fighter;
 
 @Entity
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class FighterFightEvent extends BaseEntity{
+public class FighterFightEvent extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

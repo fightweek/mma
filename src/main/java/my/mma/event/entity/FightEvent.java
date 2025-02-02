@@ -1,7 +1,8 @@
-package my.mma.fighter.entity;
+package my.mma.event.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import my.mma.fighter.entity.BaseEntity;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,7 +13,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class FightEvent extends BaseEntity{
+public class FightEvent extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

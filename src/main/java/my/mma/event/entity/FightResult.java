@@ -1,4 +1,4 @@
-package my.mma.fighter.entity;
+package my.mma.event.entity;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;

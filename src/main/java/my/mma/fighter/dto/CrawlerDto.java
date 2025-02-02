@@ -3,6 +3,10 @@ package my.mma.fighter.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import my.mma.event.entity.FightEvent;
+import my.mma.event.entity.FightResult;
+import my.mma.event.entity.FighterFightEvent;
+import my.mma.event.entity.WinMethod;
 import my.mma.fighter.entity.*;
 
 import java.time.LocalDate;
