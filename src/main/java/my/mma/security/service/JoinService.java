@@ -16,14 +16,14 @@ import org.springframework.transaction.annotation.Transactional;
 public class JoinService{
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder; // Config 클래스에 등록된 encoder bean 사용
 
     @Transactional
     public void joinUser(JoinDto joinDto){
         userRepository.save(
                 UserEntity.builder()
                         .loginId(joinDto.getLoginId())
-                        .role("ROLE_ADMIN")
+                        .role("ROLE_ADMIN") // 앞에 접두사(ROLE)를 가져야 함
                         .password(bCryptPasswordEncoder.encode(joinDto.getPassword()))
                         .name(joinDto.getUsername())
                         .build()

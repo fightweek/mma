@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum Division {
 
+    STRAWWEIGHT("스트로급"),
     FLYWEIGHT("플라이급"),
     BANTAMWEIGHT("밴텀급"),
     FEATHERWEIGHT("페더급"),

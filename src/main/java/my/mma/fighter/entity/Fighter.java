@@ -2,16 +2,15 @@ package my.mma.fighter.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.data.annotation.LastModifiedDate;
 
 import java.io.File;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Getter @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Fighter {
+public class Fighter extends BaseEntity{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "fighter_id")
@@ -21,7 +20,12 @@ public class Fighter {
 
     private String nickname;
 
-    private String koreanName;
+    private String height;
+
+    private String weight;
+
+    @Enumerated(EnumType.STRING)
+    private Division division;
 
     @Embedded
     private FightRecord fightRecord;
@@ -33,14 +37,24 @@ public class Fighter {
 
     private Integer ranking;
 
-    private Integer age;
+    private LocalDate birthday;
 
     private Boolean gender;
 
-    @Enumerated(EnumType.STRING)
-    private Division division;
+    private String status;
 
-    @LastModifiedDate
-    private LocalDateTime lastModifiedAt;
-
+    public static Division get_division(String weight) {
+        int parsedWeight = Integer.parseInt(weight);
+        return switch (parsedWeight) {
+            case 115 -> Division.STRAWWEIGHT;
+            case 125 -> Division.FLYWEIGHT;
+            case 135 -> Division.BANTAMWEIGHT;
+            case 145 -> Division.FEATHERWEIGHT;
+            case 155 -> Division.LIGHTWEIGHT;
+            case 170 -> Division.WELTERWEIGHT;
+            case 185 -> Division.MIDDLEWEIGHT;
+            case 205 -> Division.LIGHTHEAVYWEIGHT;
+            default -> Division.HEAVYWEIGHT;
+        };
+    }
 }

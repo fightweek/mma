@@ -8,7 +8,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class FighterFightEvent {
+public class FighterFightEvent extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,22 +16,21 @@ public class FighterFightEvent {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fighter1_id")
-    private Fighter fighter1;
+    @JoinColumn(name = "winner_id")
+    private Fighter winner;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fighter2_id")
-    private Fighter fighter2;
+    @JoinColumn(name = "loser_id")
+    private Fighter loser;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fight_event_id")
     private FightEvent fightEvent;
 
-    private Boolean isEnded;
+    private String fightWeight;
 
-    private String winnerName;
-
-    private String looserName;
+    @Embedded
+    private FightResult fightResult;
 
     public void addFightEvent(FightEvent fightEvent){
         this.fightEvent = fightEvent;

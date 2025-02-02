@@ -72,6 +72,7 @@ public class JWTFilter extends OncePerRequestFilter {
         member.setRole(role);
         CustomUserDetails customUserDetails = new CustomUserDetails(member);
 
+        // 일시적으로 생성되는 세션 (사용자 등록)
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
         filterChain.doFilter(request, response);
