@@ -1,6 +1,6 @@
 package my.mma.security.oauth2.service;
 
-import my.mma.security.entity.UserEntity;
+import my.mma.security.entity.Member;
 import my.mma.security.repository.UserRepository;
 import my.mma.security.oauth2.CustomOAuth2User;
 import my.mma.security.oauth2.dto.GoogleResponse;
@@ -43,10 +43,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             return null;
         }
         String username = oAuth2Response.getProvider()+" "+oAuth2Response.getProviderId();
-        Optional<UserEntity> existData = userRepository.findByUsername(username);
+        Optional<Member> existData = userRepository.findByUsername(username);
 
         if (existData.isEmpty()) {
-            UserEntity userEntity = UserEntity.builder()
+            Member userEntity = Member.builder()
                     .socialId(oAuth2Response.getProviderId())
                     .role("ROLE_USER")
                     .email(oAuth2Response.getEmail())

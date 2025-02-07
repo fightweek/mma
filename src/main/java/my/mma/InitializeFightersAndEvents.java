@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@Component
+//@Component
 @Transactional(readOnly = true)
 public class InitializeFightersAndEvents {
 
