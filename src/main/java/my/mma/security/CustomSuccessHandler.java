@@ -42,13 +42,13 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String accessToken = jwtUtil.createJwt("access",username, role, 600000L);
         String refreshToken = jwtUtil.createJwt("refresh",username,role,86400000L);
-        response.addCookie(createCookie("access", accessToken));
+//        response.addCookie(createCookie("access", accessToken));
+        response.addHeader("access",accessToken);
         response.addCookie(createCookie("refresh", refreshToken));
         response.sendRedirect("http://localhost:8080");
     }
 
-    private Cookie createCookie(String key, String value) {
-
+    public Cookie createCookie(String key, String value) {
         Cookie cookie = new Cookie(key, value);
         cookie.setMaxAge(60*60*60);
         //cookie.setSecure(true);

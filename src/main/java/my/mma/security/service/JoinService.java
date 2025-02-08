@@ -2,7 +2,7 @@ package my.mma.security.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import my.mma.security.entity.UserEntity;
+import my.mma.security.entity.Member;
 import my.mma.security.repository.UserRepository;
 import my.mma.security.oauth2.dto.JoinDto;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,7 +21,7 @@ public class JoinService{
     @Transactional
     public void joinUser(JoinDto joinDto){
         userRepository.save(
-                UserEntity.builder()
+                Member.builder()
                         .loginId(joinDto.getLoginId())
                         .role("ROLE_ADMIN") // 앞에 접두사(ROLE)를 가져야 함
                         .password(bCryptPasswordEncoder.encode(joinDto.getPassword()))
