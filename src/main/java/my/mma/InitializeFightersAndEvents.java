@@ -9,6 +9,7 @@ import my.mma.fighter.entity.Fighter;
 import my.mma.event.entity.FighterFightEvent;
 import my.mma.event.repository.FightEventRepository;
 import my.mma.fighter.repository.FighterRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.MediaType;
@@ -25,6 +26,9 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class InitializeFightersAndEvents {
 
+    @Value("${python.uri}")
+    private String pythonURI;
+
     private final FighterRepository fighterRepository;
     private final FightEventRepository fightEventRepository;
     private final WebClient webClient;
@@ -33,7 +37,7 @@ public class InitializeFightersAndEvents {
         this.fighterRepository = fighterRepository;
         this.fightEventRepository = fightEventRepository;
         this.webClient = WebClient.builder()
-                .baseUrl("http://localhost:5000")
+                .baseUrl(pythonURI)
                 .build();
     }
 

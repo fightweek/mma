@@ -2,7 +2,7 @@ package my.mma.news.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import my.mma.news.dto.SaveNewsDto;
+import my.mma.news.dto.NewsDto.NewsTranslationResponse;
 import my.mma.news.entity.ImageFile;
 import my.mma.news.entity.News;
 import my.mma.news.repository.ImageFileRepository;
@@ -29,8 +29,7 @@ public class NewsService {
     private final ImageFileRepository imageFileRepository;
 
     @Transactional
-    public void saveNews(SaveNewsDto newsDto){
-        MultipartFile multipartFile = newsDto.getMultipartFile();
+    public void saveNews(NewsTranslationResponse translatedResponse, MultipartFile multipartFile){
         String originalFilename = multipartFile.getOriginalFilename();
         int pos = originalFilename.lastIndexOf(".");
         String ext = originalFilename.substring(pos); //확장자 (.png/.jpg...)
@@ -47,7 +46,7 @@ public class NewsService {
         ImageFile imageFile = imageFileRepository.save(ImageFile.builder()
                 .uploadFileName(originalFilename).storeFileName(storeFileName)
                 .build());
-        News news = newsDto.toEntity(imageFile);
+        News news = translatedResponse.toEntity(imageFile,multipartFile);
         newsRepository.save(news);
     }
 
