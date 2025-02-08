@@ -3,11 +3,13 @@ package my.mma.security.filter;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import my.mma.security.entity.UserEntity;
+import my.mma.security.CustomSuccessHandler;
+import my.mma.security.entity.Member;
 import my.mma.security.CustomUserDetails;
 import my.mma.security.JWTUtil;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,13 +39,13 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
         // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음 (바로 응답)
+
         try {
             jwtUtil.isExpired(accessToken);
         } catch (ExpiredJwtException e) { // 토큰 만료 시 ExpiredJwtException 예외 발생
             //response body
             PrintWriter writer = response.getWriter();
             writer.print("access token expired");
-            //response status code
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -64,14 +66,14 @@ public class JWTFilter extends OncePerRequestFilter {
         String username = jwtUtil.getUsername(accessToken);
         String role = jwtUtil.getRole(accessToken);
 
-        UserEntity member = UserEntity.builder()
+        Member member = Member.builder()
                 .username(username)
                 .role(role)
                 .build();
         member.setUsername(username);
+        member.setPassword("hello");
         member.setRole(role);
         CustomUserDetails customUserDetails = new CustomUserDetails(member);
-
         // 일시적으로 생성되는 세션 (사용자 등록)
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);

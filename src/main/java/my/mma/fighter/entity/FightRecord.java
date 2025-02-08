@@ -10,8 +10,8 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FightRecord {
 
-    private Integer win;
-    private Integer draw;
-    private Integer loss;
+    private int win;
+    private int draw;
+    private int loss;
 
 }
