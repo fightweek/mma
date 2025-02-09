@@ -30,22 +30,25 @@ public class NewsService {
 
     @Transactional
     public void saveNews(NewsTranslationResponse translatedResponse, MultipartFile multipartFile){
-        String originalFilename = multipartFile.getOriginalFilename();
-        int pos = originalFilename.lastIndexOf(".");
-        String ext = originalFilename.substring(pos); //확장자 (.png/.jpg...)
+        ImageFile imageFile = null;
+        if(!multipartFile.isEmpty()) {
+            String originalFilename = multipartFile.getOriginalFilename();
+            int pos = originalFilename.lastIndexOf(".");
+            String ext = originalFilename.substring(pos); //확장자 (.png/.jpg...)
 
-        // 서버에 저장하는 파일명 (storeFileName)
-        String uuid = UUID.randomUUID().toString();
-        String storeFileName = uuid + ext;
-        try {
-            multipartFile.transferTo(new File(fileDir + storeFileName));
-        }catch (IOException e) {
-            log.info("file transfer exception, e = ",e);
+            // 서버에 저장하는 파일명 (storeFileName)
+            String uuid = UUID.randomUUID().toString();
+            String storeFileName = uuid + ext;
+            try {
+                multipartFile.transferTo(new File(fileDir + storeFileName));
+            } catch (IOException e) {
+                log.info("file transfer exception, e = ", e);
+            }
+
+            imageFile = imageFileRepository.save(ImageFile.builder()
+                    .uploadFileName(originalFilename).storeFileName(storeFileName)
+                    .build());
         }
-
-        ImageFile imageFile = imageFileRepository.save(ImageFile.builder()
-                .uploadFileName(originalFilename).storeFileName(storeFileName)
-                .build());
         News news = translatedResponse.toEntity(imageFile,multipartFile);
         newsRepository.save(news);
     }
