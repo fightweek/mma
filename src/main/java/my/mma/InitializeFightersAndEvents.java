@@ -32,7 +32,8 @@ public class InitializeFightersAndEvents {
     private final WebClient webClient;
 
     public InitializeFightersAndEvents(FighterRepository fighterRepository, FightEventRepository fightEventRepository) {
-        String pythonURI = "http://localhost:5000";
+//        String pythonURI = "http://localhost:5000";
+        String pythonURI = "http://host.docker.internal:5000";
         log.info("Python Server URI: {}", pythonURI);
         this.fighterRepository = fighterRepository;
         this.fightEventRepository = fightEventRepository;
