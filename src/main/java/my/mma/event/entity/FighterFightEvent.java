@@ -3,6 +3,7 @@ package my.mma.event.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import my.mma.fighter.entity.BaseEntity;
+import my.mma.fighter.entity.FightRecord;
 import my.mma.fighter.entity.Fighter;
 
 @Entity
@@ -36,6 +37,11 @@ public class FighterFightEvent extends BaseEntity {
 
     public void addFightEvent(FightEvent fightEvent){
         this.fightEvent = fightEvent;
+        fightEvent.getFighterFightEvents().add(this);
+    }
+
+    public void updateFighterFightEvent(FightResult fightResult){
+        this.fightResult = fightResult;
     }
 
 }
