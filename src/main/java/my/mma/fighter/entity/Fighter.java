@@ -57,4 +57,9 @@ public class Fighter extends BaseEntity{
             default -> Division.HEAVYWEIGHT;
         };
     }
+
+    public void updateFightRecord(String[] newFightRecord){
+        this.fightRecord = FightRecord.toFightRecord(newFightRecord);
+    }
+
 }
