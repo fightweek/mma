@@ -1,4 +1,4 @@
-package my.mma.fighter.dto;
+package my.mma.event.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -20,7 +20,7 @@ import java.util.Locale;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class CrawlerDto {
+public class BasicCrawlerDto {
 
     private List<FighterCrawlerDto> fighters;
 
@@ -104,38 +104,60 @@ public class CrawlerDto {
             @JsonProperty("fight_time")
             private String fightTime;
 
-            public FighterFightEvent toEntity(Fighter loser, Fighter winner){
+            public FighterFightEvent toEntityPrevEvent(Fighter winner, Fighter loser){
                 return FighterFightEvent.builder()
                         .winner(winner)
                         .loser(loser)
                         .fightWeight(this.fightWeight)
                         .fightResult(
-                                FightResult.builder()
-                                        .winnerName(this.winnerName)
-                                        .loserName(this.loserName)
-                                        .winMethod(
-                                                method.contains("DEC") ? WinMethod.valueOf(this.method) :
-                                                        (method.contains("SUB") ? WinMethod.SUB :
-                                                                (method.contains("KO") ? WinMethod.KO_TKO : WinMethod.ELSE))
-                                        )
-                                        .winDescription(this.method)
-                                        .fightEndTime(LocalTime.parse(this.fightTime, DateTimeFormatter.ofPattern("H:mm")))
-                                        .round(Integer.parseInt(this.round))
-                                        .build()
+                                buildFightResult()
                         ).build();
+            }
+
+            public FightResult buildFightResult() {
+                return FightResult.builder()
+                        .winnerName(this.winnerName)
+                        .loserName(this.loserName)
+                        .winMethod(
+                                method.contains("DEC") ? WinMethod.valueOf(this.method) :
+                                        (method.contains("SUB") ? WinMethod.SUB :
+                                                (method.contains("KO") ? WinMethod.KO_TKO : WinMethod.ELSE))
+                        )
+                        .winDescription(this.method)
+                        .fightEndTime(LocalTime.parse(this.fightTime, DateTimeFormatter.ofPattern("H:mm")))
+                        .round(Integer.parseInt(this.round))
+                        .build();
+            }
+
+            public FighterFightEvent toEntityUpcomingEvent(Fighter winner, Fighter loser){
+                return FighterFightEvent.builder()
+                        .winner(winner)
+                        .loser(loser)
+                        .fightWeight(this.fightWeight)
+                        .fightResult(null)
+                        .build();
             }
 
         }
 
-        public FightEvent toEntity(){
+        public FightEvent toEntityPrevEvent(){
             return FightEvent.builder()
+                    .completed(true)
                     .eventLocation(location)
                     .eventDate(LocalDate.parse(this.eventDate,DateTimeFormatter.ofPattern("MMMM dd, yyyy", Locale.ENGLISH)))
                     .eventName(this.eventName)
                     .build();
         }
 
-    }
+        public FightEvent toEntityUpcomingEvent(){
+            return FightEvent.builder()
+                    .completed(false)
+                    .eventLocation(location)
+                    .eventDate(LocalDate.parse(this.eventDate,DateTimeFormatter.ofPattern("MMMM dd, yyyy", Locale.ENGLISH)))
+                    .eventName(eventName)
+                    .build();
+        }
 
+    }
 
 }
