@@ -62,4 +62,7 @@ public class Fighter extends BaseEntity{
         this.fightRecord = FightRecord.toFightRecord(newFightRecord);
     }
 
+    public void updateRanking(int ranking){
+        this.ranking = ranking;
+    }
 }
