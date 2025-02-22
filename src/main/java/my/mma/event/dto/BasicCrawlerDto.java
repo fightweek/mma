@@ -19,7 +19,6 @@ import java.util.Locale;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
 public class BasicCrawlerDto {
 
     private List<FighterCrawlerDto> fighters;
