@@ -3,12 +3,10 @@ package my.mma.security.filter;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import my.mma.security.CustomSuccessHandler;
 import my.mma.security.entity.Member;
 import my.mma.security.CustomUserDetails;
 import my.mma.security.JWTUtil;
@@ -28,18 +26,19 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        // 헤더에서 access키에 담긴 토큰을 꺼냄
+
         log.info("JWT Filter doFilterInternal execute");
-        String accessToken = request.getHeader("access");
+        String authorization = request.getHeader("Authorization");
 
         // 토큰이 없다면 다음 필터로 넘김
-        if (accessToken == null) {
+        if (authorization == null || !authorization.startsWith("Bearer ")) {
             log.info("accessToken is null");
             filterChain.doFilter(request, response);
             return;
         }
         // 토큰 만료 여부 확인, 만료시 다음 필터로 넘기지 않음 (바로 응답)
 
+        String accessToken = authorization.split(" ")[1];
         try {
             jwtUtil.isExpired(accessToken);
         } catch (ExpiredJwtException e) { // 토큰 만료 시 ExpiredJwtException 예외 발생
@@ -75,6 +74,7 @@ public class JWTFilter extends OncePerRequestFilter {
         member.setRole(role);
         CustomUserDetails customUserDetails = new CustomUserDetails(member);
         // 일시적으로 생성되는 세션 (사용자 등록)
+        System.out.println("member = " + member);
         Authentication authToken = new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
         filterChain.doFilter(request, response);
