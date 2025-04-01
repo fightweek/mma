@@ -18,15 +18,13 @@ public class Member {
 
     private String socialId;
 
-    private String loginId;
+    private String email;
 
     private String username;
 
     private String name;
 
     private String password;
-
-    private String email;
 
     private String role;
 }

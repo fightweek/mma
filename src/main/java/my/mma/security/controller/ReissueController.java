@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
+import java.util.UUID;
 
 // refresh 토큰의 사용처는 /reissue 하나이므로, CSRF 공격에 취약해져도 무방 (따라서 쿠키에 저장해도 됨)
 @RestController
@@ -50,7 +50,7 @@ public class ReissueController{
         if (!category.equals("refresh")) {
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
-        Boolean isExist = refreshRepository.existsByRefresh(refresh);
+        Boolean isExist = refreshRepository.existsByToken(refresh);
         if(!isExist){
             return new ResponseEntity<>("invalid refresh token",HttpStatus.BAD_REQUEST);
         }
@@ -64,7 +64,7 @@ public class ReissueController{
         String newRefresh = jwtUtil.createJwt("refresh",username,role,86400000L);
 
         // refresh rotate (기존 refresh 토큰 삭제, 새로운 refresh 토큰 생성 및 DB에 저장 => 로그인 지속 시간 증가)
-        refreshRepository.deleteByRefresh(refresh);
+        refreshRepository.deleteByToken(refresh);
         addRefreshEntity(username,newRefresh,86400000L);
 
         //response
@@ -74,11 +74,11 @@ public class ReissueController{
     }
 
     private void addRefreshEntity(String username,String refresh,Long expiredMs){
-        Date date = new Date(System.currentTimeMillis()*expiredMs);
         refreshRepository.save(Refresh.builder()
+                .id(UUID.randomUUID().toString())
                 .username(username)
-                .refresh(refresh)
-                .expiration(date.toString())
+                .token(refresh)
+                .expiration(expiredMs)
                 .build());
     }
 
