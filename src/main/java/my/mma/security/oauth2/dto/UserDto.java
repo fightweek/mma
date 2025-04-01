@@ -1,4 +1,4 @@
-package my.mma.security.dto;
+package my.mma.security.oauth2.dto;
 
 import lombok.Getter;
 import lombok.Setter;

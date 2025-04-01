@@ -6,6 +6,11 @@ public class GoogleResponse implements OAuth2Response{
 
     private final Map<String, Object> attribute;
 
+    /** google json example
+     * {
+     * 		resultcode=00, message=success, sub=123123123, name=개발자유미, ...
+     * }
+     */
     public GoogleResponse(Map<String, Object> attribute) {
         this.attribute = attribute;
     }

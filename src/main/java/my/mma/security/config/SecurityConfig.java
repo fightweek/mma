@@ -1,12 +1,11 @@
 package my.mma.security.config;
 
 import lombok.RequiredArgsConstructor;
+import my.mma.security.filter.CustomLogoutFilter;
 import my.mma.security.repository.RefreshRepository;
-import my.mma.security.CustomSuccessHandler;
 import my.mma.security.JWTUtil;
 import my.mma.security.filter.JWTFilter;
 import my.mma.security.filter.LoginFilter;
-import my.mma.security.oauth2.service.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Collections;
@@ -27,8 +27,6 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomSuccessHandler customSuccessHandler;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
@@ -56,9 +54,9 @@ public class SecurityConfig {
             return corsConfiguration;
         }));
 
-        http.oauth2Login((oauth2) -> oauth2.userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-                        .userService(customOAuth2UserService))
-                .successHandler(customSuccessHandler));
+//        http.oauth2Login((oauth2) -> oauth2.userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+//                        .userService(customOAuth2UserService))
+//                .successHandler(customSuccessHandler));
 
         http.httpBasic(auth -> auth.disable());
         http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable());
@@ -70,9 +68,9 @@ public class SecurityConfig {
                         .anyRequest().authenticated());
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-        http.addFilterBefore(new JWTFilter(jwtUtil), LoginFilter.class); //LoginFilter 전에 필터 생성
+        http.addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class); //LoginFilter 전에 필터 생성
         http.addFilterAt(new LoginFilter(authenticationManager(),jwtUtil,refreshRepository), UsernamePasswordAuthenticationFilter.class);
-//        http.addFilterBefore(new CustomLogoutFilter(refreshRepository,jwtUtil), LogoutFilter.class);
+        http.addFilterBefore(new CustomLogoutFilter(jwtUtil,refreshRepository), LogoutFilter.class);
         return http.build();
     }
 

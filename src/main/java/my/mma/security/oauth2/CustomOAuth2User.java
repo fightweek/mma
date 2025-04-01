@@ -1,6 +1,6 @@
 package my.mma.security.oauth2;
 
-import my.mma.security.dto.UserDto;
+import my.mma.security.oauth2.dto.UserDto;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 

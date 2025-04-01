@@ -5,7 +5,6 @@ import my.mma.event.dto.BasicCrawlerDto;
 import my.mma.event.dto.BasicCrawlerDto.EventCrawlerDto;
 import my.mma.event.dto.BasicCrawlerDto.FighterCrawlerDto;
 import my.mma.event.entity.FightEvent;
-import my.mma.event.entity.FightResult;
 import my.mma.event.entity.FighterFightEvent;
 import my.mma.event.repository.FightEventRepository;
 import my.mma.fighter.entity.Fighter;

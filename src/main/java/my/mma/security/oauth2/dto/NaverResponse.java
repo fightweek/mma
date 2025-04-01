@@ -6,6 +6,11 @@ public class NaverResponse implements OAuth2Response{
 
     private final Map<String, Object> attribute;
 
+    /** naver json example
+     * {
+     * 		resultcode=00, message=success, response={id=123123123, name=개발자유미, ...}
+     * }
+     */
     public NaverResponse(Map<String, Object> attribute) {
 
         this.attribute = (Map<String, Object>) attribute.get("response");
