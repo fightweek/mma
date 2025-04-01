@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
 import my.mma.security.repository.UserRepository;
+import my.mma.smtp.dto.VerifyCodeDto;
 import my.mma.smtp.entity.JoinCode;
 import my.mma.smtp.repository.JoinCodeRepository;
 import org.springframework.mail.SimpleMailMessage;
@@ -55,11 +56,15 @@ public class MailService {
         return sb.toString();
     }
 
-    public boolean verifyCode(String email, String code){
-        JoinCode joinCode = joinCodeRepository.findByEmail(email).orElseThrow(
+    public boolean verifyCode(VerifyCodeDto verifyCodeDto){
+        JoinCode joinCode = joinCodeRepository.findByEmail(verifyCodeDto.getEmail()).orElseThrow(
                 () -> new CustomException(CustomErrorCode.NO_SUCH_EMAIL_CONFIGURED_500)
         );
-        return joinCode.getCode().equals(code);
+        if(joinCode.getCode().equals(verifyCodeDto.getCode())){
+            joinCodeRepository.delete(joinCode);
+            return true;
+        }
+        return false;
     }
 
 }
