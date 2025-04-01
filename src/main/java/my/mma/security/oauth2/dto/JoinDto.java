@@ -2,7 +2,6 @@ package my.mma.security.oauth2.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Builder;
 import lombok.Data;
 
 @Data
@@ -10,7 +9,7 @@ public class JoinDto {
 
     @NotBlank
     @Size(min = 5, max = 20)
-    private String loginId;
+    private String email;
 
     @NotBlank
     @Size(min = 2, max = 10)

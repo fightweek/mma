@@ -22,7 +22,7 @@ public class JoinService{
     public void joinUser(JoinDto joinDto){
         userRepository.save(
                 Member.builder()
-                        .loginId(joinDto.getLoginId())
+                        .email(joinDto.getEmail())
                         .role("ROLE_ADMIN") // 앞에 접두사(ROLE)를 가져야 함
                         .password(bCryptPasswordEncoder.encode(joinDto.getPassword()))
                         .name(joinDto.getUsername())
