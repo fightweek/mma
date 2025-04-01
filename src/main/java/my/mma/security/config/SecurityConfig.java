@@ -63,7 +63,9 @@ public class SecurityConfig {
         http.formLogin(AbstractHttpConfigurer::disable);
 
         http.authorizeHttpRequests(registry ->
-                registry.requestMatchers("/","/login","/join","/reissue").permitAll()
+                registry.requestMatchers("/","/login","/join","/reissue",
+                                "/mail/verify_code", "/mail/send_join_code"
+                        ).permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

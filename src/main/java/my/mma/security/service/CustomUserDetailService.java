@@ -20,9 +20,9 @@ public class CustomUserDetailService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         //DB에서 조회
-        Optional<Member> findUser = userRepository.findByLoginId(loginId);
+        Optional<Member> findUser = userRepository.findByEmail(email);
         //UserDetails에 담아서 return하면 AutneticationManager가 검증 함
 //        if (userData.isPresent()) {
 //            //UserDetails에 담아서 return하면 AutneticationManager가 검증 함
