@@ -3,8 +3,7 @@ package my.mma.event.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import my.mma.fighter.entity.BaseEntity;
-import my.mma.news.entity.News;
-import my.mma.security.entity.Member;
+import my.mma.user.entity.User;
 
 @Entity
 @Getter
@@ -23,8 +22,8 @@ public class FightEventReply extends BaseEntity {
     private FightEvent fightEvent;
 
     @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     private String content;
 

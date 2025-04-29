@@ -8,9 +8,11 @@ import my.mma.event.repository.FightEventRepository;
 import my.mma.event.service.EventService;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
+import my.mma.user.entity.User;
+import my.mma.security.repository.UserRepository;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -20,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-//@Component
+@Component
 @Transactional(readOnly = true)
 public class InitializeFightersAndEvents {
 
@@ -28,12 +30,17 @@ public class InitializeFightersAndEvents {
     private final WebClient webClient;
     private final FighterRepository fighterRepository;
     private final FightEventRepository fightEventRepository;
+    private final UserRepository userRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public InitializeFightersAndEvents(EventService eventService, FighterRepository fighterRepository,
-                                       FightEventRepository fightEventRepository) {
+                                       FightEventRepository fightEventRepository, UserRepository userRepository,
+                                       BCryptPasswordEncoder bCryptPasswordEncoder) {
         String pythonURI = "http://localhost:5000";
 //        String pythonURI = "http://host.docker.internal:5000";
         log.info("Python Server URI: {}", pythonURI);
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.userRepository = userRepository;
         this.eventService = eventService;
         this.fighterRepository = fighterRepository;
         this.fightEventRepository  = fightEventRepository;
@@ -45,12 +52,19 @@ public class InitializeFightersAndEvents {
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
     public void initializeAll()  {
-        Mono<BasicCrawlerDto> responseMono = webClient.get()
-                .uri("/ufc/prev_events")
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .bodyToMono(BasicCrawlerDto.class);
-        saveFighterAndEvent(responseMono, true);
+        User user = User.builder()
+                .email("jht2512@naver.com")
+                .password(bCryptPasswordEncoder.encode("pwd123"))
+                .nickname("진현택")
+                .role("ROLE_USER")
+                .build();
+        userRepository.save(user);
+//        Mono<BasicCrawlerDto> responseMono = webClient.get()
+//                .uri("/ufc/prev_events")
+//                .accept(MediaType.APPLICATION_JSON)
+//                .retrieve()
+//                .bodyToMono(BasicCrawlerDto.class);
+//        saveFighterAndEvent(responseMono, true);
     }
 
     private void saveFighterAndEvent(Mono<BasicCrawlerDto> responseMono, boolean isCompleted) {

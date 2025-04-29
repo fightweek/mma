@@ -3,34 +3,35 @@ package my.mma.security;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import my.mma.security.entity.Member;
+import my.mma.security.oauth2.dto.TempUserDto;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+// 일반 로그인 시 사용됨
 @Setter @Getter
 @RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
-    private final Member member;
+    private final TempUserDto user;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> collection = new ArrayList<>();
-        collection.add((GrantedAuthority) () -> member.getRole());
+        collection.add((GrantedAuthority) user::getRole);
         return collection;
     }
 
     @Override
     public String getPassword() {
-        return member.getPassword();
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return member.getEmail();
+        return user.getEmail();
     }
 
 }

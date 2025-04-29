@@ -14,12 +14,9 @@ import org.springframework.data.redis.core.index.Indexed;
 public class Refresh {
 
     @Id
-    private String id;
-
-    private String username;
-
-    @Indexed
     private String token;
+
+    private String email;
 
     @TimeToLive
     private long expiration;

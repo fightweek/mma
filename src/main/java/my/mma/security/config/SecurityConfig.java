@@ -1,7 +1,10 @@
 package my.mma.security.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import my.mma.security.filter.CustomLogoutFilter;
+import my.mma.security.oauth2.handler.CustomSuccessHandler;
+import my.mma.security.oauth2.service.CustomOAuth2UserService;
 import my.mma.security.repository.RefreshRepository;
 import my.mma.security.JWTUtil;
 import my.mma.security.filter.JWTFilter;
@@ -30,14 +33,16 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final CustomSuccessHandler customSuccessHandler;
 
     @Bean
-    public BCryptPasswordEncoder encodePwd(){
+    public BCryptPasswordEncoder encodePwd() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager() throws Exception{
+    public AuthenticationManager authenticationManager() throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -54,16 +59,22 @@ public class SecurityConfig {
             return corsConfiguration;
         }));
 
-//        http.oauth2Login((oauth2) -> oauth2.userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-//                        .userService(customOAuth2UserService))
-//                .successHandler(customSuccessHandler));
+        http.oauth2Login((oauth2) -> oauth2.userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+                        .userService(customOAuth2UserService))
+                .successHandler(customSuccessHandler));
 
-        http.httpBasic(auth -> auth.disable());
-        http.csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable());
+        http.httpBasic(AbstractHttpConfigurer::disable);
+        http.csrf(AbstractHttpConfigurer::disable);
         http.formLogin(AbstractHttpConfigurer::disable);
+        http.logout(logout -> logout.logoutUrl("/auth/logout"));
+//                .logoutSuccessHandler(
+//                        (request, response, authentication) -> {
+//                            response.setStatus(HttpServletResponse.SC_OK);
+//                        }
+//                ));
 
         http.authorizeHttpRequests(registry ->
-                registry.requestMatchers("/","/login","/join","/reissue",
+                registry.requestMatchers("/", "/login", "/join", "/reissue",
                                 "/mail/verify_code", "/mail/send_join_code"
                         ).permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
@@ -71,8 +82,8 @@ public class SecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class); //LoginFilter 전에 필터 생성
-        http.addFilterAt(new LoginFilter(authenticationManager(),jwtUtil,refreshRepository), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(new CustomLogoutFilter(jwtUtil,refreshRepository), LogoutFilter.class);
+        http.addFilterAt(new LoginFilter(authenticationManager(), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
         return http.build();
     }
 
