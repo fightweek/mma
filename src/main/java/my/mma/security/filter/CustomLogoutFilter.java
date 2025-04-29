@@ -1,17 +1,17 @@
 package my.mma.security.filter;
 
-import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import my.mma.exception.CustomException;
 import my.mma.security.JWTUtil;
 import my.mma.security.repository.RefreshRepository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.filter.GenericFilterBean;
 
 import java.io.IOException;
@@ -29,9 +29,10 @@ public class CustomLogoutFilter extends GenericFilterBean {
         doFilter((HttpServletRequest) servletRequest, (HttpServletResponse) servletResponse, filterChain);
     }
 
-    private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
+    @Transactional
+    public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         String requestURI = request.getRequestURI();
-        if(!requestURI.matches("^\\/logout$")){
+        if(!requestURI.matches("^\\/auth/logout$")){
             filterChain.doFilter(request,response);
             return;
         }
@@ -39,44 +40,37 @@ public class CustomLogoutFilter extends GenericFilterBean {
             filterChain.doFilter(request,response);
             return;
         }
-        String refresh = null;
-        Cookie[] cookies = request.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("refresh")) {
-                refresh = cookie.getValue();
-            }
-        }
+
+        String refresh = request.getHeader("Refresh");
         if(refresh == null){
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            handleException(response,"refreshToken is null",HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        //expired check
-        try {
-            jwtUtil.isExpired(refresh);
-        } catch (ExpiredJwtException e) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
+
         // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
-        String category = jwtUtil.getCategory(refresh);
+        String category = jwtUtil.extractCategory(refresh);
         if (!category.equals("refresh")) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            handleException(response,"refresh category is not matched",HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
-        Boolean isExist = refreshRepository.existsByToken(refresh);
+        boolean isExist = refreshRepository.existsById(refresh);
         if (!isExist) {
-            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            handleException(response,"refresh is not existing in DB",HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
         //로그아웃 진행
         //Refresh 토큰 DB에서 제거
-        refreshRepository.deleteByToken(refresh);
+        refreshRepository.deleteById(refresh);
         //Refresh 토큰 Cookie 값 0
-        Cookie cookie = new Cookie("refresh", null);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-        response.addCookie(cookie);
         response.setStatus(HttpServletResponse.SC_OK);
+        response.getWriter().write("deleted refresh token successfully");
+    }
+
+    private void handleException(HttpServletResponse response, String message, int statusCode) throws IOException {
+        log.warn(message);
+        response.setStatus(statusCode);
+        response.setContentType("text/plain;charset=UTF-8");
+        response.getWriter().write(message);
     }
 
 }

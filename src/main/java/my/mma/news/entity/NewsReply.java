@@ -3,7 +3,7 @@ package my.mma.news.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import my.mma.fighter.entity.BaseEntity;
-import my.mma.security.entity.Member;
+import my.mma.user.entity.User;
 
 @Entity
 @Getter
@@ -22,8 +22,8 @@ public class NewsReply extends BaseEntity {
     private News news;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     private String content;
 

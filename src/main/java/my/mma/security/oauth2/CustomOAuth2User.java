@@ -1,6 +1,6 @@
 package my.mma.security.oauth2;
 
-import my.mma.security.oauth2.dto.UserDto;
+import my.mma.security.oauth2.dto.TempUserDto;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
@@ -10,9 +10,9 @@ import java.util.Map;
 
 public class CustomOAuth2User implements OAuth2User {
 
-    private final UserDto userDto;
+    private final TempUserDto userDto;
 
-    public CustomOAuth2User(UserDto userDTO) {
+    public CustomOAuth2User(TempUserDto userDTO) {
         this.userDto = userDTO;
     }
 
@@ -36,10 +36,10 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public String getName() {
-        return userDto.getName();
+        return userDto.getNickname();
     }
 
-    public String getUsername() {
-        return userDto.getUsername();
+    public String getEmail() {
+        return userDto.getEmail();
     }
 }

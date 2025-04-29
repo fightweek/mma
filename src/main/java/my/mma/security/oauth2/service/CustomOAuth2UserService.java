@@ -1,13 +1,13 @@
 package my.mma.security.oauth2.service;
 
 import lombok.extern.slf4j.Slf4j;
-import my.mma.security.entity.Member;
+import my.mma.user.entity.User;
 import my.mma.security.repository.UserRepository;
 import my.mma.security.oauth2.CustomOAuth2User;
 import my.mma.security.oauth2.dto.GoogleResponse;
 import my.mma.security.oauth2.dto.NaverResponse;
 import my.mma.security.oauth2.dto.OAuth2Response;
-import my.mma.security.oauth2.dto.UserDto;
+import my.mma.security.oauth2.dto.TempUserDto;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -34,43 +34,44 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         // userRequest : 리소스 서버에서 제공되는 유저 정보
         OAuth2User oAuth2User = super.loadUser(userRequest);
-        log.info("oAuth2User: {}",oAuth2User);
+        log.info("oAuth2User: {}", oAuth2User);
 
-        String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        OAuth2Response oAuth2Response = null;
-        if (registrationId.equals("naver")) {
-            oAuth2Response = new NaverResponse(oAuth2User.getAttributes());
-        }
-        else if (registrationId.equals("google")) {
-            oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
-        }
-        else {
-            return null;
-        }
-        String username = oAuth2Response.getProvider()+" "+oAuth2Response.getProviderId();
-        Optional<Member> existData = userRepository.findByUsername(username);
-        UserDto userDto = new UserDto();
+        OAuth2Response oAuth2Response = getoAuth2Response(userRequest, oAuth2User);
+        String username = oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId();
+        Optional<User> existData = userRepository.findByUsername(username);
+        TempUserDto userDto = TempUserDto.builder()
+                .password("hello")
+                .role("ROLE_USER")
+                .email(oAuth2Response.getEmail())
+                .nickname(oAuth2Response.getName())
+                .build();
 
+        // 회원가입
         if (existData.isEmpty()) {
-            Member userEntity = Member.builder()
-                    .socialId(oAuth2Response.getProviderId())
+            User userEntity = User.builder()
                     .role("ROLE_USER")
                     .email(oAuth2Response.getEmail())
-                    .name(oAuth2Response.getName())
+                    .nickname(oAuth2Response.getName())
                     .username(username)
                     .build();
             userRepository.save(userEntity);
-            userDto.setUsername(username);
-            userDto.setName(oAuth2Response.getName());
-            userDto.setRole("ROLE_USER");
-        }
-        else {
-            existData.get().setEmail(oAuth2Response.getEmail());
-            existData.get().setName(oAuth2Response.getName());
-            userDto.setUsername(existData.get().getUsername());
-            userDto.setName(oAuth2Response.getName());
-            userDto.setRole(existData.get().getRole());
+        } else {
+            existData.get().updateEmail(oAuth2Response.getEmail());
+            existData.get().updateNickname(oAuth2Response.getName());
         }
         return new CustomOAuth2User(userDto);
+    }
+
+    private static OAuth2Response getoAuth2Response(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
+        OAuth2Response oAuth2Response;
+        if (registrationId.equals("naver")) {
+            oAuth2Response = new NaverResponse(oAuth2User.getAttributes());
+        } else if (registrationId.equals("google")) {
+            oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
+        } else {
+            throw new OAuth2AuthenticationException("Unsupported OAuth2 provider: " + registrationId);
+        }
+        return oAuth2Response;
     }
 }
