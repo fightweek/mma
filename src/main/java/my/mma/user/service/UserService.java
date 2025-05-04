@@ -22,10 +22,19 @@ public class UserService {
     private final JWTUtil jwtUtil;
 
     public UserDto getMe(HttpServletRequest request) {
-        String email = jwtUtil.extractEmail(request.getHeader("Authorization").split(" ")[1]);
-        User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_500)
-        );
+        String accessToken = request.getHeader("Authorization").split(" ")[1];
+        String email = jwtUtil.extractEmail(accessToken);
+        User user;
+        if (jwtUtil.extractIsSocial(accessToken)) {
+            String domain = jwtUtil.extractDomain(accessToken);
+            user = userRepository.findByEmailAndUsernameStartingWith(email, domain).orElseThrow(
+                    () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_500)
+            );
+        } else {
+            user = userRepository.findByEmailAndUsernameIsNull(email).orElseThrow(
+                    () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_500)
+            );
+        }
         return UserDto.toDto(user);
     }
 

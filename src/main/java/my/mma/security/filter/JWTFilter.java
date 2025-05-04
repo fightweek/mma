@@ -48,6 +48,7 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
         if (!jwtUtil.extractCategory(accessToken).equals("access")) {
+            System.out.println(jwtUtil.extractCategory(accessToken));
             handleException(response, "Invalid token category", HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
