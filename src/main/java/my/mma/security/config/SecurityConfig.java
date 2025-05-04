@@ -1,14 +1,14 @@
 package my.mma.security.config;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import my.mma.exception.CustomErrorCode;
+import my.mma.exception.CustomException;
 import my.mma.security.filter.CustomLogoutFilter;
-import my.mma.security.oauth2.handler.CustomSuccessHandler;
-import my.mma.security.oauth2.service.CustomOAuth2UserService;
 import my.mma.security.repository.RefreshRepository;
 import my.mma.security.JWTUtil;
 import my.mma.security.filter.JWTFilter;
 import my.mma.security.filter.LoginFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,11 +30,16 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final AuthenticationConfiguration authenticationConfiguration;
+    @Value("${spring.jwt.access.expiration}")
+    private Long accessExpireMs;
+
+    @Value("${spring.jwt.refresh.expiration}")
+    private Long refreshExpireMs;
+
+
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
-    private final CustomOAuth2UserService customOAuth2UserService;
-    private final CustomSuccessHandler customSuccessHandler;
+    private final AuthenticationConfiguration authenticationConfiguration;
 
     @Bean
     public BCryptPasswordEncoder encodePwd() {
@@ -42,8 +47,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager() throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager() {
+        try {
+            return authenticationConfiguration.getAuthenticationManager();
+        } catch (Exception e) {
+            throw new CustomException(CustomErrorCode.SERVER_ERROR);
+        }
     }
 
     @Bean
@@ -59,9 +68,9 @@ public class SecurityConfig {
             return corsConfiguration;
         }));
 
-        http.oauth2Login((oauth2) -> oauth2.userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
-                        .userService(customOAuth2UserService))
-                .successHandler(customSuccessHandler));
+//        http.oauth2Login((oauth2) -> oauth2.userInfoEndpoint((userInfoEndpointConfig) -> userInfoEndpointConfig
+//                        .userService(customOAuth2UserService))
+//                .successHandler(customSuccessHandler));
 
         http.httpBasic(AbstractHttpConfigurer::disable);
         http.csrf(AbstractHttpConfigurer::disable);
@@ -75,16 +84,15 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(registry ->
                 registry.requestMatchers("/", "/login", "/join", "/reissue",
-                                "/mail/verify_code", "/mail/send_join_code"
+                                "/mail/verify_code", "/mail/send_join_code", "/auth/social_login"
                         ).permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class); //LoginFilter 전에 필터 생성
-        http.addFilterAt(new LoginFilter(authenticationManager(), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(new LoginFilter(authenticationManager(), jwtUtil, refreshRepository, accessExpireMs, refreshExpireMs), UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
         return http.build();
     }
-
 }

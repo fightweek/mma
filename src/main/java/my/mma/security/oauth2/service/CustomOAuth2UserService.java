@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-@Service
+//@Service
 @Slf4j
 @Transactional(readOnly = true)
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
@@ -32,11 +32,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        log.info("custom oauth2 user service loadUser executed");
         // userRequest : 리소스 서버에서 제공되는 유저 정보
         OAuth2User oAuth2User = super.loadUser(userRequest);
         log.info("oAuth2User: {}", oAuth2User);
 
-        OAuth2Response oAuth2Response = getoAuth2Response(userRequest, oAuth2User);
+        OAuth2Response oAuth2Response = getOauth2Response(userRequest, oAuth2User);
         String username = oAuth2Response.getProvider() + " " + oAuth2Response.getProviderId();
         Optional<User> existData = userRepository.findByUsername(username);
         TempUserDto userDto = TempUserDto.builder()
@@ -62,7 +63,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return new CustomOAuth2User(userDto);
     }
 
-    private static OAuth2Response getoAuth2Response(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
+    private static OAuth2Response getOauth2Response(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
         OAuth2Response oAuth2Response;
         if (registrationId.equals("naver")) {

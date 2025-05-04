@@ -32,7 +32,7 @@ public class MailService {
     ){
         String email = emailTo.get("emailTo");
         log.info("email = {}",email);
-        if(userRepository.findByEmail(email).isPresent()){
+        if(userRepository.findByEmailAndUsernameIsNull(email).isPresent()){
             throw new CustomException(CustomErrorCode.DUPLICATED_EMAIL_400);
         }
         String joinCode = generateRandomNumber();

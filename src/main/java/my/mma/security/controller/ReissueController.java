@@ -5,8 +5,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.security.JWTUtil;
+import my.mma.security.dto.JwtCrateDto;
 import my.mma.security.entity.Refresh;
 import my.mma.security.repository.RefreshRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +24,12 @@ import java.util.HashMap;
 @RequiredArgsConstructor
 @RequestMapping("/reissue")
 public class ReissueController {
+
+    @Value("${spring.jwt.access.expiration}")
+    private Long accessExpireMs;
+
+    @Value("${spring.jwt.refresh.expiration}")
+    private Long refreshExpireMs;
 
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
@@ -48,14 +56,20 @@ public class ReissueController {
 
         String email = jwtUtil.extractEmail(refresh);
         String role = jwtUtil.extractRole(refresh);
+        String domain = jwtUtil.extractDomain(refresh);
+        boolean isSocial = jwtUtil.extractIsSocial(refresh);
 
         //make new JWT
-        String newAccess = jwtUtil.createJwt("access", email, role, 600000L);
-        String newRefresh = jwtUtil.createJwt("refresh", email, role, 86400000L);
+        String newAccess = jwtUtil.createJwt(JwtCrateDto.toDto(
+                "access",email,role,accessExpireMs,domain,isSocial
+        ));
+        String newRefresh = jwtUtil.createJwt(JwtCrateDto.toDto(
+                "refresh",email,role,accessExpireMs,domain,isSocial
+        ));
 
         // refresh rotate (기존 refresh 토큰 삭제, 새로운 refresh 토큰 생성 및 DB에 저장 => 로그인 지속 시간 증가)
         refreshRepository.deleteById(refresh);
-        addRefreshEntity(email, newRefresh, 86400000L);
+        addRefreshEntity(email, newRefresh, refreshExpireMs);
 
         //response
         HashMap<String, String> tokens = new HashMap<>();

@@ -53,7 +53,7 @@ public class InitializeFightersAndEvents {
     @EventListener(ApplicationReadyEvent.class)
     public void initializeAll()  {
         User user = User.builder()
-                .email("jht2512@naver.com")
+                .email("jht1234@naver.com")
                 .password(bCryptPasswordEncoder.encode("pwd123"))
                 .nickname("진현택")
                 .role("ROLE_USER")
