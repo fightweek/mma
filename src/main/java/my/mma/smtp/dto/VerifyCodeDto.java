@@ -18,7 +18,11 @@ public class VerifyCodeDto {
 
     @NotBlank
     @Size(min = 6,max = 6)
-    @JsonProperty("verify_code")
+    @JsonProperty("verifyingCode")
     private String code;
+
+    private String nickname;
+
+    private String password;
 
 }

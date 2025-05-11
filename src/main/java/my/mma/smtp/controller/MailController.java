@@ -14,15 +14,15 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/mail")
+@RequestMapping("/smtp")
 public class MailController {
 
     private final MailService mailService;
 
     @PostMapping("/send_join_code")
     public ResponseEntity<String> sendJoinCode(
-            @RequestBody Map<String,String> emailTo
-    ){
+            @RequestBody Map<String, String> emailTo
+    ) {
         mailService.sendJoinCode(emailTo);
         return ResponseEntity.status(HttpStatus.OK).body("sent");
     }
@@ -30,8 +30,9 @@ public class MailController {
     @PostMapping("/verify_code")
     public ResponseEntity<String> verifyCode(
             @RequestBody VerifyCodeDto verifyCodeDto
-            ){
-        if(mailService.verifyCode(verifyCodeDto))
+    ) {
+        System.out.println(verifyCodeDto.getCode());
+        if (mailService.verifyCode(verifyCodeDto))
             return ResponseEntity.status(HttpStatus.OK).body("verified");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("verify failed");
     }

@@ -8,8 +8,10 @@ import my.mma.security.repository.UserRepository;
 import my.mma.smtp.dto.VerifyCodeDto;
 import my.mma.smtp.entity.JoinCode;
 import my.mma.smtp.repository.JoinCodeRepository;
+import my.mma.user.entity.User;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,14 +27,15 @@ public class MailService {
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
     private final JoinCodeRepository joinCodeRepository;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
     public void sendJoinCode(
-            Map<String,String> emailTo
-    ){
+            Map<String, String> emailTo
+    ) {
         String email = emailTo.get("emailTo");
-        log.info("email = {}",email);
-        if(userRepository.findByEmailAndUsernameIsNull(email).isPresent()){
+        log.info("email = {}", email);
+        if (userRepository.findByEmailAndUsernameIsNull(email).isPresent()) {
             throw new CustomException(CustomErrorCode.DUPLICATED_EMAIL_400);
         }
         String joinCode = generateRandomNumber();
@@ -48,20 +51,29 @@ public class MailService {
                 .build());
     }
 
-    private String generateRandomNumber(){
+    private String generateRandomNumber() {
         StringBuilder sb = new StringBuilder();
         Random random = new Random();
-        for(int i=0;i<6;i++)
+        for (int i = 0; i < 6; i++)
             sb.append(random.nextInt(10));
         return sb.toString();
     }
 
-    public boolean verifyCode(VerifyCodeDto verifyCodeDto){
-        JoinCode joinCode = joinCodeRepository.findByEmail(verifyCodeDto.getEmail()).orElseThrow(
+    @Transactional
+    public boolean verifyCode(VerifyCodeDto verifyCodeDto) {
+        JoinCode joinCode = joinCodeRepository.findById(verifyCodeDto.getEmail()).orElseThrow(
                 () -> new CustomException(CustomErrorCode.NO_SUCH_EMAIL_CONFIGURED_500)
         );
-        if(joinCode.getCode().equals(verifyCodeDto.getCode())){
+        if (joinCode.getCode().equals(verifyCodeDto.getCode())) {
             joinCodeRepository.delete(joinCode);
+            userRepository.save(
+                    User.builder()
+                            .role("ROLE_USER")
+                            .email(verifyCodeDto.getEmail())
+                            .password(bCryptPasswordEncoder.encode(verifyCodeDto.getPassword()))
+                            .nickname(verifyCodeDto.getNickname())
+                            .build()
+            );
             return true;
         }
         return false;

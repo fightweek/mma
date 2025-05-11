@@ -5,6 +5,5 @@ import org.springframework.data.repository.CrudRepository;
 
 import java.util.Optional;
 
-public interface JoinCodeRepository extends CrudRepository<JoinCode,Long> {
-    Optional<JoinCode> findByEmail(String email);
+public interface JoinCodeRepository extends CrudRepository<JoinCode,String> {
 }

@@ -24,17 +24,17 @@ public class UserService {
     public UserDto getMe(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization").split(" ")[1];
         String email = jwtUtil.extractEmail(accessToken);
-        User user;
-        if (jwtUtil.extractIsSocial(accessToken)) {
-            String domain = jwtUtil.extractDomain(accessToken);
-            user = userRepository.findByEmailAndUsernameStartingWith(email, domain).orElseThrow(
-                    () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_500)
-            );
-        } else {
-            user = userRepository.findByEmailAndUsernameIsNull(email).orElseThrow(
-                    () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_500)
-            );
-        }
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.SERVER_ERROR));
+//        if (jwtUtil.extractIsSocial(accessToken)) {
+//            String domain = jwtUtil.extractDomain(accessToken);
+//            user = userRepository.findByEmailAndUsernameStartingWith(email, domain).orElseThrow(
+//                    () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_500)
+//            );
+//        } else {
+//            user = userRepository.findByEmailAndUsernameIsNull(email).orElseThrow(
+//                    () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_500)
+//            );
+//        }
         return UserDto.toDto(user);
     }
 

@@ -27,7 +27,6 @@ public class OAuth2Controller {
     private final OAuth2Service oAuth2Service;
 
     // application.yml 또는 application.properties에 넣어둔 값 주입
-    @Transactional
     @PostMapping("/social_login")
     public ResponseEntity<TokenResponse> requestNaverToken(
             @RequestBody TokenVerifyRequest request
