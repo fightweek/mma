@@ -84,7 +84,8 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(registry ->
                 registry.requestMatchers("/", "/login", "/join", "/reissue",
-                                "/mail/verify_code", "/mail/send_join_code", "/auth/social_login"
+                                "/mail/verify_code", "/mail/send_join_code", "/auth/social_login",
+                                "/smtp/**"
                         ).permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());

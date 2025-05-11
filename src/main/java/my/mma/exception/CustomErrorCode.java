@@ -17,7 +17,10 @@ public enum CustomErrorCode {
     NO_SUCH_USER_CONFIGURED_400("해당 회원 찾지 못함", BAD_REQUEST),
     NO_SUCH_USER_CONFIGURED_500("해당 회원 찾지 못함", INTERNAL_SERVER_ERROR),
     NO_SUCH_EMAIL_CONFIGURED_500("이메일 계정 찾지 못함",INTERNAL_SERVER_ERROR),
+    // 회원가입할 때
     DUPLICATED_EMAIL_400("중복된 이메일 계정",BAD_REQUEST),
+    // 로그인 시도할 때
+    DUPLICATED_EMAIL_403("중복된 이메일 계정", FORBIDDEN),
     DUPLICATED_NICKNAME_400("중복된 닉네임",BAD_REQUEST),
     DUPLICATED_PASSWORD_400("중복된 비밀 번호",BAD_REQUEST),
     //authentication, authorization
