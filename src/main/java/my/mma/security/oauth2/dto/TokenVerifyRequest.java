@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import my.mma.user.entity.User;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @Builder
@@ -16,14 +18,13 @@ public class TokenVerifyRequest {
     private String email;
     @JsonProperty("socialId")
     private String providedSocialId;
-    private String nickname;
 
     public User toEntity(){
         return User.builder()
                 .role("ROLE_USER")
                 .email(email)
+//                .nickname("guest_"+UUID.randomUUID())
                 .username(domain+"_"+providedSocialId)
-                .nickname(nickname)
                 .build();
     }
 

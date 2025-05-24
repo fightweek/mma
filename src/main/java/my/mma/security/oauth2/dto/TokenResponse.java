@@ -12,7 +12,7 @@ public class TokenResponse {
     private String accessToken;
     private String refreshToken;
 
-    public static TokenResponse toDto(String accessToken, String refreshToken){
+    public static TokenResponse toDto(String accessToken, String refreshToken, boolean isCreated){
         return TokenResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)

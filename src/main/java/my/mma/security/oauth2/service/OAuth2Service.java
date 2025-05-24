@@ -51,9 +51,11 @@ public class OAuth2Service {
             if (user.getUsername() == null || !user.getUsername().startsWith(request.getDomain()))
                 throw new CustomException(CustomErrorCode.DUPLICATED_EMAIL_403);
         }
-        if (userRepository.findByUsername(request.getDomain() + "_" + request.getProvidedSocialId()).isEmpty())
+        if (userRepository.findByUsername(request.getDomain() + "_" + request.getProvidedSocialId()).isEmpty()) {
             userRepository.save(request.toEntity());
-        return TokenResponse.toDto(access, refresh);
+            return TokenResponse.toDto(access, refresh, true);
+        }
+        return TokenResponse.toDto(access, refresh, false);
     }
 
     private void addRefreshEntity(String email, String refresh, Long expiredMs) {
