@@ -5,26 +5,30 @@ import my.mma.smtp.dto.VerifyCodeDto;
 import my.mma.smtp.service.MailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/smtp")
-public class MailController {
+public class SmtpController {
 
     private final MailService mailService;
 
+    @GetMapping("/check_dup_nickname")
+    public ResponseEntity<Boolean> checkDuplicatedNickname(@RequestBody Map<String,String> nickname){
+        return ResponseEntity.ok(mailService.checkDuplicatedNickname(nickname.get("nickname")));
+    }
+
     @PostMapping("/send_join_code")
-    public ResponseEntity<String> sendJoinCode(
+    public ResponseEntity<Boolean> sendJoinCode(
             @RequestBody Map<String, String> emailTo
     ) {
-        mailService.sendJoinCode(emailTo);
-        return ResponseEntity.status(HttpStatus.OK).body("sent");
+        if(mailService.sendJoinCode(emailTo)){
+            return ResponseEntity.ok().body(true);
+        }
+        return ResponseEntity.ok().body(false);
     }
 
     @PostMapping("/verify_code")

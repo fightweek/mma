@@ -29,26 +29,32 @@ public class MailService {
     private final JoinCodeRepository joinCodeRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    public boolean checkDuplicatedNickname(String nickname){
+        System.out.println(nickname);
+        return userRepository.findByNickname(nickname).isPresent();
+    }
+
     @Transactional
-    public void sendJoinCode(
+    public boolean sendJoinCode(
             Map<String, String> emailTo
     ) {
         String email = emailTo.get("emailTo");
         log.info("email = {}", email);
-        if (userRepository.findByEmailAndUsernameIsNull(email).isPresent()) {
-            throw new CustomException(CustomErrorCode.DUPLICATED_EMAIL_400);
+        if (userRepository.findByEmailAndUsernameIsNull(email).isEmpty()) {
+            String joinCode = generateRandomNumber();
+            SimpleMailMessage smm = new SimpleMailMessage();
+            smm.setTo(email);
+            smm.setSubject("fightapp 회원가입 인증 코드");
+            smm.setText(joinCode);
+            mailSender.send(smm);
+            joinCodeRepository.save(JoinCode.builder()
+                    .email(email)
+                    .code(joinCode)
+                    .expiration(300)
+                    .build());
+            return true;
         }
-        String joinCode = generateRandomNumber();
-        SimpleMailMessage smm = new SimpleMailMessage();
-        smm.setTo(email);
-        smm.setSubject("fightapp 회원가입 인증 코드");
-        smm.setText(joinCode);
-        mailSender.send(smm);
-        joinCodeRepository.save(JoinCode.builder()
-                .email(email)
-                .code(joinCode)
-                .expiration(300)
-                .build());
+        return false;
     }
 
     private String generateRandomNumber() {
