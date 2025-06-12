@@ -1,17 +1,17 @@
 package my.mma;
 
 import lombok.extern.slf4j.Slf4j;
-import my.mma.event.dto.BasicCrawlerDto;
+import my.mma.admin.dto.BasicCrawlerDto;
 import my.mma.event.entity.FightEvent;
 import my.mma.event.entity.FighterFightEvent;
 import my.mma.event.repository.FightEventRepository;
-import my.mma.event.service.EventService;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
-import my.mma.user.entity.User;
 import my.mma.security.repository.UserRepository;
+import my.mma.user.entity.User;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.MediaType;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,14 +26,13 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class InitializeFightersAndEvents {
 
-    private final EventService eventService;
     private final WebClient webClient;
     private final FighterRepository fighterRepository;
     private final FightEventRepository fightEventRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public InitializeFightersAndEvents(EventService eventService, FighterRepository fighterRepository,
+    public InitializeFightersAndEvents(FighterRepository fighterRepository,
                                        FightEventRepository fightEventRepository, UserRepository userRepository,
                                        BCryptPasswordEncoder bCryptPasswordEncoder) {
         String pythonURI = "http://localhost:5000";
@@ -41,7 +40,6 @@ public class InitializeFightersAndEvents {
         log.info("Python Server URI: {}", pythonURI);
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userRepository = userRepository;
-        this.eventService = eventService;
         this.fighterRepository = fighterRepository;
         this.fightEventRepository  = fightEventRepository;
         this.webClient = WebClient.builder()
@@ -59,12 +57,12 @@ public class InitializeFightersAndEvents {
                 .role("ROLE_USER")
                 .build();
         userRepository.save(user);
-//        Mono<BasicCrawlerDto> responseMono = webClient.get()
-//                .uri("/ufc/prev_events")
-//                .accept(MediaType.APPLICATION_JSON)
-//                .retrieve()
-//                .bodyToMono(BasicCrawlerDto.class);
-//        saveFighterAndEvent(responseMono, true);
+        Mono<BasicCrawlerDto> responseMono = webClient.get()
+                .uri("/ufc/prev_events")
+                .accept(MediaType.APPLICATION_JSON)
+                .retrieve()
+                .bodyToMono(BasicCrawlerDto.class);
+        saveFighterAndEvent(responseMono, true);
     }
 
     private void saveFighterAndEvent(Mono<BasicCrawlerDto> responseMono, boolean isCompleted) {
