@@ -1,4 +1,4 @@
-package my.mma.event.dto;
+package my.mma.admin.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;

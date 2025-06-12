@@ -27,7 +27,9 @@ public enum CustomErrorCode {
     JWT_TOKEN_EXPIRED("토큰 기간 만료",UNAUTHORIZED),
     UNSUPPORTED_JWT("잘못된 토큰",UNAUTHORIZED),
     SERVER_ERROR("서버 에러", INTERNAL_SERVER_ERROR),
-    SOCIAL_TOKEN_VERIFY_FAILED("소셜 로그인 토큰 검증 실패",BAD_REQUEST);
+    SOCIAL_TOKEN_VERIFY_FAILED("소셜 로그인 토큰 검증 실패",BAD_REQUEST),
+    // event
+    NO_SUCH_EVENT_FOUND_400("이벤트 찾지 못함",BAD_REQUEST);
 
     private final String errorMessage;
     private final HttpStatus status;

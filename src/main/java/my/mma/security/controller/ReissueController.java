@@ -36,9 +36,11 @@ public class ReissueController {
 
     // refresh 토큰을 통해 access 토큰이 만료되었을 때 새로운 access 및 refresh 토큰 재발급
     @PostMapping("")
-    public ResponseEntity<?> reissue_refresh(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> reissue_refresh(HttpServletRequest request) {
+        System.out.println("==========reissue controller start============");
         String refresh = request.getHeader("Refresh");
         if(refresh == null){
+            System.out.println("refresh token is null");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("refresh token is null");
         }
         jwtUtil.validateToken(refresh);
@@ -55,6 +57,7 @@ public class ReissueController {
 
 
         String email = jwtUtil.extractEmail(refresh);
+        System.out.println("email = " + email);
         String role = jwtUtil.extractRole(refresh);
         String domain = jwtUtil.extractDomain(refresh);
         boolean isSocial = jwtUtil.extractIsSocial(refresh);

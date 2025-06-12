@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class VerifyCodeDto {
+public class VerifyCodeRequest {
 
     @NotBlank
     @Size(min = 5, max = 20)
