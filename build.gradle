@@ -32,6 +32,10 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
+	implementation platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.2.0")
+	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
+	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.261'
+
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '3.0.5'
 	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.11.0'

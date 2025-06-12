@@ -1,7 +1,7 @@
 package my.mma.smtp.controller;
 
 import lombok.RequiredArgsConstructor;
-import my.mma.smtp.dto.VerifyCodeDto;
+import my.mma.smtp.dto.VerifyCodeRequest;
 import my.mma.smtp.service.MailService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,10 +33,10 @@ public class SmtpController {
 
     @PostMapping("/verify_code")
     public ResponseEntity<String> verifyCode(
-            @RequestBody VerifyCodeDto verifyCodeDto
+            @RequestBody VerifyCodeRequest verifyCodeRequest
     ) {
-        System.out.println(verifyCodeDto.getCode());
-        if (mailService.verifyCode(verifyCodeDto))
+        System.out.println(verifyCodeRequest.getCode());
+        if (mailService.verifyCode(verifyCodeRequest))
             return ResponseEntity.status(HttpStatus.OK).body("verified");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("verify failed");
     }
