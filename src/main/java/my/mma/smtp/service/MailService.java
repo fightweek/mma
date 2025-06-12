@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
 import my.mma.security.repository.UserRepository;
-import my.mma.smtp.dto.VerifyCodeDto;
+import my.mma.smtp.dto.VerifyCodeRequest;
 import my.mma.smtp.entity.JoinCode;
 import my.mma.smtp.repository.JoinCodeRepository;
 import my.mma.user.entity.User;
@@ -40,7 +40,7 @@ public class MailService {
     ) {
         String email = emailTo.get("emailTo");
         log.info("email = {}", email);
-        if (userRepository.findByEmailAndUsernameIsNull(email).isEmpty()) {
+        if (userRepository.findByEmail(email).isEmpty()) {
             String joinCode = generateRandomNumber();
             SimpleMailMessage smm = new SimpleMailMessage();
             smm.setTo(email);
@@ -66,7 +66,7 @@ public class MailService {
     }
 
     @Transactional
-    public boolean verifyCode(VerifyCodeDto verifyCodeDto) {
+    public boolean verifyCode(VerifyCodeRequest verifyCodeDto) {
         JoinCode joinCode = joinCodeRepository.findById(verifyCodeDto.getEmail()).orElseThrow(
                 () -> new CustomException(CustomErrorCode.NO_SUCH_EMAIL_CONFIGURED_500)
         );
