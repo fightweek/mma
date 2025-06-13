@@ -43,6 +43,8 @@ public class Fighter extends BaseEntity{
 
     private String status;
 
+    private int reach;
+
     public static Division get_division(String weight) {
         int parsedWeight = Integer.parseInt(weight);
         return switch (parsedWeight) {
