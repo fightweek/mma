@@ -20,7 +20,6 @@ public class FightEvent extends BaseEntity {
     @Column(name = "fight_event_id")
     private Long id;
 
-    @Column(unique = true)
     private LocalDate eventDate;
 
     private String eventLocation;
