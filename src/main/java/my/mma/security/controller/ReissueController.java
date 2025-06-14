@@ -52,7 +52,8 @@ public class ReissueController {
         }
         boolean isExist = refreshRepository.existsById(refresh);
         if (!isExist) {
-            return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
+            System.out.println("refresh is not existing in db");
+            return new ResponseEntity<>("refresh token is not existing in db", HttpStatus.BAD_REQUEST);
         }
 
 
@@ -77,7 +78,7 @@ public class ReissueController {
         //response
         HashMap<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", newAccess);
-        tokens.put("refreshToken", refresh);
+        tokens.put("refreshToken", newRefresh);
         return ResponseEntity.ok().body(tokens);
     }
 

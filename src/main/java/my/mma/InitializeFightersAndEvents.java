@@ -109,6 +109,13 @@ public class InitializeFightersAndEvents {
             for (Object arr : events) {
                 JSONObject eventObj = (JSONObject) arr;
                 JSONArray cards = (JSONArray) eventObj.get("cards");
+                FightEvent fightEvent = FightEvent.builder()
+                        .eventName(eventObj.get("event_name").toString())
+                        .eventDate(LocalDate.parse(eventObj.get("event_date").toString(),
+                                DateTimeFormatter.ofPattern("MMMM dd, yyyy", Locale.ENGLISH)))
+                        .eventLocation(eventObj.get("location").toString())
+                        .completed(true)
+                        .build();
                 List<FighterFightEvent> fighterFightEvents = new ArrayList<>();
                 for (Object arr2 : cards) {
                     JSONObject cardObj = (JSONObject) arr2;
@@ -138,15 +145,8 @@ public class InitializeFightersAndEvents {
                                     .round(Integer.parseInt(cardObj.get("round").toString()))
                                     .build())
                             .build();
-                    fighterFightEvents.add(fighterFightEvent);
+                    fighterFightEvent.addFightEvent(fightEvent);
                 }
-                FightEvent fightEvent = FightEvent.builder()
-                        .eventName(eventObj.get("event_name").toString())
-                        .eventDate(LocalDate.parse(eventObj.get("event_date").toString(),
-                                DateTimeFormatter.ofPattern("MMMM dd, yyyy", Locale.ENGLISH)))
-                        .completed(true)
-                        .fighterFightEvents(fighterFightEvents)
-                        .build();
                 fightEventRepository.save(fightEvent);
             }
         } catch (Exception e) {
