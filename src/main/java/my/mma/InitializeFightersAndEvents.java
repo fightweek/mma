@@ -1,7 +1,6 @@
 package my.mma;
 
 import lombok.extern.slf4j.Slf4j;
-import my.mma.admin.dto.BasicCrawlerDto;
 import my.mma.event.entity.FightEvent;
 import my.mma.event.entity.FightResult;
 import my.mma.event.entity.FighterFightEvent;
@@ -22,7 +21,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import reactor.core.publisher.Mono;
 
 import java.io.FileReader;
 import java.time.LocalDate;
@@ -31,7 +29,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 
 @Slf4j
 @Component
@@ -60,6 +57,7 @@ public class InitializeFightersAndEvents {
                 .password(bCryptPasswordEncoder.encode("pwd123"))
                 .nickname("진현택")
                 .role("ROLE_USER")
+                .point(0)
                 .build();
         userRepository.save(user);
         readJsonFile();
@@ -78,12 +76,14 @@ public class InitializeFightersAndEvents {
      * },
      */
     private void readJsonFile() {
+        // 3-66
         JSONParser parser = new JSONParser();
         try {
             FileReader reader = new FileReader("E:\\etc\\ufc_data.json");
             JSONObject jsonObj = (JSONObject) parser.parse(reader);
             JSONArray fighters = (JSONArray) jsonObj.get("fighters");
             JSONArray events = (JSONArray) jsonObj.get("events");
+            int i = 0, j = 0;
             for (Object arr : fighters) {
                 JSONObject fighterObj = (JSONObject) arr;
                 String record = fighterObj.get("record").toString();
@@ -95,7 +95,7 @@ public class InitializeFightersAndEvents {
                         .height(!fighterObj.get("height").toString().contains("-") ? fighterObj.get("height").toString() : null)
                         .reach(!fighterObj.get("reach").toString().contains("-") ? Integer.parseInt(fighterObj.get("reach").toString()) : 0)
                         .weight(!weight.contains("-") ? weight : null)
-                        .division(!weight.contains("-") ? Fighter.get_division(weight) : null)
+//                        .division(!weight.contains("-") ? Fighter.get_division(weight) : null)
                         .birthday(!fighterObj.get("birthday").toString().contains("-") ? LocalDate.parse(fighterObj.get("birthday").toString(),
                                 DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH)) : null)
                         .fightRecord(FightRecord.builder()
@@ -105,6 +105,9 @@ public class InitializeFightersAndEvents {
                                 .build())
                         .build();
                 fighterRepository.save(fighter);
+                i++;
+//                if (i == 66)
+//                    break;
             }
             for (Object arr : events) {
                 JSONObject eventObj = (JSONObject) arr;
@@ -122,6 +125,7 @@ public class InitializeFightersAndEvents {
                     String winnerName = cardObj.get("winner").toString();
                     String loserName = cardObj.get("loser").toString();
                     String method = cardObj.get("method").toString();
+                    String[] timeParts = cardObj.get("fight_time").toString().split(":");
                     Fighter winner = fighterRepository.findByName(winnerName).orElseThrow(
                             () -> new RuntimeException("No such fighter found " + winnerName)
                     );
@@ -133,21 +137,22 @@ public class InitializeFightersAndEvents {
                             .loser(loser)
                             .fightWeight(cardObj.get("fight_weight").toString())
                             .fightResult(FightResult.builder()
-                                    .winnerName(winnerName)
-                                    .loserName(loserName)
                                     .winMethod(
                                             method.contains("DEC") ? WinMethod.valueOf(method) :
                                                     (method.contains("SUB") ? WinMethod.SUB :
                                                             (method.contains("KO") ? WinMethod.KO_TKO : WinMethod.ELSE))
                                     )
                                     .winDescription(method)
-                                    .fightEndTime(LocalTime.parse(cardObj.get("fight_time").toString(), DateTimeFormatter.ofPattern("H:mm")))
+                                    .endTime(LocalTime.of(0, Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1])))
                                     .round(Integer.parseInt(cardObj.get("round").toString()))
                                     .build())
                             .build();
                     fighterFightEvent.addFightEvent(fightEvent);
                 }
                 fightEventRepository.save(fightEvent);
+                j++;
+//                if (j == 3)
+//                    break;
             }
         } catch (Exception e) {
             log.error("error=", e);
