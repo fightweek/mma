@@ -32,11 +32,11 @@ public class EventService {
                     FightEventDto fightEventDto = FightEventDto.toDto(fightEvent);
                     fightEventDto.getFighterFightEvents().forEach(
                             fighterFightEventDto -> {
-                                fighterFightEventDto.setWinnerImgPresignedUrl(s3Service.generateGetObjectPreSignedUrl(
-                                        "headshot/" + fighterFightEventDto.getWinnerName().replace(' ', '-') + ".png")
+                                fighterFightEventDto.getWinner().setImgPresignedUrl(s3Service.generateGetObjectPreSignedUrl(
+                                        "headshot/" + fighterFightEventDto.getWinner().getName().replace(' ', '-') + ".png")
                                 );
-                                fighterFightEventDto.setLoserImgPresignedUrl(s3Service.generateGetObjectPreSignedUrl(
-                                        "headshot/" + fighterFightEventDto.getLoserName().replace(' ', '-') + ".png")
+                                fighterFightEventDto.getLoser().setImgPresignedUrl(s3Service.generateGetObjectPreSignedUrl(
+                                        "headshot/" + fighterFightEventDto.getLoser().getName().replace(' ', '-') + ".png")
                                 );
                             }
                     );
@@ -46,5 +46,3 @@ public class EventService {
     }
 
 }
-
-

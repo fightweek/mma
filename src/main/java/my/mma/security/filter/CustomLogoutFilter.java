@@ -1,5 +1,6 @@
 package my.mma.security.filter;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -32,30 +33,35 @@ public class CustomLogoutFilter extends GenericFilterBean {
     @Transactional
     public void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         String requestURI = request.getRequestURI();
-        if(!requestURI.matches("^\\/auth/logout$")){
-            filterChain.doFilter(request,response);
+        if (!requestURI.matches("^\\/auth/logout$")) {
+            filterChain.doFilter(request, response);
             return;
         }
-        if(!request.getMethod().equals("POST")){
-            filterChain.doFilter(request,response);
+        if (!request.getMethod().equals("POST")) {
+            filterChain.doFilter(request, response);
             return;
         }
 
         String refresh = request.getHeader("Refresh");
-        if(refresh == null){
-            handleException(response,"refreshToken is null",HttpServletResponse.SC_UNAUTHORIZED);
+        if (refresh == null) {
+            handleException(response, "refreshToken is null", HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 
         // 토큰이 refresh인지 확인 (발급시 페이로드에 명시)
-        String category = jwtUtil.extractCategory(refresh);
+        String category = null;
+        try {
+            category = jwtUtil.extractCategory(refresh);
+        } catch (ExpiredJwtException e) {
+            handleException(response, "refresh token is expired", HttpServletResponse.SC_FORBIDDEN);
+        }
         if (!category.equals("refresh")) {
-            handleException(response,"refresh category is not matched",HttpServletResponse.SC_UNAUTHORIZED);
+            handleException(response, "refresh category is not matched", HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
         boolean isExist = refreshRepository.existsById(refresh);
         if (!isExist) {
-            handleException(response,"refresh is not existing in DB",HttpServletResponse.SC_UNAUTHORIZED);
+            handleException(response, "refresh is not existing in DB", HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
         //로그아웃 진행
