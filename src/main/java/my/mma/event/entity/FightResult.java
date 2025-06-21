@@ -15,10 +15,6 @@ import java.time.LocalTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FightResult {
 
-    private String winnerName;
-
-    private String loserName;
-
     @Enumerated(EnumType.STRING)
     private WinMethod winMethod;
 
@@ -26,6 +22,6 @@ public class FightResult {
 
     private int round;
 
-    private LocalTime fightEndTime;
+    private LocalTime endTime;
 
 }

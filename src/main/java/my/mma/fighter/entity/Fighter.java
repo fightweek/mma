@@ -24,8 +24,8 @@ public class Fighter extends BaseEntity{
 
     private String weight;
 
-    @Enumerated(EnumType.STRING)
-    private Division division;
+//    @Enumerated(EnumType.STRING)
+//    private Division division;
 
     @Embedded
     private FightRecord fightRecord;
@@ -45,20 +45,20 @@ public class Fighter extends BaseEntity{
 
     private int reach;
 
-    public static Division get_division(String weight) {
-        int parsedWeight = Integer.parseInt(weight);
-        return switch (parsedWeight) {
-            case 115 -> Division.STRAWWEIGHT;
-            case 125 -> Division.FLYWEIGHT;
-            case 135 -> Division.BANTAMWEIGHT;
-            case 145 -> Division.FEATHERWEIGHT;
-            case 155 -> Division.LIGHTWEIGHT;
-            case 170 -> Division.WELTERWEIGHT;
-            case 185 -> Division.MIDDLEWEIGHT;
-            case 205 -> Division.LIGHTHEAVYWEIGHT;
-            default -> Division.HEAVYWEIGHT;
-        };
-    }
+//    public static Division get_division(String weight) {
+//        int parsedWeight = Integer.parseInt(weight);
+//        return switch (parsedWeight) {
+//            case 115 -> Division.STRAWWEIGHT.getDescription();
+//            case 125 -> Division.FLYWEIGHT;
+//            case 135 -> Division.BANTAMWEIGHT;
+//            case 145 -> Division.FEATHERWEIGHT;
+//            case 155 -> Division.LIGHTWEIGHT;
+//            case 170 -> Division.WELTERWEIGHT;
+//            case 185 -> Division.MIDDLEWEIGHT;
+//            case 205 -> Division.LIGHTHEAVYWEIGHT;
+//            default -> Division.HEAVYWEIGHT;
+//        };
+//    }
 
     public void updateFightRecord(String[] newFightRecord){
         this.fightRecord = FightRecord.toFightRecord(newFightRecord);

@@ -27,6 +27,8 @@ public class User {
 
     private String role;
 
+    private int point;
+
     public void updateEmail(String email){
         this.email = email;
     }
