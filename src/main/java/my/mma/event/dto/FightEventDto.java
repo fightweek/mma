@@ -2,6 +2,9 @@ package my.mma.event.dto;
 
 import lombok.*;
 import my.mma.event.entity.FightEvent;
+import my.mma.event.entity.FightResult;
+import my.mma.event.entity.FighterFightEvent;
+import my.mma.fighter.dto.FighterDto;
 import my.mma.fighter.entity.FightRecord;
 
 import java.time.LocalDate;
@@ -11,7 +14,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 public class FightEventDto {
 
@@ -32,13 +35,7 @@ public class FightEventDto {
                 .location(fightEvent.getEventLocation())
                 .name(fightEvent.getEventName())
                 .fighterFightEvents(fightEvent.getFighterFightEvents().stream().map(
-                        fighterFightEvent -> FighterFightEventDto.builder()
-                                .fightWeight(fighterFightEvent.getFightWeight())
-                                .winnerName(fighterFightEvent.getWinner().getName())
-                                .winnerRecord(fighterFightEvent.getWinner().getFightRecord())
-                                .loserName(fighterFightEvent.getLoser().getName())
-                                .loserRecord(fighterFightEvent.getLoser().getFightRecord())
-                                .build()
+                        FighterFightEventDto::toDto
                 ).collect(Collectors.toList()))
                 .build();
     }
@@ -46,23 +43,25 @@ public class FightEventDto {
     @Getter
     @Setter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    @AllArgsConstructor
+    @AllArgsConstructor(access = AccessLevel.PROTECTED)
     @Builder
     public static class FighterFightEventDto {
 
+        private String eventName;
         private String fightWeight;
+        private FighterDto winner;
+        private FighterDto loser;
+        private FightResult result;
 
-        private String winnerName;
-
-        private FightRecord winnerRecord;
-
-        private String loserName;
-
-        private FightRecord loserRecord;
-
-        private String winnerImgPresignedUrl;
-
-        private String loserImgPresignedUrl;
+        public static FighterFightEventDto toDto(FighterFightEvent fighterFightEvent) {
+            return FighterFightEventDto.builder()
+                    .eventName(fighterFightEvent.getFightEvent().getEventName())
+                    .fightWeight(fighterFightEvent.getFightWeight())
+                    .result(fighterFightEvent.getFightResult())
+                    .winner(FighterDto.toDto(fighterFightEvent.getWinner()))
+                    .loser(FighterDto.toDto(fighterFightEvent.getLoser()))
+                    .build();
+        }
 
     }
 

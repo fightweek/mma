@@ -49,7 +49,7 @@ public class BasicCrawlerDto {
             String[] split_record = record.split("-");
             return Fighter.builder()
                     .weight(this.weight)
-                    .division(Fighter.get_division(this.weight))
+//                    .division(Fighter.get_division(this.weight))
                     .height(this.height)
                     .name(this.getFighterName())
                     .fightRecord(
@@ -115,15 +115,13 @@ public class BasicCrawlerDto {
 
             public FightResult buildFightResult() {
                 return FightResult.builder()
-                        .winnerName(this.winnerName)
-                        .loserName(this.loserName)
                         .winMethod(
                                 method.contains("DEC") ? WinMethod.valueOf(this.method) :
                                         (method.contains("SUB") ? WinMethod.SUB :
                                                 (method.contains("KO") ? WinMethod.KO_TKO : WinMethod.ELSE))
                         )
                         .winDescription(this.method)
-                        .fightEndTime(LocalTime.parse(this.fightTime, DateTimeFormatter.ofPattern("H:mm")))
+                        .endTime(LocalTime.parse(this.fightTime, DateTimeFormatter.ofPattern("H:mm")))
                         .round(Integer.parseInt(this.round))
                         .build();
             }
