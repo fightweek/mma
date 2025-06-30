@@ -35,9 +35,8 @@ public class FighterFightEvent extends BaseEntity {
     @Embedded
     private FightResult fightResult;
 
-    public void addFightEvent(FightEvent fightEvent){
+    protected void addFightEvent(FightEvent fightEvent){
         this.fightEvent = fightEvent;
-        fightEvent.getFighterFightEvents().add(this);
     }
 
     public void updateFighterFightEvent(FightResult fightResult){

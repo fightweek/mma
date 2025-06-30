@@ -24,7 +24,7 @@ public class FightEvent extends BaseEntity {
 
     private String eventLocation;
 
-    private String eventName;
+    private String name;
 
     private boolean completed; // true : 지난 / false : 차후
 
@@ -35,9 +35,9 @@ public class FightEvent extends BaseEntity {
     @Builder.Default
     private List<FighterFightEvent> fighterFightEvents = new ArrayList<>();
 
-//    public void addFighterFightEvent(FighterFightEvent fighterFightEvent){
-//        fighterFightEvent.addFightEvent(this);
-//        this.fighterFightEvents.add(fighterFightEvent);
-//    }
+    public void addFighterFightEvent(FighterFightEvent fighterFightEvent){
+        fighterFightEvent.addFightEvent(this);
+        this.fighterFightEvents.add(fighterFightEvent);
+    }
 
 }

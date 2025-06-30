@@ -1,8 +1,8 @@
-package my.mma.admin.controller;
+package my.mma.admin.event.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import my.mma.admin.service.AdminEventService;
+import my.mma.admin.event.service.AdminEventService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,11 +17,10 @@ public class AdminEventController {
 
     private final AdminEventService eventService;
 
-    // 이 함수는 1~2주 간격으로 호출
-    @PostMapping("/upcoming")
-    public ResponseEntity<?> saveUpcomingEvent(){
-        eventService.saveUpcomingEvent();
-        return ResponseEntity.status(HttpStatus.CREATED).body("saved");
+    @PostMapping("/save_upcoming")
+    public ResponseEntity<Void> saveUpcomingEvents(){
+        eventService.saveUpcomingEvents();
+        return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
 
 }

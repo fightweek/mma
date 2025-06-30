@@ -10,13 +10,12 @@ import my.mma.security.entity.Refresh;
 import my.mma.security.oauth2.dto.TokenVerifyRequest;
 import my.mma.security.oauth2.dto.TokenResponse;
 import my.mma.security.repository.RefreshRepository;
-import my.mma.security.repository.UserRepository;
+import my.mma.user.repository.UserRepository;
 import my.mma.user.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.html.Option;
 import java.util.Optional;
 
 @Service
@@ -43,6 +42,7 @@ public class OAuth2Service {
         String refresh = jwtUtil.createJwt(JwtCrateDto.toDto(
                 "refresh", request.getEmail(), "ROLE_USER", refreshExpireMs, request.getDomain(), true
         ));
+        System.out.println("refresh = " + refresh +", expireMs = "+refreshExpireMs);
         addRefreshEntity(request.getEmail(), refresh, refreshExpireMs);
         // (소셜 로그인 시도) 중복 이메일 & (다른 소셜 플랫폼 or 일반 로그인 계정) -> 로그인 안 되도록 설정, 프론트는 알림 문구 띄움
         Optional<User> userOpt = userRepository.findByEmail(request.getEmail());

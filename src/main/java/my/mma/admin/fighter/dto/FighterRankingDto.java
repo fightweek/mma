@@ -1,4 +1,4 @@
-package my.mma.fighter.dto;
+package my.mma.admin.fighter.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;

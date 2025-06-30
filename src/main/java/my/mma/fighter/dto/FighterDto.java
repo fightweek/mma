@@ -15,16 +15,19 @@ public class FighterDto {
 
     private Long id;
     private String name;
+    private String nickname;
     private Integer ranking;
     private FightRecord record;
     private String weight;
     private String imgPresignedUrl;
+    private String height;
 
     public static FighterDto toDto(Fighter fighter){
         return FighterDto.builder()
                 .id(fighter.getId())
                 .name(fighter.getName())
                 .ranking(fighter.getRanking())
+                .nickname(fighter.getNickname())
                 .record(fighter.getFightRecord())
                 .weight(fighter.getWeight())
                 .build();
