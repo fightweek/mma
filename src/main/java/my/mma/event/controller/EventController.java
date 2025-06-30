@@ -24,7 +24,6 @@ import java.util.Map;
 public class EventController {
 
     private final EventService eventService;
-    private final S3Service s3Service;
 
     @GetMapping("/schedule")
     public ResponseEntity<FightEventDto> getSchedule(
@@ -32,17 +31,6 @@ public class EventController {
     ) {
         System.out.println("date = " + date);
         return ResponseEntity.ok().body(eventService.getSchedule(date));
-    }
-
-    @GetMapping("/presignedUrl")
-    public ResponseEntity<Map<String,String>> getFighterPresignedUrl(
-            @RequestParam("name") String name
-    ){
-        String preSignedUrl = s3Service.generateGetObjectPreSignedUrl(
-                "headshot/" + name.replace(' ', '-') + ".png");
-        Map<String, String> map = new HashMap<>();
-        map.put("url",preSignedUrl);
-        return ResponseEntity.ok().body(map);
     }
 
 }

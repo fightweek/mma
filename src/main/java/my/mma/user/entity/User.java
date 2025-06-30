@@ -2,6 +2,7 @@ package my.mma.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import my.mma.fighter.entity.BaseEntity;
 
 @Table(name = "users")
 @Builder
@@ -9,7 +10,7 @@ import lombok.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

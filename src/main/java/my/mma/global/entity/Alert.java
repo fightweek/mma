@@ -11,7 +11,7 @@ import my.mma.user.entity.User;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-@Table(uniqueConstraints = {
+@Table(name = "alerts", uniqueConstraints = {
         @UniqueConstraint(name = "user_target_unique",columnNames = {"user_id","target_type","target_id"})
 })
 @Entity

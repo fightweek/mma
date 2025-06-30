@@ -5,6 +5,8 @@ import lombok.*;
 import my.mma.fighter.entity.BaseEntity;
 import my.mma.user.entity.User;
 
+import static jakarta.persistence.FetchType.LAZY;
+
 @Entity
 @Getter
 @AllArgsConstructor
@@ -17,11 +19,11 @@ public class FightEventReply extends BaseEntity {
     @Column(name = "fight_event_reply_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "fight_event_id")
     private FightEvent fightEvent;
 
-    @ManyToOne
+    @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

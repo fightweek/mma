@@ -5,7 +5,6 @@ import my.mma.event.entity.FightEvent;
 import my.mma.event.entity.FightResult;
 import my.mma.event.entity.FighterFightEvent;
 import my.mma.fighter.dto.FighterDto;
-import my.mma.fighter.entity.FightRecord;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,12 +27,15 @@ public class FightEventDto {
 
     private List<FighterFightEventDto> fighterFightEvents;
 
+    private boolean upcoming;
+
     public static FightEventDto toDto(FightEvent fightEvent) {
         return FightEventDto.builder()
                 .id(fightEvent.getId())
                 .date(fightEvent.getEventDate())
                 .location(fightEvent.getEventLocation())
-                .name(fightEvent.getEventName())
+                .name(fightEvent.getName())
+                .upcoming(!fightEvent.isCompleted())
                 .fighterFightEvents(fightEvent.getFighterFightEvents().stream().map(
                         FighterFightEventDto::toDto
                 ).collect(Collectors.toList()))
@@ -55,7 +57,7 @@ public class FightEventDto {
 
         public static FighterFightEventDto toDto(FighterFightEvent fighterFightEvent) {
             return FighterFightEventDto.builder()
-                    .eventName(fighterFightEvent.getFightEvent().getEventName())
+                    .eventName(fighterFightEvent.getFightEvent().getName())
                     .fightWeight(fighterFightEvent.getFightWeight())
                     .result(fighterFightEvent.getFightResult())
                     .winner(FighterDto.toDto(fighterFightEvent.getWinner()))
