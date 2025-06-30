@@ -3,7 +3,7 @@ package my.mma.security.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.user.entity.User;
-import my.mma.security.repository.UserRepository;
+import my.mma.user.repository.UserRepository;
 import my.mma.security.oauth2.dto.JoinDto;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

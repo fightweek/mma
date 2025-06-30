@@ -1,4 +1,4 @@
-package my.mma.admin.dto;
+package my.mma.admin.event.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -19,7 +19,7 @@ import java.util.Locale;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BasicCrawlerDto {
+public class CrawlerDto {
 
     private List<FighterCrawlerDto> fighters;
 
@@ -103,16 +103,6 @@ public class BasicCrawlerDto {
             @JsonProperty("fight_time")
             private String fightTime;
 
-            public FighterFightEvent toEntityPrevEvent(Fighter winner, Fighter loser){
-                return FighterFightEvent.builder()
-                        .winner(winner)
-                        .loser(loser)
-                        .fightWeight(this.fightWeight)
-                        .fightResult(
-                                buildFightResult()
-                        ).build();
-            }
-
             public FightResult buildFightResult() {
                 return FightResult.builder()
                         .winMethod(
@@ -126,7 +116,7 @@ public class BasicCrawlerDto {
                         .build();
             }
 
-            public FighterFightEvent toEntityUpcomingEvent(Fighter winner, Fighter loser){
+            public FighterFightEvent toEntity(Fighter winner, Fighter loser){
                 return FighterFightEvent.builder()
                         .winner(winner)
                         .loser(loser)
@@ -137,12 +127,12 @@ public class BasicCrawlerDto {
 
         }
 
-        public FightEvent toEntityPrevEvent(){
+        public FightEvent toEntity(){
             return FightEvent.builder()
-                    .completed(true)
+//                    .completed(true)
                     .eventLocation(location)
                     .eventDate(LocalDate.parse(this.eventDate,DateTimeFormatter.ofPattern("MMMM dd, yyyy", Locale.ENGLISH)))
-                    .eventName(this.eventName)
+                    .name(this.eventName)
                     .build();
         }
 
@@ -151,7 +141,7 @@ public class BasicCrawlerDto {
                     .completed(false)
                     .eventLocation(location)
                     .eventDate(LocalDate.parse(this.eventDate,DateTimeFormatter.ofPattern("MMMM dd, yyyy", Locale.ENGLISH)))
-                    .eventName(eventName)
+                    .name(eventName)
                     .build();
         }
 

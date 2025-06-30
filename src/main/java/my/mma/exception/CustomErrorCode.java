@@ -29,7 +29,8 @@ public enum CustomErrorCode {
     SERVER_ERROR("서버 에러", INTERNAL_SERVER_ERROR),
     SOCIAL_TOKEN_VERIFY_FAILED("소셜 로그인 토큰 검증 실패",BAD_REQUEST),
     // event
-    NO_SUCH_EVENT_FOUND_400("이벤트 찾지 못함",BAD_REQUEST);
+    NO_SUCH_EVENT_FOUND_400("이벤트 찾지 못함",BAD_REQUEST),
+    BAD_REQUEST_400("잘못된 요청",BAD_REQUEST);
 
     private final String errorMessage;
     private final HttpStatus status;

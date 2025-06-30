@@ -18,5 +18,5 @@ public interface FightEventRepository extends JpaRepository<FightEvent, Long> {
     })
     Optional<FightEvent> findByEventDate(LocalDate date);
 
-    Optional<FightEvent> findByEventName(String eventName);
+    Optional<FightEvent> findByName(String eventName);
 }

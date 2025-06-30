@@ -70,6 +70,7 @@ public class ReissueController {
         String newRefresh = jwtUtil.createJwt(JwtCrateDto.toDto(
                 "refresh",email,role,accessExpireMs,domain,isSocial
         ));
+        System.out.println("newRefresh = " + newRefresh);
 
         // refresh rotate (기존 refresh 토큰 삭제, 새로운 refresh 토큰 생성 및 DB에 저장 => 로그인 지속 시간 증가)
         refreshRepository.deleteById(refresh);
@@ -79,6 +80,7 @@ public class ReissueController {
         HashMap<String, String> tokens = new HashMap<>();
         tokens.put("accessToken", newAccess);
         tokens.put("refreshToken", newRefresh);
+        System.out.println("===reissue succeed");
         return ResponseEntity.ok().body(tokens);
     }
 
