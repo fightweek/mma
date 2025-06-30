@@ -3,6 +3,8 @@ package my.mma.news.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import static jakarta.persistence.FetchType.LAZY;
+
 @Entity
 @Getter
 @AllArgsConstructor
@@ -15,8 +17,15 @@ public class ImageFile {
     @Column(name = "image_file_id")
     private Long id;
 
-    private String uploadFileName;
-
     private String storeFileName;
+
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "news_id")
+    private News news;
+
+    public void addNews(News news) {
+        this.news = news;
+        news.getImageFiles().add(this);
+    }
 
 }

@@ -11,7 +11,7 @@ import my.mma.exception.CustomException;
 import my.mma.fighter.entity.FightRecord;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
-import my.mma.security.repository.UserRepository;
+import my.mma.user.repository.UserRepository;
 import my.mma.user.entity.User;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -56,7 +56,7 @@ public class InitializeFightersAndEvents {
                 .email("jht1234@naver.com")
                 .password(bCryptPasswordEncoder.encode("pwd123"))
                 .nickname("진현택")
-                .role("ROLE_USER")
+                .role("ROLE_ADMIN")
                 .point(0)
                 .build();
         userRepository.save(user);
@@ -113,7 +113,7 @@ public class InitializeFightersAndEvents {
                 JSONObject eventObj = (JSONObject) arr;
                 JSONArray cards = (JSONArray) eventObj.get("cards");
                 FightEvent fightEvent = FightEvent.builder()
-                        .eventName(eventObj.get("event_name").toString())
+                        .name(eventObj.get("event_name").toString())
                         .eventDate(LocalDate.parse(eventObj.get("event_date").toString(),
                                 DateTimeFormatter.ofPattern("MMMM dd, yyyy", Locale.ENGLISH)))
                         .eventLocation(eventObj.get("location").toString())
@@ -147,7 +147,7 @@ public class InitializeFightersAndEvents {
                                     .round(Integer.parseInt(cardObj.get("round").toString()))
                                     .build())
                             .build();
-                    fighterFightEvent.addFightEvent(fightEvent);
+                    fightEvent.addFighterFightEvent(fighterFightEvent);
                 }
                 fightEventRepository.save(fightEvent);
                 j++;

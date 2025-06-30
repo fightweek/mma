@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import my.mma.security.CustomUserDetails;
 import my.mma.user.entity.User;
 import my.mma.security.oauth2.dto.TempUserDto;
-import my.mma.security.repository.UserRepository;
+import my.mma.user.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

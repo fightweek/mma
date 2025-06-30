@@ -18,20 +18,20 @@ public class News {
     @Column(name = "news_id")
     private Long id;
 
-    @Enumerated(EnumType.STRING)
-    private NewsSource source;
+    private String source;
 
     private String title;
 
+    @Lob
     private String content;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "image_file_id")
-    private ImageFile imageFile;
+    @OneToMany(mappedBy = "news",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<ImageFile> imageFiles = new ArrayList<>();
 
     private int likes;
 
     @OneToMany(mappedBy = "news",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NewsReply> newsReplies = new ArrayList<>();
+
 
 }

@@ -1,4 +1,4 @@
-package my.mma.security.repository;
+package my.mma.user.repository;
 
 import my.mma.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;

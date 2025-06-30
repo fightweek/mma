@@ -2,7 +2,7 @@ package my.mma.security.oauth2.service;
 
 import lombok.extern.slf4j.Slf4j;
 import my.mma.user.entity.User;
-import my.mma.security.repository.UserRepository;
+import my.mma.user.repository.UserRepository;
 import my.mma.security.oauth2.CustomOAuth2User;
 import my.mma.security.oauth2.dto.GoogleResponse;
 import my.mma.security.oauth2.dto.NaverResponse;
@@ -12,7 +12,6 @@ import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserServ
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;

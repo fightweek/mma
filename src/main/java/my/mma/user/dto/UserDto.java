@@ -16,11 +16,14 @@ public class UserDto {
 
     private String email;
 
+    private String role;
+
     public static UserDto toDto(User user){
         return UserDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
+                .role(user.getRole())
                 .build();
     }
 

@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
-import my.mma.security.repository.UserRepository;
+import my.mma.user.repository.UserRepository;
 import my.mma.smtp.dto.VerifyCodeRequest;
 import my.mma.smtp.entity.JoinCode;
 import my.mma.smtp.repository.JoinCodeRepository;
@@ -28,11 +28,6 @@ public class MailService {
     private final UserRepository userRepository;
     private final JoinCodeRepository joinCodeRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    public boolean checkDuplicatedNickname(String nickname){
-        System.out.println(nickname);
-        return userRepository.findByNickname(nickname).isPresent();
-    }
 
     @Transactional
     public boolean sendJoinCode(
