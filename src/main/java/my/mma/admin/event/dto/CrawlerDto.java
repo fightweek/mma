@@ -32,8 +32,7 @@ public class CrawlerDto {
     @Builder
     public static class FighterCrawlerDto{
 
-        @JsonProperty("name")
-        private String fighterName;
+        private String name;
 
         private String record;
 
@@ -43,6 +42,8 @@ public class CrawlerDto {
 
         private String nickname;
 
+        private String reach;
+
         private String birthday;
 
         public Fighter toEntity(){
@@ -51,7 +52,7 @@ public class CrawlerDto {
                     .weight(this.weight)
 //                    .division(Fighter.get_division(this.weight))
                     .height(this.height)
-                    .name(this.getFighterName())
+                    .name(this.getName())
                     .fightRecord(
                             FightRecord.builder()
                                     .win(Integer.parseInt(split_record[0]))
@@ -60,6 +61,7 @@ public class CrawlerDto {
                                     .build()
                     )
                     .nickname(this.getNickname())
+                    .reach(Integer.parseInt(this.reach))
                     .birthday(LocalDate.parse(this.birthday,DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH)))
                     .build();
         }
