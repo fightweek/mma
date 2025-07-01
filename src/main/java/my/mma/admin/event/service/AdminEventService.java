@@ -1,5 +1,6 @@
 package my.mma.admin.event.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.admin.event.dto.CrawlerDto;
 import my.mma.admin.event.dto.CrawlerDto.EventCrawlerDto;
@@ -8,11 +9,9 @@ import my.mma.event.entity.FighterFightEvent;
 import my.mma.event.repository.FightEventRepository;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
@@ -21,53 +20,37 @@ import static my.mma.fighter.entity.FightRecord.toFightRecord;
 @Service
 @Slf4j
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class AdminEventService {
 
     private final FighterRepository fighterRepository;
     private final FightEventRepository fightEventRepository;
-    private final WebClient webClient;
-
-    public AdminEventService(FighterRepository fighterRepository, FightEventRepository fightEventRepository) {
-        this.fighterRepository = fighterRepository;
-        this.fightEventRepository = fightEventRepository;
-        this.webClient = WebClient.builder()
-                .baseUrl("http://localhost:5000")
-                .build();
-    }
+    private final RestTemplate restTemplate;
 
     /**
      * 차후 경기들 및 해당 경기에 참여하는 파이터 정보 모두 반환
      */
     @Transactional
     public void saveUpcomingEvents() {
-        fetchEventData("/ufc/upcoming_event")
-                .flatMap(this::processFetchedEventData)
-                .block(); // subscribe -> webflux based async processing / block -> sync processing
+        processFetchedEventData(fetchEventData("http://localhost:5000/ufc/upcoming_event"));
     }
 
-    private Mono<CrawlerDto> fetchEventData(String path) {
-        return webClient.get()
-                .uri(path)
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .bodyToMono(CrawlerDto.class);
+    private CrawlerDto fetchEventData(String path) {
+        return restTemplate.getForObject(path, CrawlerDto.class);
     }
 
-    private Mono<Void> processFetchedEventData(CrawlerDto dto) {
+    private void processFetchedEventData(CrawlerDto dto) {
         // DB에 존재하는 upcoming Events
-        List<FightEvent> existingUpcomingEvents = fightEventRepository.findAllByCompleted(false);
+        List<FightEvent> existingUpcomingEvents = fightEventRepository.findAllByCompletedWithFighterFightEvents(false);
         //
         List<FightEvent> crawledEvents = dto.getEvents().stream()
                 .map(EventCrawlerDto::toEntity)
                 .toList();
-
-        return Mono.fromRunnable(() -> {
-            saveOrUpdateFighters(dto.getFighters());
-            // upcoming -> past 상태가 된 이벤트를 업데이트
-            markPastEvents(existingUpcomingEvents, crawledEvents);
-            // 기존 db에 없던 새로 생긴 upcoming event 삽입
-            saveNewUpcomingEvents(dto.getEvents(), existingUpcomingEvents);
-        });
+        saveOrUpdateFighters(dto.getFighters());
+        // upcoming -> past 상태가 된 이벤트를 업데이트
+        markPastEvents(existingUpcomingEvents, crawledEvents);
+        // 기존 db에 없던 새로 생긴 upcoming event 삽입
+        saveNewUpcomingEvents(dto.getEvents(), existingUpcomingEvents);
     }
 
     private void markPastEvents(List<FightEvent> existing, List<FightEvent> current) {
@@ -81,21 +64,18 @@ public class AdminEventService {
     }
 
     private void markEventAsCompleted(String eventName) {
-        fetchEventData("/ufc/prev_event?eventName=" + eventName)
-                .flatMap(dto -> updateFighterAndEventFromCompletedDto(dto, eventName))
-                .subscribe();
+        updateFighterAndEventFromCompletedDto(
+                fetchEventData("http://localhost:5000/ufc/prev_event?eventName=" + eventName),eventName);
     }
 
-    private Mono<Void> updateFighterAndEventFromCompletedDto(CrawlerDto dto, String eventName) {
-        return Mono.fromRunnable(() -> {
-            updateFightersRecord(dto.getFighters());
-            updateCompletedFightEvent(dto.getEvents(), eventName);
-        });
+    private void updateFighterAndEventFromCompletedDto(CrawlerDto dto, String eventName) {
+        updateFightersRecord(dto.getFighters());
+        updateCompletedFightEvent(dto.getEvents(), eventName);
     }
 
     private void updateFightersRecord(List<CrawlerDto.FighterCrawlerDto> fighters) {
         for (CrawlerDto.FighterCrawlerDto dto : fighters) {
-            fighterRepository.findByName(dto.getFighterName()).ifPresent(fighter ->
+            fighterRepository.findByName(dto.getName()).ifPresent(fighter ->
                     fighter.updateFightRecord(dto.getRecord().split("-")));
         }
     }
@@ -118,7 +98,7 @@ public class AdminEventService {
 
     private void saveOrUpdateFighters(List<CrawlerDto.FighterCrawlerDto> fighterDtos) {
         for (CrawlerDto.FighterCrawlerDto dto : fighterDtos) {
-            fighterRepository.findByName(dto.getFighterName()).ifPresentOrElse(
+            fighterRepository.findByName(dto.getName()).ifPresentOrElse(
                     existing -> {
                         if (!existing.getFightRecord().equals(toFightRecord(dto.getRecord().split("-")))) {
                             existing.updateFightRecord(dto.getRecord().split("-"));
@@ -138,13 +118,13 @@ public class AdminEventService {
                     .filter((existing) -> existing.getEventDate().equals(newEvent.getEventDate()))
                     .findFirst()
                     .orElse(null);
-            if(existingEvent == null){
-                saveUpcomingEvents(dto,newEvent);
-            }else{
+            if (existingEvent == null) {
+                saveUpcomingEvents(dto, newEvent);
+            } else {
                 boolean isChanged = isEventContentDifferent(dto, existingEvent, newEvent);
-                if(isChanged){
+                if (isChanged) {
                     fightEventRepository.delete(existingEvent);
-                    saveUpcomingEvents(dto,newEvent);
+                    saveUpcomingEvents(dto, newEvent);
                 }
             }
         }
@@ -158,7 +138,7 @@ public class AdminEventService {
                             .orElseThrow(() -> new RuntimeException("No such fighter: " + card.getWinnerName()));
                     Fighter loser = fighterRepository.findByName(card.getLoserName())
                             .orElseThrow(() -> new RuntimeException("No such fighter: " + card.getLoserName()));
-                    newEvent.addFighterFightEvent(card.toEntity(winner,loser));
+                    newEvent.addFighterFightEvent(card.toEntity(winner, loser));
                 }
         );
         List<FighterFightEvent> freshCards = newEvent.getFighterFightEvents();

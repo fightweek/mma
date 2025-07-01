@@ -106,7 +106,7 @@ public class InitializeFightersAndEvents {
                         .build();
                 fighterRepository.save(fighter);
                 i++;
-//                if (i == 66)
+//                if (i == 72)
 //                    break;
             }
             for (Object arr : events) {
