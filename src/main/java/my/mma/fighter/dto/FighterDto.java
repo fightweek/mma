@@ -19,8 +19,7 @@ public class FighterDto {
     private Integer ranking;
     private FightRecord record;
     private String weight;
-    private String imgPresignedUrl;
-    private String height;
+    private String headshotUrl;
 
     public static FighterDto toDto(Fighter fighter){
         return FighterDto.builder()

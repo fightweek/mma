@@ -36,6 +36,9 @@ public class MailService {
         String email = emailTo.get("emailTo");
         log.info("email = {}", email);
         if (userRepository.findByEmail(email).isEmpty()) {
+//            if(joinCodeRepository.findById(email).isPresent()){
+//                joinCodeRepository.deleteById(email);
+//            }
             String joinCode = generateRandomNumber();
             SimpleMailMessage smm = new SimpleMailMessage();
             smm.setTo(email);
@@ -69,6 +72,7 @@ public class MailService {
             joinCodeRepository.delete(joinCode);
             userRepository.save(
                     User.builder()
+                            .point(0)
                             .role("ROLE_USER")
                             .email(verifyCodeDto.getEmail())
                             .password(bCryptPasswordEncoder.encode(verifyCodeDto.getPassword()))

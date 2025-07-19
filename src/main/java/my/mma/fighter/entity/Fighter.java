@@ -20,7 +20,7 @@ public class Fighter extends BaseEntity{
 
     private String nickname;
 
-    private String height;
+    private int height;
 
     private String weight;
 

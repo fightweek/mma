@@ -46,7 +46,7 @@ public class S3Service {
 
         PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(builder -> builder
                 .getObjectRequest(aclRequest)
-                .signatureDuration(Duration.ofMinutes(10)));
+                .signatureDuration(Duration.ofHours(1)));
 
         return presignedRequest.url().toString();
     }
