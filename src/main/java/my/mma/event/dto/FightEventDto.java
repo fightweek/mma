@@ -1,8 +1,8 @@
 package my.mma.event.dto;
 
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import my.mma.event.entity.FightEvent;
-import my.mma.event.entity.FightResult;
 import my.mma.event.entity.FighterFightEvent;
 import my.mma.fighter.dto.FighterDto;
 
@@ -10,6 +10,10 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 크롤링 시 사용되지 않음 (admin의 실시간 이벤트 및 주기적인 upcoming, previous event update용 CrawlerDto와 무관)
+ * 오직 클라이언트와 이벤트 정보 송수신 시 사용되는 dto
+ */
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,6 +24,18 @@ public class FightEventDto {
     private Long id;
 
     private LocalDate date;
+
+    private CardStartDateTimeInfoDto mainCardDateTimeInfo;
+
+    private CardStartDateTimeInfoDto prelimCardDateTimeInfo;
+
+    private CardStartDateTimeInfoDto earlyCardDateTimeInfo;
+
+    private Integer mainCardCnt;
+
+    private Integer prelimCardCnt;
+
+    private Integer earlyCardCnt;
 
     private String location;
 
@@ -33,7 +49,16 @@ public class FightEventDto {
         return FightEventDto.builder()
                 .id(fightEvent.getId())
                 .date(fightEvent.getEventDate())
-                .location(fightEvent.getEventLocation())
+                .mainCardDateTimeInfo(fightEvent.getMainCardDateTimeInfo() != null ?
+                        CardStartDateTimeInfoDto.toDto(fightEvent.getMainCardDateTimeInfo()) : null)
+                .prelimCardDateTimeInfo(fightEvent.getPrelimCardDateTimeInfo() != null ?
+                        CardStartDateTimeInfoDto.toDto(fightEvent.getPrelimCardDateTimeInfo()) : null)
+                .earlyCardDateTimeInfo(fightEvent.getEarlyCardDateTimeInfo() != null ?
+                        CardStartDateTimeInfoDto.toDto(fightEvent.getEarlyCardDateTimeInfo()) : null)
+                .mainCardCnt(fightEvent.getMainCardCnt())
+                .prelimCardCnt(fightEvent.getPrelimCardCnt())
+                .earlyCardCnt(fightEvent.getEarlyCardCnt())
+                .location(fightEvent.getLocation())
                 .name(fightEvent.getName())
                 .upcoming(!fightEvent.isCompleted())
                 .fighterFightEvents(fightEvent.getFighterFightEvents().stream().map(
@@ -46,20 +71,18 @@ public class FightEventDto {
     @Setter
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @AllArgsConstructor(access = AccessLevel.PROTECTED)
-    @Builder
-    public static class FighterFightEventDto {
+    @SuperBuilder
+    public static class FighterFightEventDto extends IFighterFightEvent<FighterDto>{
 
         private String eventName;
-        private String fightWeight;
-        private FighterDto winner;
-        private FighterDto loser;
-        private FightResult result;
+        private LocalDate eventDate;
 
         public static FighterFightEventDto toDto(FighterFightEvent fighterFightEvent) {
             return FighterFightEventDto.builder()
                     .eventName(fighterFightEvent.getFightEvent().getName())
+                    .eventDate(fighterFightEvent.getFightEvent().getEventDate())
                     .fightWeight(fighterFightEvent.getFightWeight())
-                    .result(fighterFightEvent.getFightResult())
+                    .result(fighterFightEvent.getFightResult() != null ? FightResultDto.toDto(fighterFightEvent.getFightResult()) : null)
                     .winner(FighterDto.toDto(fighterFightEvent.getWinner()))
                     .loser(FighterDto.toDto(fighterFightEvent.getLoser()))
                     .build();

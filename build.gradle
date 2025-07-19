@@ -37,6 +37,7 @@ dependencies {
 	implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
 	implementation 'com.amazonaws:aws-java-sdk-s3:1.12.767'
 
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-mail', version: '3.0.5'
 	implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.11.0'

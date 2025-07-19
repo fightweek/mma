@@ -3,6 +3,7 @@ package my.mma.event.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.event.dto.FightEventDto;
+import my.mma.event.dto.StreamFightEventDto;
 import my.mma.event.service.EventService;
 import my.mma.global.s3.service.S3Service;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,10 +28,18 @@ public class EventController {
 
     @GetMapping("/schedule")
     public ResponseEntity<FightEventDto> getSchedule(
-            @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+            @RequestParam(name = "date",required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(name = "name",required = false) String name
     ) {
         System.out.println("date = " + date);
-        return ResponseEntity.ok().body(eventService.getSchedule(date));
+        return ResponseEntity.ok().body(eventService.getSchedule(date,name));
+    }
+
+    // stream room 진입 시 최초 1회만 호출 (이후에는 socket을 통한 n분 주기의 broadcast 응답)
+    @GetMapping("/stream")
+    public ResponseEntity<StreamFightEventDto> stream(
+    ){
+        return ResponseEntity.ok().body(eventService.stream());
     }
 
 }

@@ -22,5 +22,24 @@ public interface FightEventRepository extends JpaRepository<FightEvent, Long> {
     })
     Optional<FightEvent> findByEventDate(LocalDate date);
 
+    @EntityGraph(attributePaths = {
+            "fighterFightEvents",
+            "fighterFightEvents.winner",
+            "fighterFightEvents.loser"
+    })
     Optional<FightEvent> findByName(String eventName);
+    @EntityGraph(attributePaths = {
+            "fighterFightEvents",
+            "fighterFightEvents.winner",
+            "fighterFightEvents.loser"
+    })
+    Optional<FightEvent> findByNameOrderByFighterFightEventsAsc(String eventName);
+
+    @EntityGraph(attributePaths = {
+            "fighterFightEvents",
+            "fighterFightEvents.winner",
+            "fighterFightEvents.loser"
+    })
+    Optional<FightEvent> findFirstByCompletedIsFalseOrderByEventDateAsc();
+
 }

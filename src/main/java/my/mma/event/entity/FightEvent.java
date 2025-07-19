@@ -2,6 +2,7 @@ package my.mma.event.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import my.mma.event.entity.property.CardStartDateTimeInfo;
 import my.mma.fighter.entity.BaseEntity;
 
 import java.time.LocalDate;
@@ -22,7 +23,31 @@ public class FightEvent extends BaseEntity {
 
     private LocalDate eventDate;
 
-    private String eventLocation;
+    @AttributeOverrides({
+            @AttributeOverride(name = "date",column = @Column(name = "main_card_date")),
+            @AttributeOverride(name = "time",column = @Column(name = "main_card_time")),
+    })
+    private CardStartDateTimeInfo mainCardDateTimeInfo;
+
+    @AttributeOverrides({
+            @AttributeOverride(name = "date",column = @Column(name = "prelim_card_date")),
+            @AttributeOverride(name = "time",column = @Column(name = "prelim_card_time")),
+    })
+    private CardStartDateTimeInfo prelimCardDateTimeInfo;
+
+    @AttributeOverrides({
+            @AttributeOverride(name = "date",column = @Column(name = "early_card_date")),
+            @AttributeOverride(name = "time",column = @Column(name = "early_card_time")),
+    })
+    private CardStartDateTimeInfo earlyCardDateTimeInfo;
+
+    private Integer mainCardCnt;
+
+    private Integer prelimCardCnt;
+
+    private Integer earlyCardCnt;
+
+    private String location;
 
     private String name;
 
@@ -38,6 +63,10 @@ public class FightEvent extends BaseEntity {
     public void addFighterFightEvent(FighterFightEvent fighterFightEvent){
         fighterFightEvent.addFightEvent(this);
         this.fighterFightEvents.add(fighterFightEvent);
+    }
+
+    public void updateFightEventToCompleted(){
+        this.completed = true;
     }
 
 }

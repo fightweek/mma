@@ -14,7 +14,7 @@ import java.util.List;
 @ToString
 public class FighterDetailDto extends FighterDto{
 
-    private String height;
+    private int height;
     private LocalDate birthday;
     private int reach;
     private String nation;
@@ -22,7 +22,7 @@ public class FighterDetailDto extends FighterDto{
     private boolean alert;
     private List<FighterFightEventDto> fighterFightEvents;
 
-    public static FighterDetailDto toDto(Fighter fighter, List<FighterFightEventDto> fighterFightEvents, String imgPresignedUrl, boolean like, boolean alert) {
+    public static FighterDetailDto toDto(Fighter fighter, List<FighterFightEventDto> fighterFightEvents, String headshotUrl, boolean like, boolean alert) {
         FighterDetailDto detailDto = FighterDetailDto.builder()
                 .id(fighter.getId())
                 .name(fighter.getName())
@@ -34,12 +34,12 @@ public class FighterDetailDto extends FighterDto{
                 .reach(fighter.getReach())
                 .nation(null)
                 .fighterFightEvents(fighterFightEvents)
-                .imgPresignedUrl(imgPresignedUrl)
+                .headshotUrl(headshotUrl)
                 .like(like)
                 .alert(alert)
                 .build();
         System.out.println("detailDto = " + detailDto);
-        System.out.println("detailDto.getImgPresignedUrl() = " + detailDto.getImgPresignedUrl());
+        System.out.println("detailDto.getHeadshotUrl() = " + detailDto.getHeadshotUrl());
         return detailDto;
     }
 
