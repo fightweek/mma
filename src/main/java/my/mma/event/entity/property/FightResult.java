@@ -1,4 +1,4 @@
-package my.mma.event.entity;
+package my.mma.event.entity.property;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;

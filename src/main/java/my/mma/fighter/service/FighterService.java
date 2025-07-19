@@ -59,15 +59,15 @@ public class FighterService {
         if (fighterFightEventDtos != null)
             fighterFightEventDtos.forEach(
                     ffe -> {
-                        ffe.getWinner().setImgPresignedUrl(s3Service.generateGetObjectPreSignedUrl(
+                        ffe.getWinner().setHeadshotUrl(s3Service.generateGetObjectPreSignedUrl(
                                 "headshot/" + ffe.getWinner().getName().replace(' ', '-') + ".png"));
-                        ffe.getLoser().setImgPresignedUrl(s3Service.generateGetObjectPreSignedUrl(
+                        ffe.getLoser().setHeadshotUrl(s3Service.generateGetObjectPreSignedUrl(
                                 "headshot/" + ffe.getLoser().getName().replace(' ', '-') + ".png"));
                     }
             );
-        String imgPreingedUrl = s3Service.generateGetObjectPreSignedUrl(
+        String headshotUrl = s3Service.generateGetObjectPreSignedUrl(
                 "headshot/" + fighter.getName().replace(' ', '-') + ".png");
-        return FighterDetailDto.toDto(fighter, fighterFightEventDtos, imgPreingedUrl, isLikeExists, isAlertExists);
+        return FighterDetailDto.toDto(fighter, fighterFightEventDtos, headshotUrl, isLikeExists, isAlertExists);
     }
 
     @Transactional
@@ -109,7 +109,7 @@ public class FighterService {
                 page -> page.map(
                         f -> {
                             FighterDto fighter = FighterDto.toDto(f);
-                            fighter.setImgPresignedUrl(s3Service.generateGetObjectPreSignedUrl(
+                            fighter.setHeadshotUrl(s3Service.generateGetObjectPreSignedUrl(
                                     "headshot/" + fighter.getName().replace(' ', '-') + ".png"));
                             return fighter;
                         }
