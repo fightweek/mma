@@ -1,16 +1,19 @@
 package my.mma;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import my.mma.event.dto.StreamFightEventDto;
 import my.mma.event.entity.FightEvent;
-import my.mma.event.entity.FightResult;
+import my.mma.event.entity.property.FightResult;
 import my.mma.event.entity.FighterFightEvent;
-import my.mma.event.entity.WinMethod;
+import my.mma.event.entity.property.WinMethod;
 import my.mma.event.repository.FightEventRepository;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
 import my.mma.fighter.entity.FightRecord;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
+import my.mma.global.redis.utils.RedisUtils;
 import my.mma.user.repository.UserRepository;
 import my.mma.user.entity.User;
 import org.json.simple.JSONArray;
@@ -33,21 +36,13 @@ import java.util.Locale;
 @Slf4j
 @Component
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class InitializeFightersAndEvents {
 
     private final FighterRepository fighterRepository;
     private final FightEventRepository fightEventRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-
-    public InitializeFightersAndEvents(FighterRepository fighterRepository,
-                                       FightEventRepository fightEventRepository, UserRepository userRepository,
-                                       BCryptPasswordEncoder bCryptPasswordEncoder) {
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.userRepository = userRepository;
-        this.fighterRepository = fighterRepository;
-        this.fightEventRepository = fightEventRepository;
-    }
 
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
@@ -92,8 +87,10 @@ public class InitializeFightersAndEvents {
                 Fighter fighter = Fighter.builder()
                         .name(fighterObj.get("name").toString())
                         .nickname(fighterObj.get("nickname") != null ? fighterObj.get("nickname").toString() : null)
-                        .height(!fighterObj.get("height").toString().contains("-") ? fighterObj.get("height").toString() : null)
-                        .reach(!fighterObj.get("reach").toString().contains("-") ? Integer.parseInt(fighterObj.get("reach").toString()) : 0)
+                        .height(!fighterObj.get("height").toString().contains("-") ?
+                                toCentimeter(fighterObj.get("height").toString()) : 0)
+                        .reach(!fighterObj.get("reach").toString().contains("-") ?
+                                (int) (Integer.parseInt(fighterObj.get("reach").toString()) * 2.54 + 0.5) : 0)
                         .weight(!weight.contains("-") ? weight : null)
 //                        .division(!weight.contains("-") ? Fighter.get_division(weight) : null)
                         .birthday(!fighterObj.get("birthday").toString().contains("-") ? LocalDate.parse(fighterObj.get("birthday").toString(),
@@ -106,8 +103,8 @@ public class InitializeFightersAndEvents {
                         .build();
                 fighterRepository.save(fighter);
                 i++;
-//                if (i == 72)
-//                    break;
+                if (i == 72)
+                    break;
             }
             for (Object arr : events) {
                 JSONObject eventObj = (JSONObject) arr;
@@ -116,10 +113,9 @@ public class InitializeFightersAndEvents {
                         .name(eventObj.get("event_name").toString())
                         .eventDate(LocalDate.parse(eventObj.get("event_date").toString(),
                                 DateTimeFormatter.ofPattern("MMMM dd, yyyy", Locale.ENGLISH)))
-                        .eventLocation(eventObj.get("location").toString())
+                        .location(eventObj.get("location").toString())
                         .completed(true)
                         .build();
-                List<FighterFightEvent> fighterFightEvents = new ArrayList<>();
                 for (Object arr2 : cards) {
                     JSONObject cardObj = (JSONObject) arr2;
                     String winnerName = cardObj.get("winner").toString();
@@ -140,9 +136,9 @@ public class InitializeFightersAndEvents {
                                     .winMethod(
                                             method.contains("DEC") ? WinMethod.valueOf(method) :
                                                     (method.contains("SUB") ? WinMethod.SUB :
-                                                            (method.contains("KO") ? WinMethod.KO_TKO : WinMethod.ELSE))
+                                                            (method.contains("KO") ? WinMethod.KO_TKO : WinMethod.NC))
                                     )
-                                    .winDescription(method)
+                                    .winDescription(method.contains("SUB") ? method.split("_")[1] : null)
                                     .endTime(LocalTime.of(0, Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1])))
                                     .round(Integer.parseInt(cardObj.get("round").toString()))
                                     .build())
@@ -151,13 +147,20 @@ public class InitializeFightersAndEvents {
                 }
                 fightEventRepository.save(fightEvent);
                 j++;
-//                if (j == 3)
-//                    break;
+                if (j == 3)
+                    break;
             }
         } catch (Exception e) {
             log.error("error=", e);
             throw new CustomException(CustomErrorCode.SERVER_ERROR);
         }
+    }
+
+    public int toCentimeter(String footInch) {
+        String[] split = footInch.split("'\\s*");
+        if (split.length != 2)
+            return 0;
+        return (int) ((Integer.parseInt(split[0]) * 12 + Integer.parseInt(split[1])) * 2.54 + 0.5);
     }
 
 }

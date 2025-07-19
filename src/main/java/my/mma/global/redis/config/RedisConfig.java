@@ -1,11 +1,18 @@
 package my.mma.global.redis.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.RequiredArgsConstructor;
+import my.mma.event.dto.StreamFightEventDto;
+import my.mma.global.redis.utils.RedisUtils;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
@@ -43,6 +50,29 @@ public class RedisConfig {
         redisTemplate.setHashValueSerializer(new StringRedisSerializer());
         // 기본적 직렬화 수행
         redisTemplate.setDefaultSerializer(new StringRedisSerializer());
+        return redisTemplate;
+    }
+
+    @Bean
+    public RedisUtils<StreamFightEventDto> streamFightEventRedisUtils(
+            @Qualifier("streamFightEventRedisTemplate") RedisTemplate<String, StreamFightEventDto> redisTemplate) {
+        return new RedisUtils<>(redisTemplate);
+    }
+
+    @Bean
+    public RedisTemplate<String, StreamFightEventDto> streamFightEventRedisTemplate()
+    {
+        RedisTemplate<String, StreamFightEventDto> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(redisConnectionFactory());
+        redisTemplate.setKeySerializer(new StringRedisSerializer());
+        ObjectMapper objectMapper= new ObjectMapper();
+        objectMapper.activateDefaultTyping(
+                objectMapper.getPolymorphicTypeValidator(),
+                ObjectMapper.DefaultTyping.NON_FINAL
+        );
+        objectMapper.registerModule(new JavaTimeModule());
+        Jackson2JsonRedisSerializer<StreamFightEventDto> serializer = new Jackson2JsonRedisSerializer<>(objectMapper,StreamFightEventDto.class);
+        redisTemplate.setValueSerializer(serializer);
         return redisTemplate;
     }
 

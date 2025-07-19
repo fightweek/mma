@@ -4,17 +4,26 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.admin.event.dto.CrawlerDto;
 import my.mma.admin.event.dto.CrawlerDto.EventCrawlerDto;
+import my.mma.event.dto.CardStartDateTimeInfoDto;
+import my.mma.event.dto.FightEventDto;
+import my.mma.event.dto.StreamFightEventDto;
 import my.mma.event.entity.FightEvent;
 import my.mma.event.entity.FighterFightEvent;
+import my.mma.event.entity.property.CardStartDateTimeInfo;
 import my.mma.event.repository.FightEventRepository;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
+import my.mma.global.redis.utils.RedisUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
+import static my.mma.event.dto.StreamFighterFightEventStatus.NOW;
 import static my.mma.fighter.entity.FightRecord.toFightRecord;
 
 @Service
@@ -23,16 +32,20 @@ import static my.mma.fighter.entity.FightRecord.toFightRecord;
 @RequiredArgsConstructor
 public class AdminEventService {
 
+    @Value("${flask.uri}")
+    private String flaskURI;
+
     private final FighterRepository fighterRepository;
     private final FightEventRepository fightEventRepository;
     private final RestTemplate restTemplate;
+    private final RedisUtils<StreamFightEventDto> redisUtils;
 
     /**
      * 차후 경기들 및 해당 경기에 참여하는 파이터 정보 모두 반환
      */
     @Transactional
     public void saveUpcomingEvents() {
-        processFetchedEventData(fetchEventData("http://localhost:5000/ufc/upcoming_event"));
+        processFetchedEventData(fetchEventData(flaskURI + "/upcoming_event"));
     }
 
     private CrawlerDto fetchEventData(String path) {
@@ -44,7 +57,7 @@ public class AdminEventService {
         List<FightEvent> existingUpcomingEvents = fightEventRepository.findAllByCompletedWithFighterFightEvents(false);
         //
         List<FightEvent> crawledEvents = dto.getEvents().stream()
-                .map(EventCrawlerDto::toEntity)
+                .map(EventCrawlerDto::toEntityForEventName)
                 .toList();
         saveOrUpdateFighters(dto.getFighters());
         // upcoming -> past 상태가 된 이벤트를 업데이트
@@ -53,19 +66,20 @@ public class AdminEventService {
         saveNewUpcomingEvents(dto.getEvents(), existingUpcomingEvents);
     }
 
-    private void markPastEvents(List<FightEvent> existing, List<FightEvent> current) {
+    private void markPastEvents(List<FightEvent> existing, List<FightEvent> crawledEvents) {
         /** DB에 존재하는 upcoming events, 새로 불러온 upcoming events 비교
          * 새로 불러온 upcoming event list에 DB에 존재하는 upcoming event가 포함되지 않으면,
          * DB의 upcoming event를 complete 상태로 update (+해당 이벤트에 포함된 fighter 전적 업데이트)
          */
         existing.stream()
-                .filter(e -> current.stream().noneMatch(fightEvent -> fightEvent.getName().equals(e.getName())))
+                .filter(e -> crawledEvents.stream().noneMatch(fightEvent -> fightEvent.getName().equals(e.getName())))
                 .forEach(e -> markEventAsCompleted(e.getName()));
     }
 
     private void markEventAsCompleted(String eventName) {
+        log.info("mark event as completed, eventName={}", eventName);
         updateFighterAndEventFromCompletedDto(
-                fetchEventData("http://localhost:5000/ufc/prev_event?eventName=" + eventName),eventName);
+                fetchEventData("http://localhost:5000/ufc/prev_event?eventName=" + eventName), eventName);
     }
 
     private void updateFighterAndEventFromCompletedDto(CrawlerDto dto, String eventName) {
@@ -110,7 +124,8 @@ public class AdminEventService {
     }
 
     private void saveNewUpcomingEvents(List<EventCrawlerDto> eventDtos, List<FightEvent> existingEvents) {
-        for (EventCrawlerDto dto : eventDtos) {
+        for (int i = 0; i < eventDtos.size(); i++) {
+            EventCrawlerDto dto = eventDtos.get(i);
             FightEvent newEvent = dto.toEntityUpcomingEvent();
             // 1. DB의 upcoming event에 crawling으로 불러온 upcoming event가 포함되지 않는 경우 => 이는 새로 생긴 upcoming event
             // 2. event name 이 같더라도, event 내부의 fighter fight event 내용 다를 경우 => 이는 기존 event 내용 변경된 케이스
@@ -127,6 +142,8 @@ public class AdminEventService {
                     saveUpcomingEvents(dto, newEvent);
                 }
             }
+            if(i == 0)
+                updateStreamFightEvent(newEvent);
         }
     }
 
@@ -171,5 +188,18 @@ public class AdminEventService {
             }
         }
         fightEventRepository.save(event);
+    }
+
+    public void updateStreamFightEvent(FightEvent fightEvent){
+        StreamFightEventDto streamFightEvent = StreamFightEventDto.toDto(fightEvent);
+        streamFightEvent.getFighterFightEvents().get(fightEvent.getFighterFightEvents().size()-1).setStatus(NOW);
+        streamFightEvent.setEarlyCardDateTimeInfo(
+                CardStartDateTimeInfoDto.toDto(
+                        CardStartDateTimeInfo.builder()
+                                .date(LocalDate.now())
+                                .time(LocalTime.now())
+                                .build())
+        );
+        redisUtils.setData("current-event",streamFightEvent);
     }
 }

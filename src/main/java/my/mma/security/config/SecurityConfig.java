@@ -1,5 +1,6 @@
 package my.mma.security.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
@@ -40,6 +41,7 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final ObjectMapper objectMapper;
 
     @Bean
     public BCryptPasswordEncoder encodePwd() {
@@ -85,14 +87,15 @@ public class SecurityConfig {
         http.authorizeHttpRequests(registry ->
                 registry.requestMatchers("/", "/login", "/join", "/reissue",
                                 "/mail/verify_code", "/mail/send_join_code", "/auth/social_login",
-                                "/smtp/**","/user/check_dup_nickname"
+                                "/smtp/**","/user/check_dup_nickname",
+                        "/ws/**"
                         ).permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class); //LoginFilter 전에 필터 생성
-        http.addFilterAt(new LoginFilter(authenticationManager(), jwtUtil, refreshRepository, accessExpireMs, refreshExpireMs), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(new LoginFilter(authenticationManager(), jwtUtil, refreshRepository, accessExpireMs, refreshExpireMs, objectMapper), UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
         return http.build();
     }
