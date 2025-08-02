@@ -1,0 +1,22 @@
+package my.mma.event.dto;
+
+import lombok.*;
+import lombok.experimental.SuperBuilder;
+import my.mma.fighter.entity.FightRecord;
+
+@Getter
+@Setter
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder(toBuilder = true)
+public abstract class IFighterDto {
+
+    protected Long id;
+    protected String name;
+    protected String nickname;
+    protected Integer ranking;
+    protected FightRecord record;
+    protected Double weight;
+    protected String headshotUrl;
+
+}

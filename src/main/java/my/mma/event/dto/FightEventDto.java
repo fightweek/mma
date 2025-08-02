@@ -10,6 +10,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static my.mma.event.dto.FightEventDto.*;
+
 /**
  * 크롤링 시 사용되지 않음 (admin의 실시간 이벤트 및 주기적인 upcoming, previous event update용 CrawlerDto와 무관)
  * 오직 클라이언트와 이벤트 정보 송수신 시 사용되는 dto
@@ -18,32 +20,14 @@ import java.util.stream.Collectors;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
-public class FightEventDto {
+@SuperBuilder
+public class FightEventDto extends IFightEventDto<FighterFightEventDto>{
 
     private Long id;
 
-    private LocalDate date;
-
-    private CardStartDateTimeInfoDto mainCardDateTimeInfo;
-
-    private CardStartDateTimeInfoDto prelimCardDateTimeInfo;
-
-    private CardStartDateTimeInfoDto earlyCardDateTimeInfo;
-
-    private Integer mainCardCnt;
-
-    private Integer prelimCardCnt;
-
-    private Integer earlyCardCnt;
-
-    private String location;
-
-    private String name;
-
-    private List<FighterFightEventDto> fighterFightEvents;
-
     private boolean upcoming;
+
+    private boolean alert;
 
     public static FightEventDto toDto(FightEvent fightEvent) {
         return FightEventDto.builder()
@@ -74,17 +58,21 @@ public class FightEventDto {
     @SuperBuilder
     public static class FighterFightEventDto extends IFighterFightEvent<FighterDto>{
 
+        private Long eventId;
         private String eventName;
         private LocalDate eventDate;
 
         public static FighterFightEventDto toDto(FighterFightEvent fighterFightEvent) {
             return FighterFightEventDto.builder()
+                    .id(fighterFightEvent.getId())
+                    .eventId(fighterFightEvent.getFightEvent().getId())
                     .eventName(fighterFightEvent.getFightEvent().getName())
                     .eventDate(fighterFightEvent.getFightEvent().getEventDate())
                     .fightWeight(fighterFightEvent.getFightWeight())
                     .result(fighterFightEvent.getFightResult() != null ? FightResultDto.toDto(fighterFightEvent.getFightResult()) : null)
                     .winner(FighterDto.toDto(fighterFightEvent.getWinner()))
                     .loser(FighterDto.toDto(fighterFightEvent.getLoser()))
+                    .title(fighterFightEvent.isTitle())
                     .build();
         }
 

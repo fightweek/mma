@@ -9,8 +9,8 @@ import lombok.Setter;
 @Builder
 public class TokenResponse {
 
-    private String accessToken;
-    private String refreshToken;
+    private final String accessToken;
+    private final String refreshToken;
 
     public static TokenResponse toDto(String accessToken, String refreshToken, boolean isCreated){
         return TokenResponse.builder()

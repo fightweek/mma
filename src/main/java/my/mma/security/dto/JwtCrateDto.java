@@ -17,7 +17,7 @@ public class JwtCrateDto {
     private String email;
     private String role;
     private String domain;
-    private boolean isSocial;
+    private boolean social;
     private Long expireMs;
 
     public static JwtCrateDto toDto(String category, String email, String role, Long expireMs, String domain, boolean isSocial) {
@@ -27,7 +27,7 @@ public class JwtCrateDto {
                 .role(role)
                 .domain(domain)
                 .expireMs(expireMs)
-                .isSocial(isSocial)
+                .social(isSocial)
                 .build();
     }
 
@@ -36,7 +36,7 @@ public class JwtCrateDto {
                 .claim("category", category)
                 .claim("email", email)
                 .claim("role", role)
-                .claim("isSocial", isSocial)
+                .claim("isSocial", social)
                 .claim("domain", domain)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expireMs))

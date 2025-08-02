@@ -10,12 +10,15 @@ import my.mma.event.entity.property.FightResult;
 import my.mma.event.entity.FighterFightEvent;
 import my.mma.event.entity.property.WinMethod;
 import my.mma.fighter.entity.*;
+import my.mma.global.utils.ModifyUtils;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
+
+import static my.mma.global.utils.ModifyUtils.toKg;
 
 @Getter
 @Setter
@@ -52,8 +55,7 @@ public class CrawlerDto {
         public Fighter toEntity(){
             String[] split_record = record.split("-");
             return Fighter.builder()
-                    .weight(this.weight)
-//                    .division(Fighter.get_division(this.weight))
+                    .weight(weight != null ? toKg(this.weight) : null)
                     .height(toCentimeter(this.height))
                     .name(this.getName())
                     .fightRecord(
@@ -132,17 +134,23 @@ public class CrawlerDto {
             @JsonProperty("fight_weight")
             private String fightWeight;
 
+            private boolean title;
+
             private String round;
 
             @JsonProperty("fight_time")
             private String fightTime;
+
+            private boolean draw;
+
+            private boolean nc;
 
             public FightResult buildFightResult() {
                 return FightResult.builder()
                         .winMethod(
                                 method.contains("DEC") ? WinMethod.valueOf(this.method) :
                                         (method.contains("SUB") ? WinMethod.SUB :
-                                                (method.contains("KO") ? WinMethod.KO_TKO : WinMethod.NC))
+                                                (method.contains("KO") ? WinMethod.KO_TKO : WinMethod.DQ))
                         )
                         .winDescription(method.contains("SUB") ? method.split("_")[1] : null)
                         .endTime(LocalTime.parse(this.fightTime, DateTimeFormatter.ofPattern("H:mm")))
@@ -152,6 +160,7 @@ public class CrawlerDto {
 
             public FighterFightEvent toEntity(Fighter winner, Fighter loser){
                 return FighterFightEvent.builder()
+                        .title(title)
                         .winner(winner)
                         .loser(loser)
                         .fightWeight(this.fightWeight)

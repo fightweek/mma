@@ -2,10 +2,9 @@ package my.mma;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import my.mma.event.dto.StreamFightEventDto;
 import my.mma.event.entity.FightEvent;
-import my.mma.event.entity.property.FightResult;
 import my.mma.event.entity.FighterFightEvent;
+import my.mma.event.entity.property.FightResult;
 import my.mma.event.entity.property.WinMethod;
 import my.mma.event.repository.FightEventRepository;
 import my.mma.exception.CustomErrorCode;
@@ -13,9 +12,9 @@ import my.mma.exception.CustomException;
 import my.mma.fighter.entity.FightRecord;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
-import my.mma.global.redis.utils.RedisUtils;
-import my.mma.user.repository.UserRepository;
+import my.mma.global.utils.ModifyUtils;
 import my.mma.user.entity.User;
+import my.mma.user.repository.UserRepository;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -29,9 +28,9 @@ import java.io.FileReader;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
+
+import static my.mma.global.utils.ModifyUtils.toKg;
 
 @Slf4j
 @Component
@@ -52,7 +51,7 @@ public class InitializeFightersAndEvents {
                 .password(bCryptPasswordEncoder.encode("pwd123"))
                 .nickname("진현택")
                 .role("ROLE_ADMIN")
-                .point(0)
+                .point(1000)
                 .build();
         userRepository.save(user);
         readJsonFile();
@@ -91,7 +90,7 @@ public class InitializeFightersAndEvents {
                                 toCentimeter(fighterObj.get("height").toString()) : 0)
                         .reach(!fighterObj.get("reach").toString().contains("-") ?
                                 (int) (Integer.parseInt(fighterObj.get("reach").toString()) * 2.54 + 0.5) : 0)
-                        .weight(!weight.contains("-") ? weight : null)
+                        .weight(!weight.contains("-") ? toKg(weight) : null)
 //                        .division(!weight.contains("-") ? Fighter.get_division(weight) : null)
                         .birthday(!fighterObj.get("birthday").toString().contains("-") ? LocalDate.parse(fighterObj.get("birthday").toString(),
                                 DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.ENGLISH)) : null)
@@ -103,7 +102,7 @@ public class InitializeFightersAndEvents {
                         .build();
                 fighterRepository.save(fighter);
                 i++;
-                if (i == 72)
+                if (i == 98)
                     break;
             }
             for (Object arr : events) {
@@ -121,6 +120,7 @@ public class InitializeFightersAndEvents {
                     String winnerName = cardObj.get("winner").toString();
                     String loserName = cardObj.get("loser").toString();
                     String method = cardObj.get("method").toString();
+                    String[] methodSplit = method.split("_");
                     String[] timeParts = cardObj.get("fight_time").toString().split(":");
                     Fighter winner = fighterRepository.findByName(winnerName).orElseThrow(
                             () -> new RuntimeException("No such fighter found " + winnerName)
@@ -131,23 +131,27 @@ public class InitializeFightersAndEvents {
                     FighterFightEvent fighterFightEvent = FighterFightEvent.builder()
                             .winner(winner)
                             .loser(loser)
+                            .title(Boolean.parseBoolean(cardObj.get("is_title").toString()))
                             .fightWeight(cardObj.get("fight_weight").toString())
                             .fightResult(FightResult.builder()
                                     .winMethod(
                                             method.contains("DEC") ? WinMethod.valueOf(method) :
                                                     (method.contains("SUB") ? WinMethod.SUB :
-                                                            (method.contains("KO") ? WinMethod.KO_TKO : WinMethod.NC))
+                                                            (method.contains("KO") ? WinMethod.KO_TKO : WinMethod.DQ))
                                     )
-                                    .winDescription(method.contains("SUB") ? method.split("_")[1] : null)
+                                    .winDescription((method.contains("SUB") || method.contains("KO")) ?
+                                            methodSplit.length == 2 ? methodSplit[1] : null : null)
                                     .endTime(LocalTime.of(0, Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1])))
                                     .round(Integer.parseInt(cardObj.get("round").toString()))
                                     .build())
+                            .draw(cardObj.get("draw").equals("true"))
+                            .nc(cardObj.get("nc").equals("true"))
                             .build();
                     fightEvent.addFighterFightEvent(fighterFightEvent);
                 }
                 fightEventRepository.save(fightEvent);
                 j++;
-                if (j == 3)
+                if (j == 4)
                     break;
             }
         } catch (Exception e) {

@@ -9,9 +9,9 @@ import java.time.LocalTime;
 
 @Getter
 @Setter
-@Builder
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
 public class CardStartDateTimeInfoDto {
 
     private LocalDate date;

@@ -2,7 +2,8 @@ package my.mma.global.redis.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.RequiredArgsConstructor;
+import my.mma.admin.fighter.dto.ChosenGameFighterNamesDto;
+import my.mma.admin.fighter.dto.RankersDto;
 import my.mma.event.dto.StreamFightEventDto;
 import my.mma.global.redis.utils.RedisUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -62,17 +63,45 @@ public class RedisConfig {
     @Bean
     public RedisTemplate<String, StreamFightEventDto> streamFightEventRedisTemplate()
     {
-        RedisTemplate<String, StreamFightEventDto> redisTemplate = new RedisTemplate<>();
+        return setRedisTemplate(StreamFightEventDto.class);
+    }
+
+    @Bean
+    public RedisUtils<RankersDto> rankerRedisUtils(
+            @Qualifier("rankersRedisTemplate") RedisTemplate<String, RankersDto> redisTemplate) {
+        return new RedisUtils<>(redisTemplate);
+    }
+
+    @Bean
+    public RedisTemplate<String, RankersDto> rankersRedisTemplate()
+    {
+        return setRedisTemplate(RankersDto.class);
+    }
+
+    @Bean
+    public RedisUtils<ChosenGameFighterNamesDto> adminChosenGameFightersRedisUtils(
+            @Qualifier("adminChosenGameFightersRedisTemplate") RedisTemplate<String, ChosenGameFighterNamesDto> redisTemplate) {
+        return new RedisUtils<>(redisTemplate);
+    }
+
+    @Bean
+    public RedisTemplate<String, ChosenGameFighterNamesDto> adminChosenGameFightersRedisTemplate()
+    {
+        return setRedisTemplate(ChosenGameFighterNamesDto.class);
+    }
+
+    private <T> RedisTemplate<String, T> setRedisTemplate(Class<T> clazz){
+        RedisTemplate<String, T> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
-        redisTemplate.setKeySerializer(new StringRedisSerializer());
-        ObjectMapper objectMapper= new ObjectMapper();
+        redisTemplate.setKeySerializer(new StringRedisSerializer()); // key는 문자열
+        ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.activateDefaultTyping(
                 objectMapper.getPolymorphicTypeValidator(),
                 ObjectMapper.DefaultTyping.NON_FINAL
         );
-        objectMapper.registerModule(new JavaTimeModule());
-        Jackson2JsonRedisSerializer<StreamFightEventDto> serializer = new Jackson2JsonRedisSerializer<>(objectMapper,StreamFightEventDto.class);
-        redisTemplate.setValueSerializer(serializer);
+        objectMapper.registerModule(new JavaTimeModule()); // LocalDateTime 등 Java 8 날짜 객체 직렬화 지원
+        Jackson2JsonRedisSerializer<T> serializer = new Jackson2JsonRedisSerializer<>(objectMapper,clazz);
+        redisTemplate.setValueSerializer(serializer); // value는 json type
         return redisTemplate;
     }
 

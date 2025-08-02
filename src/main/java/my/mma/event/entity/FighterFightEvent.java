@@ -30,17 +30,37 @@ public class FighterFightEvent extends BaseEntity {
     @JoinColumn(name = "fight_event_id")
     private FightEvent fightEvent;
 
+    // ex) Bantamweight
     private String fightWeight;
 
     @Embedded
     private FightResult fightResult;
 
+    private boolean title;
+
+    // draw (both are winner)
+    private boolean draw;
+
+    // no contest (no winner & loser)
+    private boolean nc;
+
     protected void addFightEvent(FightEvent fightEvent){
         this.fightEvent = fightEvent;
     }
 
-    public void updateFighterFightEvent(FightResult fightResult){
+    public void updateFightResult(FightResult fightResult){
         this.fightResult = fightResult;
+    }
+
+    public void swapWinnerAndLoser(){
+        Fighter temp = winner;
+        winner = loser;
+        loser = temp;
+    }
+
+    public void updateDrawAndNc(boolean draw, boolean nc){
+        this.draw = draw;
+        this.nc = nc;
     }
 
 }
