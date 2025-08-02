@@ -15,9 +15,9 @@ import static lombok.AccessLevel.PROTECTED;
         @UniqueConstraint(name = "user_target_unique",columnNames = {"user_id","target_type","target_id"})
 })
 @Entity
+@AllArgsConstructor(access = PROTECTED)
 @NoArgsConstructor(access = PROTECTED)
 @Getter
-@AllArgsConstructor
 @Builder
 public class Alert extends BaseEntity {
 

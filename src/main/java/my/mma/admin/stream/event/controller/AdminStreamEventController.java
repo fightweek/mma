@@ -17,9 +17,8 @@ public class AdminStreamEventController {
     private final AdminStreamEventService adminStreamEventService;
 
     @PostMapping("")
-    public ResponseEntity<Void> startPolling(){
-        adminStreamEventService.startPolling();
-        return ResponseEntity.ok().body(null);
+    public ResponseEntity<Boolean> startPolling() {
+        return ResponseEntity.ok().body(adminStreamEventService.startPolling());
     }
 
 }

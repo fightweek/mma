@@ -4,6 +4,7 @@ import lombok.*;
 import my.mma.event.dto.StreamFightEventDto;
 import my.mma.stream.chat.dto.ChatMessageDto.ChatMessageRequest;
 import my.mma.stream.chat.dto.ChatMessageDto.ChatMessageResponse;
+import my.mma.stream.dto.bet_and_vote.VoteRateDto;
 
 public class StreamMessageDto {
 
@@ -31,7 +32,7 @@ public class StreamMessageDto {
     }
 
     public enum RequestMessageType {
-        JOIN,TALK,BET
+        JOIN,TALK
     }
 
     public enum ResponseMessageType {

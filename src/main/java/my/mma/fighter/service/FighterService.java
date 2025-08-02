@@ -12,9 +12,6 @@ import my.mma.fighter.dto.FighterDetailDto;
 import my.mma.fighter.dto.FighterDto;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
-import my.mma.global.dto.UpdatePreferenceDto;
-import my.mma.global.entity.Alert;
-import my.mma.global.entity.Like;
 import my.mma.global.entity.TargetType;
 import my.mma.global.repository.AlertRepository;
 import my.mma.global.repository.LikeRepository;
@@ -59,48 +56,15 @@ public class FighterService {
         if (fighterFightEventDtos != null)
             fighterFightEventDtos.forEach(
                     ffe -> {
-                        ffe.getWinner().setHeadshotUrl(s3Service.generateGetObjectPreSignedUrl(
+                        ffe.getWinner().setHeadshotUrl(s3Service.generateImgUrl(
                                 "headshot/" + ffe.getWinner().getName().replace(' ', '-') + ".png"));
-                        ffe.getLoser().setHeadshotUrl(s3Service.generateGetObjectPreSignedUrl(
+                        ffe.getLoser().setHeadshotUrl(s3Service.generateImgUrl(
                                 "headshot/" + ffe.getLoser().getName().replace(' ', '-') + ".png"));
                     }
             );
-        String headshotUrl = s3Service.generateGetObjectPreSignedUrl(
+        String headshotUrl = s3Service.generateImgUrl(
                 "headshot/" + fighter.getName().replace(' ', '-') + ".png");
         return FighterDetailDto.toDto(fighter, fighterFightEventDtos, headshotUrl, isLikeExists, isAlertExists);
-    }
-
-    @Transactional
-    public void updatePreference(String email, UpdatePreferenceDto request) {
-        User user = userRepository.findByEmail(email).orElseThrow(
-                () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_400)
-        );
-        if (request.getCategory().equals("LIKE")) {
-            if (request.isOn()) {
-                Like like = Like.builder()
-                        .user(user)
-                        .targetType(TargetType.FIGHTER)
-                        .targetId(request.getTargetId())
-                        .build();
-                likeRepository.save(like);
-            } else {
-                likeRepository.deleteByUserAndTargetTypeAndTargetId(user, TargetType.FIGHTER, request.getTargetId());
-            }
-            return;
-        } else if (request.getCategory().equals("ALERT")) {
-            if (request.isOn()) {
-                Alert alert = Alert.builder()
-                        .user(user)
-                        .targetType(TargetType.FIGHTER)
-                        .targetId(request.getTargetId())
-                        .build();
-                alertRepository.save(alert);
-            } else {
-                alertRepository.deleteByUserAndTargetTypeAndTargetId(user, TargetType.FIGHTER, request.getTargetId());
-            }
-            return;
-        }
-        throw new CustomException(CustomErrorCode.BAD_REQUEST_400);
     }
 
     public Page<FighterDto> search(String name, Pageable pageable) {
@@ -109,7 +73,7 @@ public class FighterService {
                 page -> page.map(
                         f -> {
                             FighterDto fighter = FighterDto.toDto(f);
-                            fighter.setHeadshotUrl(s3Service.generateGetObjectPreSignedUrl(
+                            fighter.setHeadshotUrl(s3Service.generateImgUrl(
                                     "headshot/" + fighter.getName().replace(' ', '-') + ".png"));
                             return fighter;
                         }

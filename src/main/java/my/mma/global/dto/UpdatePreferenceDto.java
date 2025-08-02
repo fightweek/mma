@@ -11,9 +11,9 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UpdatePreferenceDto {
 
-    private String category;
+    private UpdatePreferenceCategory category;
     private Long targetId;
-    @JsonProperty("isOn")
-    private boolean isOn;
+    private boolean on;
 
 }
+

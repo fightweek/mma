@@ -27,7 +27,7 @@ public class FightResultDto {
                 .winMethod(
                         resultDto.getWinMethod().contains("DEC") ? WinMethod.valueOf(resultDto.getWinMethod()) :
                                 (resultDto.getWinMethod().contains("SUB") ? WinMethod.SUB :
-                                        (resultDto.getWinMethod().contains("KO") ? WinMethod.KO_TKO : WinMethod.NC))
+                                        (resultDto.getWinMethod().contains("KO") ? WinMethod.KO_TKO : WinMethod.DQ))
                 )
                 .winDescription(resultDto.getWinMethod().contains("SUB") ? resultDto.getWinMethod().split("_")[1] : null)
                 .round(resultDto.getRound())

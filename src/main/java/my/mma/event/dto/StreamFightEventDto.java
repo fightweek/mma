@@ -4,46 +4,27 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import my.mma.event.entity.FightEvent;
 import my.mma.event.entity.FighterFightEvent;
-import my.mma.fighter.dto.FighterDto;
 import my.mma.fighter.entity.Fighter;
 
 import java.time.LocalDate;
-import java.util.List;
 
+import static my.mma.event.dto.StreamFightEventDto.*;
 import static my.mma.event.dto.StreamFighterFightEventStatus.*;
 
 @Getter
 @Setter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
-public class StreamFightEventDto {
+@SuperBuilder
+public class StreamFightEventDto extends IFightEventDto<StreamFighterFightEventDto>{
 
-    private LocalDate eventDate;
+    private LocalDate date;
 
-    private CardStartDateTimeInfoDto mainCardDateTimeInfo;
-
-    private CardStartDateTimeInfoDto prelimCardDateTimeInfo;
-
-    private CardStartDateTimeInfoDto earlyCardDateTimeInfo;
-
-    private Integer mainCardCnt;
-
-    private Integer prelimCardCnt;
-
-    private Integer earlyCardCnt;
-
-    private String location;
-
-    private String name;
-
-    private boolean isNow;
-
-    private List<StreamFighterFightEventDto> fighterFightEvents;
+    private boolean now;
 
     public static StreamFightEventDto toDto(FightEvent fightEvent) {
         return StreamFightEventDto.builder()
-                .eventDate(fightEvent.getEventDate())
+                .date(fightEvent.getEventDate())
                 .mainCardDateTimeInfo(fightEvent.getMainCardDateTimeInfo() != null ?
                         CardStartDateTimeInfoDto.toDto(fightEvent.getMainCardDateTimeInfo()) : null)
                 .prelimCardDateTimeInfo(fightEvent.getPrelimCardDateTimeInfo() != null ?
@@ -55,7 +36,7 @@ public class StreamFightEventDto {
                 .earlyCardCnt(fightEvent.getEarlyCardCnt() != null ? fightEvent.getEarlyCardCnt() : null)
                 .location(fightEvent.getLocation())
                 .name(fightEvent.getName())
-                .isNow(false)
+                .now(false)
                 .fighterFightEvents(fightEvent.getFighterFightEvents().stream().map(
                         ffe -> StreamFighterFightEventDto.toDto(ffe, UPCOMING)
                 ).toList())
@@ -71,13 +52,19 @@ public class StreamFightEventDto {
 
         private StreamFighterFightEventStatus status;
 
+        private double winnerVoteRate;
+
+        private double loserVoteRate;
+
         public static StreamFighterFightEventDto toDto(FighterFightEvent ffe, StreamFighterFightEventStatus status){
             return StreamFighterFightEventDto.builder()
+                    .id(ffe.getId())
                     .status(status)
                     .fightWeight(ffe.getFightWeight())
                     .winner(StreamFighterDto.toDto(ffe.getWinner()))
                     .loser(StreamFighterDto.toDto(ffe.getLoser()))
                     .result(ffe.getFightResult() != null ? FightResultDto.toDto(ffe.getFightResult()) : null)
+                    .title(ffe.isTitle())
                     .build();
         }
     }
@@ -87,7 +74,7 @@ public class StreamFightEventDto {
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @SuperBuilder
-    public static class StreamFighterDto extends FighterDto {
+    public static class StreamFighterDto extends IFighterDto {
 
         private int reach;
 

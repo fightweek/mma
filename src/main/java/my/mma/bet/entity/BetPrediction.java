@@ -15,11 +15,13 @@ import static lombok.AccessLevel.PROTECTED;
 @Builder
 @AllArgsConstructor(access = PRIVATE)
 @NoArgsConstructor(access = PROTECTED)
-public class FightPrediction {
+public class BetPrediction {
 
-    private String winnerName;
+    private long winnerId;
 
-    private Integer round;
+    private long loserId;
+
+    private Integer winRound;
 
     @Enumerated(STRING)
     private WinMethod winMethod;

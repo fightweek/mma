@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import my.mma.event.entity.FightEvent;
 import my.mma.event.entity.FighterFightEvent;
 import my.mma.fighter.entity.BaseEntity;
 
@@ -33,10 +34,14 @@ public class BetCard extends BaseEntity {
     private FighterFightEvent fighterFightEvent;
 
     @Embedded
-    private FightPrediction prediction;
+    private BetPrediction prediction;
 
-    private boolean isSucceed;
+    private Boolean succeed;
 
-    private Integer seedPoint;
+    private int seedPoint;
+
+    protected void addBet(Bet bet){
+        this.bet = bet;
+    }
 
 }

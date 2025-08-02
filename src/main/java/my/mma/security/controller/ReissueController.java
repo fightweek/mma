@@ -68,7 +68,7 @@ public class ReissueController {
                 "access",email,role,accessExpireMs,domain,isSocial
         ));
         String newRefresh = jwtUtil.createJwt(JwtCrateDto.toDto(
-                "refresh",email,role,accessExpireMs,domain,isSocial
+                "refresh",email,role,refreshExpireMs,domain,isSocial
         ));
         System.out.println("newRefresh = " + newRefresh);
 
