@@ -1,6 +1,5 @@
 package my.mma.global.s3.service;
 
-import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +8,6 @@ import my.mma.exception.CustomException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
@@ -37,8 +35,19 @@ public class S3Service {
     @Value("${spring.cloud.aws.s3.default-headshot}")
     private String defaultImageUrl;
 
-    public String generateGetObjectPreSignedUrl(String objectKey) {
+    public String generateImgUrl(String objectKey) {
         objectKey = objectExists(objectKey) ? objectKey : defaultImageUrl;
+        return generateUrlFromObjectKey(objectKey,6);
+    }
+
+    public String generateImgUrlOrNull(String objectKey) {
+        objectKey = objectExists(objectKey) ? objectKey : null;
+        if(objectKey == null)
+            return null;
+        return generateUrlFromObjectKey(objectKey,1);
+    }
+
+    private String generateUrlFromObjectKey(String objectKey, int hours){
         GetObjectRequest aclRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(objectKey)
@@ -46,8 +55,7 @@ public class S3Service {
 
         PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(builder -> builder
                 .getObjectRequest(aclRequest)
-                .signatureDuration(Duration.ofHours(1)));
-
+                .signatureDuration(Duration.ofHours(hours)));
         return presignedRequest.url().toString();
     }
 
@@ -59,7 +67,6 @@ public class S3Service {
                     .build());
             return true;
         } catch (S3Exception e) {
-            log.error("e=", e);
             log.error("no such key exception occurred");
             return false;
         } catch (Exception e) {

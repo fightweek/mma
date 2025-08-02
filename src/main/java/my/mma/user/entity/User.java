@@ -38,4 +38,9 @@ public class User extends BaseEntity {
         this.nickname = nickname;
     }
 
+    public void updatePoint(int point){
+        this.point = point;
+    }
+
+
 }

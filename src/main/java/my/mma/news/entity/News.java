@@ -26,11 +26,13 @@ public class News {
     private String content;
 
     @OneToMany(mappedBy = "news",cascade = CascadeType.ALL,orphanRemoval = true)
+    @Builder.Default
     private List<ImageFile> imageFiles = new ArrayList<>();
 
     private int likes;
 
     @OneToMany(mappedBy = "news",cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<NewsReply> newsReplies = new ArrayList<>();
 
 
