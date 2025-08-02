@@ -57,6 +57,7 @@ public class FightEvent extends BaseEntity {
 
     //빌더 패턴은 필드 값을 명시적으로 설정해야 하고, 초기값을 보장하지 않음 (빌더로 fightEvent 생성해도 빈 리스트 생성 보장 x)
     @OneToMany(mappedBy = "fightEvent", cascade = CascadeType.ALL)
+    @OrderBy("id asc")
     @Builder.Default
     private List<FighterFightEvent> fighterFightEvents = new ArrayList<>();
 

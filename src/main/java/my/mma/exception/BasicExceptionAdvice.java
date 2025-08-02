@@ -23,7 +23,10 @@ public class BasicExceptionAdvice {
     public ResponseEntity<BasicErrorResponse> handleCustomException(
             CustomException e
     ) {
-        log.error("ex = {}", e.getErrorCode().getErrorMessage());
+        if(e.getErrorMessage() != null)
+            log.error("ex = {}, detail error message = {}",e.getErrorCode().getErrorMessage(),e.getErrorMessage());
+        else
+            log.error("ex = {}", e.getErrorCode().getErrorMessage());
         BasicErrorResponse response = BasicErrorResponse.builder()
                 .errorMessage(e.getErrorCode().getErrorMessage())
                 .status(e.getErrorCode().getStatus())

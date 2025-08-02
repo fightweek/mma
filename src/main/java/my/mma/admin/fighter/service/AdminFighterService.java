@@ -1,10 +1,12 @@
 package my.mma.admin.fighter.service;
 
 import lombok.extern.slf4j.Slf4j;
-import my.mma.admin.fighter.dto.FighterRankingDto;
+import my.mma.admin.fighter.dto.RankersDto;
+import my.mma.exception.CustomErrorCode;
+import my.mma.exception.CustomException;
 import my.mma.fighter.entity.Fighter;
-import my.mma.fighter.instance.RankerInstance;
 import my.mma.fighter.repository.FighterRepository;
+import my.mma.global.redis.utils.RedisUtils;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,32 +22,44 @@ public class AdminFighterService {
 
     private final WebClient webClient;
     private final FighterRepository fighterRepository;
+    private final RedisUtils<RankersDto> rankers;
 
-    public AdminFighterService(FighterRepository fighterRepository) {
+    public AdminFighterService(FighterRepository fighterRepository, RedisUtils<RankersDto> rankers) {
         String pythonURI = "http://localhost:5000";
         this.webClient = WebClient.builder()
                 .baseUrl(pythonURI)
                 .build();
         this.fighterRepository = fighterRepository;
+        this.rankers = rankers;
     }
 
     @Transactional
     public void updateRanking() {
-        FighterRankingDto fighterRankingDto = webClient.get()
+        Optional<List<Fighter>> prevRankedFighters = fighterRepository.findFightersByRankingIsNotNull();
+        prevRankedFighters.ifPresent(
+                fighters -> fighters.forEach(
+                        fighter -> fighter.updateRanking(null)
+                )
+        );
+        RankersDto rankersDto = webClient.get()
                 .uri("/ufc/fighter_ranking")
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
-                .bodyToMono(FighterRankingDto.class)
+                .bodyToMono(RankersDto.class)
                 .block();
-        List<FighterRankingDto.RankerDto> rankerDtos = fighterRankingDto.getRankerDtos();
-        for (FighterRankingDto.RankerDto rankerDto : rankerDtos) {
-            Optional<Fighter> fighter = fighterRepository.findByName(rankerDto.getRankerName());
-            if (fighter.isPresent()) {
-                if (!rankerDto.getCategory().contains("POUND_FOR_POUND"))
-                    fighter.get().updateRanking(Integer.parseInt(rankerDto.getRanking()));
-                RankerInstance.getRankers().add(rankerDto);
-            }
+        if (rankersDto != null) {
+            rankersDto.getRankerDtos().forEach(
+                    rankerDto -> {
+                        Optional<Fighter> fighter = fighterRepository.findByName(rankerDto.getName());
+                        if (fighter.isPresent()) {
+                            if (!rankerDto.getCategory().contains("POUND_FOR_POUND"))
+                                fighter.get().updateRanking(rankerDto.getRanking());
+                        }
+                    }
+            );
+            this.rankers.updateData("rankers", rankersDto);
         }
+        throw new CustomException(CustomErrorCode.SERVER_ERROR,"ranker data is null");
     }
 
 }

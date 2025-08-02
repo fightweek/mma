@@ -7,6 +7,7 @@ import my.mma.fighter.dto.FighterDto;
 import my.mma.fighter.service.FighterService;
 import my.mma.global.dto.UpdatePreferenceDto;
 import my.mma.global.s3.service.S3Service;
+import my.mma.global.service.UpdatePreferenceService;
 import my.mma.security.CustomUserDetails;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,15 +29,16 @@ public class FighterController {
 
     private final FighterService fighterService;
     private final S3Service s3Service;
+    private final UpdatePreferenceService updatePreferenceService;
 
-    @GetMapping("/detail")
+    @GetMapping("/{fighterId}")
     public ResponseEntity<FighterDetailDto> detail(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestParam("fighterId") Long fighterId) {
+            @PathVariable("fighterId") Long fighterId) {
         return ResponseEntity.ok().body(fighterService.detail(userDetails.getUsername(), fighterId));
     }
 
-    @GetMapping("/search")
+    @GetMapping("/fighters")
     public ResponseEntity<Page<FighterDto>> search(
             @RequestParam(value = "name",defaultValue = "") String name,
             @PageableDefault(sort = "name", direction = ASC) Pageable pageable
@@ -44,13 +46,13 @@ public class FighterController {
         return ResponseEntity.ok().body(fighterService.search(name,pageable));
     }
 
-    @PostMapping("/update_preference")
+    @PostMapping("/preference")
     public ResponseEntity<Void> updatePreference(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody UpdatePreferenceDto request
     ) {
         System.out.println("request = " + request);
-        fighterService.updatePreference(userDetails.getUsername(),request);
+        updatePreferenceService.updatePreference(userDetails.getUsername(),request);
         return ResponseEntity.ok().body(null);
     }
 
@@ -58,7 +60,7 @@ public class FighterController {
     public ResponseEntity<Map<String,String>> headshotUrl(
             @RequestParam("name") String name
     ){
-        String preSignedUrl = s3Service.generateGetObjectPreSignedUrl(
+        String preSignedUrl = s3Service.generateImgUrl(
                 "headshot/" + name.replace(' ', '-') + ".png");
         Map<String, String> map = new HashMap<>();
         map.put("url",preSignedUrl);
@@ -69,7 +71,7 @@ public class FighterController {
     public ResponseEntity<Map<String,String>> bodyUrl(
             @RequestParam("name") String name
     ){
-        String preSignedUrl = s3Service.generateGetObjectPreSignedUrl(
+        String preSignedUrl = s3Service.generateImgUrl(
                 "body/" + name.replace(' ', '-') + ".png");
         Map<String, String> map = new HashMap<>();
         map.put("url",preSignedUrl);

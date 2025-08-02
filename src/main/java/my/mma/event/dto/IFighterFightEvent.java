@@ -1,26 +1,30 @@
 package my.mma.event.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import my.mma.event.entity.property.FightResult;
 import my.mma.fighter.dto.FighterDto;
 
 @Getter
 @Setter
-@SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public abstract class IFighterFightEvent<T extends FighterDto> {
+@SuperBuilder(toBuilder = true)
+public abstract class IFighterFightEvent<T extends IFighterDto> {
 
-    private String fightWeight;
+    protected Long id;
+
+    protected String fightWeight;
     
-    private T winner;
+    protected T winner;
     
-    private T loser;
+    protected T loser;
     
-    private FightResultDto result;
+    protected FightResultDto result;
+
+    protected boolean title;
 
 }

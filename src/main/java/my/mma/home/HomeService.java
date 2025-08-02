@@ -22,10 +22,10 @@ public class HomeService {
         if(streamFightEventDto == null)
             return null;
         HomeScreenDto response = HomeScreenDto.toDto(streamFightEventDto);
-        response.setWinnerBodyUrl(s3Service.generateGetObjectPreSignedUrl(
+        response.setWinnerBodyUrl(s3Service.generateImgUrl(
                 "body/" + response.getWinnerName().replace(' ', '-') + ".png"
         ));
-        response.setLoserBodyUrl(s3Service.generateGetObjectPreSignedUrl(
+        response.setLoserBodyUrl(s3Service.generateImgUrl(
                 "body/" + response.getLoserName().replace(' ', '-') + ".png"
         ));
         System.out.println(response.getMainCardDateTimeInfo());

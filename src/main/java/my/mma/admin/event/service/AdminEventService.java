@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import my.mma.admin.event.dto.CrawlerDto;
 import my.mma.admin.event.dto.CrawlerDto.EventCrawlerDto;
 import my.mma.event.dto.CardStartDateTimeInfoDto;
-import my.mma.event.dto.FightEventDto;
 import my.mma.event.dto.StreamFightEventDto;
 import my.mma.event.entity.FightEvent;
 import my.mma.event.entity.FighterFightEvent;
@@ -14,6 +13,7 @@ import my.mma.event.repository.FightEventRepository;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
 import my.mma.global.redis.utils.RedisUtils;
+import my.mma.global.s3.service.S3Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +23,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-import static my.mma.event.dto.StreamFighterFightEventStatus.NOW;
 import static my.mma.fighter.entity.FightRecord.toFightRecord;
 
 @Service
 @Slf4j
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AdminEventService {
 
@@ -39,6 +37,7 @@ public class AdminEventService {
     private final FightEventRepository fightEventRepository;
     private final RestTemplate restTemplate;
     private final RedisUtils<StreamFightEventDto> redisUtils;
+    private final S3Service s3Service;
 
     /**
      * 차후 경기들 및 해당 경기에 참여하는 파이터 정보 모두 반환
@@ -52,13 +51,14 @@ public class AdminEventService {
         return restTemplate.getForObject(path, CrawlerDto.class);
     }
 
-    private void processFetchedEventData(CrawlerDto dto) {
+    public void processFetchedEventData(CrawlerDto dto) {
         // DB에 존재하는 upcoming Events
-        List<FightEvent> existingUpcomingEvents = fightEventRepository.findAllByCompletedWithFighterFightEvents(false);
+        List<FightEvent> existingUpcomingEvents = fightEventRepository.findAllByCompletedIsWithFighterFightEvents(false);
         //
         List<FightEvent> crawledEvents = dto.getEvents().stream()
                 .map(EventCrawlerDto::toEntityForEventName)
                 .toList();
+        // fighter 부터 삽입
         saveOrUpdateFighters(dto.getFighters());
         // upcoming -> past 상태가 된 이벤트를 업데이트
         markPastEvents(existingUpcomingEvents, crawledEvents);
@@ -83,16 +83,16 @@ public class AdminEventService {
     }
 
     private void updateFighterAndEventFromCompletedDto(CrawlerDto dto, String eventName) {
-        updateFightersRecord(dto.getFighters());
+//        updateFightersRecord(dto.getFighters());
         updateCompletedFightEvent(dto.getEvents(), eventName);
     }
 
-    private void updateFightersRecord(List<CrawlerDto.FighterCrawlerDto> fighters) {
-        for (CrawlerDto.FighterCrawlerDto dto : fighters) {
-            fighterRepository.findByName(dto.getName()).ifPresent(fighter ->
-                    fighter.updateFightRecord(dto.getRecord().split("-")));
-        }
-    }
+//    private void updateFightersRecord(List<CrawlerDto.FighterCrawlerDto> fighters) {
+//        for (CrawlerDto.FighterCrawlerDto dto : fighters) {
+//            fighterRepository.findByName(dto.getName()).ifPresent(fighter ->
+//                    fighter.updateFightRecord(dto.getRecord().split("-")));
+//        }
+//    }
 
     private void updateCompletedFightEvent(List<EventCrawlerDto> eventDtos, String eventName) {
         FightEvent event = fightEventRepository.findByName(eventName)
@@ -103,7 +103,11 @@ public class AdminEventService {
                 for (FighterFightEvent match : event.getFighterFightEvents()) {
                     if (card.getWinnerName().equals(match.getWinner().getName()) ||
                             card.getWinnerName().equals(match.getLoser().getName())) {
-                        match.updateFighterFightEvent(card.buildFightResult());
+                        match.updateFightResult(card.buildFightResult());
+                        match.updateDrawAndNc(card.isDraw(),card.isNc());
+                        if(!card.getWinnerName().equals(match.getWinner().getName())){
+                            match.swapWinnerAndLoser();
+                        }
                     }
                 }
             }
@@ -121,6 +125,7 @@ public class AdminEventService {
                     () -> fighterRepository.save(dto.toEntity())
             );
         }
+        System.out.println("=======save fighters completed========");
     }
 
     private void saveNewUpcomingEvents(List<EventCrawlerDto> eventDtos, List<FightEvent> existingEvents) {
@@ -142,8 +147,8 @@ public class AdminEventService {
                     saveUpcomingEvents(dto, newEvent);
                 }
             }
-            if(i == 0)
-                updateStreamFightEvent(newEvent);
+            if (i == 0)
+                saveStreamFightEvent(newEvent);
         }
     }
 
@@ -190,16 +195,33 @@ public class AdminEventService {
         fightEventRepository.save(event);
     }
 
-    public void updateStreamFightEvent(FightEvent fightEvent){
+    public void saveStreamFightEvent(FightEvent fightEvent) {
         StreamFightEventDto streamFightEvent = StreamFightEventDto.toDto(fightEvent);
-        streamFightEvent.getFighterFightEvents().get(fightEvent.getFighterFightEvents().size()-1).setStatus(NOW);
-        streamFightEvent.setEarlyCardDateTimeInfo(
+        streamFightEvent.setPrelimCardDateTimeInfo(
                 CardStartDateTimeInfoDto.toDto(
                         CardStartDateTimeInfo.builder()
                                 .date(LocalDate.now())
                                 .time(LocalTime.now())
                                 .build())
         );
-        redisUtils.setData("current-event",streamFightEvent);
+        streamFightEvent.getFighterFightEvents().forEach(
+                ffe -> {
+                    ffe.setWinnerVoteRate(0);
+                    ffe.setLoserVoteRate(0);
+                    ffe.getWinner().setHeadshotUrl(s3Service.generateImgUrl(
+                            "headshot/" + ffe.getWinner().getName().replace(' ', '-') + ".png")
+                    );
+                    ffe.getLoser().setHeadshotUrl(s3Service.generateImgUrl(
+                            "headshot/" + ffe.getLoser().getName().replace(' ', '-') + ".png")
+                    );
+                    ffe.getWinner().setBodyUrl(s3Service.generateImgUrl(
+                            "body/" + ffe.getWinner().getName().replace(' ', '-') + ".png")
+                    );
+                    ffe.getLoser().setBodyUrl(s3Service.generateImgUrl(
+                            "body/" + ffe.getLoser().getName().replace(' ', '-') + ".png")
+                    );
+                }
+        );
+        redisUtils.saveData("current-event", streamFightEvent);
     }
 }

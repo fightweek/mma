@@ -5,8 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import my.mma.event.entity.FighterFightEvent;
 import my.mma.fighter.entity.BaseEntity;
 import my.mma.user.entity.User;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.*;
@@ -28,13 +32,15 @@ public class Bet extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    // true - 배팅 / false - 예측
-    private boolean isBet;
+    private Boolean succeed;
 
-    private boolean isSucceed;
+    @Builder.Default
+    @OneToMany(mappedBy = "bet",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<BetCard> betCards = new ArrayList<>();
 
-    private Integer totalSeedPoint;
-
-    private Integer totalProfitPoint;
+    public void addBetCard(BetCard betCard){
+        betCard.addBet(this);
+        this.betCards.add(betCard);
+    }
 
 }

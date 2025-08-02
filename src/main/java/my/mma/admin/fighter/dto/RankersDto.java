@@ -8,23 +8,22 @@ import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class FighterRankingDto {
+public class RankersDto {
 
     @JsonProperty("rankers")
     private List<RankerDto> rankerDtos;
 
-    @Data
-    @AllArgsConstructor
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    @Builder
+    @AllArgsConstructor(access = AccessLevel.PROTECTED)
+    @Getter
+    @Setter
     public static class RankerDto {
 
-        private String ranking;
+        private int ranking;
 
-        @JsonProperty("name")
-        private String rankerName;
+        private String name;
 
         private String category;
 
