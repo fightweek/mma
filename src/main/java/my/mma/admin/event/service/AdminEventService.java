@@ -13,7 +13,7 @@ import my.mma.event.repository.FightEventRepository;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
 import my.mma.global.redis.utils.RedisUtils;
-import my.mma.global.s3.service.S3Service;
+import my.mma.global.s3.service.S3ImgService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,7 +37,7 @@ public class AdminEventService {
     private final FightEventRepository fightEventRepository;
     private final RestTemplate restTemplate;
     private final RedisUtils<StreamFightEventDto> redisUtils;
-    private final S3Service s3Service;
+    private final S3ImgService s3Service;
 
     /**
      * 차후 경기들 및 해당 경기에 참여하는 파이터 정보 모두 반환
@@ -79,7 +79,7 @@ public class AdminEventService {
     private void markEventAsCompleted(String eventName) {
         log.info("mark event as completed, eventName={}", eventName);
         updateFighterAndEventFromCompletedDto(
-                fetchEventData("http://localhost:5000/ufc/prev_event?eventName=" + eventName), eventName);
+                fetchEventData("http://flask-app:5000/ufc/prev_event?eventName=" + eventName), eventName);
     }
 
     private void updateFighterAndEventFromCompletedDto(CrawlerDto dto, String eventName) {
@@ -142,6 +142,7 @@ public class AdminEventService {
                 saveUpcomingEvents(dto, newEvent);
             } else {
                 boolean isChanged = isEventContentDifferent(dto, existingEvent, newEvent);
+                System.out.println("isChanged="+isChanged);
                 if (isChanged) {
                     fightEventRepository.delete(existingEvent);
                     saveUpcomingEvents(dto, newEvent);
@@ -163,13 +164,13 @@ public class AdminEventService {
                     newEvent.addFighterFightEvent(card.toEntity(winner, loser));
                 }
         );
-        List<FighterFightEvent> freshCards = newEvent.getFighterFightEvents();
+        List<FighterFightEvent> crawledEvenCards = newEvent.getFighterFightEvents();
 
-        if (existingCards.size() != freshCards.size()) return true;
+        if (existingCards.size() != crawledEvenCards.size()) return true;
 
         for (int i = 0; i < existingCards.size(); i++) {
             FighterFightEvent a = existingCards.get(i);
-            FighterFightEvent b = freshCards.get(i);
+            FighterFightEvent b = crawledEvenCards.get(i);
 
             if (!a.getWinner().getName().equals(b.getWinner().getName()) ||
                     !a.getLoser().getName().equals(b.getLoser().getName())) {
@@ -197,7 +198,7 @@ public class AdminEventService {
 
     public void saveStreamFightEvent(FightEvent fightEvent) {
         StreamFightEventDto streamFightEvent = StreamFightEventDto.toDto(fightEvent);
-        streamFightEvent.setPrelimCardDateTimeInfo(
+        streamFightEvent.setEarlyCardDateTimeInfo(
                 CardStartDateTimeInfoDto.toDto(
                         CardStartDateTimeInfo.builder()
                                 .date(LocalDate.now())

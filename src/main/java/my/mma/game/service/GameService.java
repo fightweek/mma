@@ -10,15 +10,27 @@ import my.mma.exception.CustomException;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
 import my.mma.game.dto.GameCategory;
-import my.mma.game.dto.GameQuestionsDto;
-import my.mma.game.dto.GameQuestionsDto.GameQuestionDto;
+import my.mma.game.dto.GameResponse;
+import my.mma.game.dto.ImageGameQuestions;
+import my.mma.game.dto.NameGameQuestions;
+import my.mma.game.dto.NameGameQuestions.NameGameQuestionDto;
+import my.mma.game.entity.GameAttempt;
+import my.mma.game.repository.GameAttemptRepository;
 import my.mma.global.redis.utils.RedisUtils;
-import my.mma.global.s3.service.S3Service;
+import my.mma.global.s3.service.S3ImgService;
+import my.mma.user.entity.User;
+import my.mma.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static my.mma.game.dto.ImageGameQuestions.*;
 
 @Transactional(readOnly = true)
 @Service
@@ -29,93 +41,161 @@ public class GameService {
     private final RedisUtils<RankersDto> rankersRedisUtils;
     private final RedisUtils<ChosenGameFighterNamesDto> adminChosenGameFightersRedisUtils;
     private final FighterRepository fighterRepository;
-    private final S3Service s3Service;
+    private final GameAttemptRepository gameAttemptRepository;
+    private final UserRepository userRepository;
+    private final S3ImgService s3Service;
 
-    public GameQuestionsDto generateGameQuestions(boolean isNormal) {
+    public GameResponse generateGameQuestions(boolean isNormal, boolean isImage) {
+        GameResponse gameResponse = new GameResponse();
         List<String> names;
-        GameQuestionsDto gameQuestionsDto = new GameQuestionsDto();
         if (isNormal) {
             RankersDto rankers = rankersRedisUtils.getData("rankers");
             ChosenGameFighterNamesDto chosenFighters = adminChosenGameFightersRedisUtils.getData("chosenFighters");
-            List<String> rankerNames = rankers.getRankerDtos().stream()
+            Set<String> rankerNames = rankers.getRankerDtos().stream()
                     .map(RankerDto::getName)
-                    .toList();
-            List<String> chosenFighterNames = chosenFighters.getNames();
-            names = new ArrayList<>(Stream.of(rankerNames, chosenFighterNames)
-                    .flatMap(Collection::stream)
-                    .toList());
+                    .collect(Collectors.toSet());
+            if (chosenFighters == null)
+                names = new ArrayList<>(rankerNames);
+            else {
+                Set<String> chosenFighterNames = chosenFighters.getNames();
+                names = new ArrayList<>(Stream.of(rankerNames, chosenFighterNames)
+                        .flatMap(Collection::stream)
+                        .toList());
+            }
         } else {
             // hard
             names = fighterRepository.findEveryNames();
         }
-        gameQuestionsDto.setGameQuestions(Arrays.stream(GameCategory.values()).map(
-                gameCategory -> generateQuestion(gameCategory, names)
-        ).toList());
-        return gameQuestionsDto;
-    }
-
-    public GameQuestionDto generateQuestion(GameCategory category, List<String> names) {
-        switch (category) {
-            case HEADSHOT:
-                return generateHeadshotQuestion(names);
-            case BODY:
-                return generateBodyQuestion(names);
-            case NICKNAME:
-                return generateNicknameQuestion(names);
-            case RECORD:
-                return generateRecordQuestion(names);
-            case RANKING:
-                return generateRankingQuestion();
-            default:
-                throw new IllegalArgumentException("Unknown game category");
+        if (!isImage) {
+            NameGameQuestions nameQuestions = new NameGameQuestions();
+            nameQuestions.setGameQuestions(Arrays.stream(GameCategory.values()).map(
+                    gameCategory -> generateNameQuestion(gameCategory, names)
+            ).toList());
+            gameResponse.setNameGameQuestions(nameQuestions);
+        } else {
+            ImageGameQuestions imageQuestions = generateImageQuestions(names);
+            gameResponse.setImageGameQuestions(imageQuestions);
         }
+        log.info("game response = {}", gameResponse);
+        return gameResponse;
     }
 
-    private GameQuestionDto generateRankingQuestion() {
+    // gameAttempt 존재 
+    public int getGameAttemptCount(String email) {
+        User user = extractUserByEmail(email);
+        GameAttempt gameAttempt = gameAttemptRepository.findById(user.getId()).orElseGet(
+                () ->
+                        gameAttemptRepository.save(GameAttempt.builder()
+                                .userId(user.getId())
+                                .count(10)
+                                .expiration(Duration.between(
+                                        LocalDateTime.now(),
+                                        LocalDate.now().plusDays(1).atStartOfDay()).getSeconds()
+                                ).build())
+        );
+        return gameAttempt.getCount();
+    }
+
+    @Transactional
+    public int subtractGameAttemptCount(String email) {
+        User user = extractUserByEmail(email);
+        GameAttempt gameAttempt = gameAttemptRepository.findById(user.getId()).orElseThrow(
+                () -> new CustomException(CustomErrorCode.NO_SUCH_EVENT_FOUND_400)
+        );
+        gameAttempt.setCount(gameAttempt.getCount() - 1);
+        gameAttemptRepository.save(gameAttempt);
+        return gameAttempt.getCount();
+    }
+
+    @Transactional
+    public int updatePoint(String email, int newPoint) {
+        User user = extractUserByEmail(email);
+        user.updatePoint(newPoint);
+        return user.getPoint();
+    }
+
+    public NameGameQuestionDto generateNameQuestion(GameCategory category, List<String> names) {
+        return switch (category) {
+            case HEADSHOT -> generateHeadshotQuestion(names);
+            case BODY -> generateBodyQuestion(names);
+            case NICKNAME -> generateNicknameQuestion(names);
+            case RECORD -> generateRecordQuestion(names);
+            case RANKING -> generateRankingQuestion();
+        };
+    }
+
+    private ImageGameQuestions generateImageQuestions(List<String> names) {
+        int currentQuestionCnt = 0;
+        Collections.shuffle(names);
+        ImageGameQuestions imageGameQuestions = new ImageGameQuestions();
+        for (String name : names) {
+            String headshotUrl = s3Service.generateImgUrlOrNull(
+                    "headshot/" + name.replace(' ', '-') + ".png"
+            );
+            if (headshotUrl != null) {
+                if (currentQuestionCnt % 4 == 0) {
+                    if (currentQuestionCnt == 20)
+                        break;
+                    currentQuestionCnt++;
+                    imageGameQuestions.getGameQuestions().add(ImageGameQuestionDto.builder()
+                            .name(name)
+                            .answerImgUrl(headshotUrl)
+                            .build());
+                } else {
+                    imageGameQuestions.getGameQuestions().get((currentQuestionCnt / 4))
+                            .getWrongSelection().add(headshotUrl);
+                    currentQuestionCnt++;
+                }
+            }
+        }
+        return imageGameQuestions;
+    }
+
+    private NameGameQuestionDto generateRankingQuestion() {
         RankersDto rankersDto = rankersRedisUtils.getData("rankers");
         if (rankersDto == null)
             return null;
         List<RankerDto> rankerDtos = rankersDto.getRankerDtos();
         Collections.shuffle(rankerDtos);
         RankerDto randomRanker = rankerDtos.get(0);
-        return GameQuestionDto.builder()
-                .name(randomRanker.getName())
+        return NameGameQuestionDto.builder()
+                .answerName(randomRanker.getName())
                 .ranking(randomRanker.getRanking())
                 .rankingCategory(randomRanker.getCategory())
                 .gameCategory(GameCategory.RANKING)
-                .namesForSelection(new ArrayList<>(rankerDtos.subList(1, 3).stream().map(RankerDto::getName).toList()))
+                .wrongSelection(new ArrayList<>(rankerDtos.subList(1, 4).stream().map(RankerDto::getName).toList()))
                 .build();
     }
 
-    private GameQuestionDto generateRecordQuestion(List<String> names) {
+    private NameGameQuestionDto generateRecordQuestion(List<String> names) {
         Collections.shuffle(names);
         for (int i = 0; i < names.size(); i++) {
             String name = names.get(i);
             Optional<Fighter> fighterOptional = fighterRepository.findByNameAndFightRecordIsNotNull(name);
             if (fighterOptional.isPresent()) {
                 Fighter fighter = fighterOptional.get();
-                return GameQuestionDto.builder()
-                        .name(fighter.getName())
+                return NameGameQuestionDto.builder()
+                        .answerName(fighter.getName())
                         .fightRecord(fighter.getFightRecord())
                         .gameCategory(GameCategory.RECORD)
-                        .namesForSelection(new ArrayList<>(names.subList(i, i + 2)))
+                        .wrongSelection(new ArrayList<>(names.subList(i + 1, i + 4)))
                         .build();
             }
         }
         throw new CustomException(CustomErrorCode.SERVER_ERROR, "record question generation error");
     }
 
-    private GameQuestionDto generateNicknameQuestion(List<String> names) {
+    private NameGameQuestionDto generateNicknameQuestion(List<String> names) {
         Collections.shuffle(names);
         for (int i = 0; i < names.size(); i++) {
             String name = names.get(i);
             Optional<Fighter> fighterOptional = fighterRepository.findByNameAndNicknameIsNotNull(name);
             if (fighterOptional.isPresent()) {
                 Fighter fighter = fighterOptional.get();
-                return GameQuestionDto.builder()
-                        .name(fighter.getName())
+                return NameGameQuestionDto.builder()
+                        .answerName(fighter.getName())
                         .nickname(fighter.getNickname())
-                        .namesForSelection(new ArrayList<>(names.subList(i, i + 2)))
+                        .wrongSelection(new ArrayList<>(names.subList(i + 1, i + 4)))
                         .gameCategory(GameCategory.NICKNAME)
                         .build();
             }
@@ -123,7 +203,7 @@ public class GameService {
         throw new CustomException(CustomErrorCode.SERVER_ERROR, "nickname question generation error");
     }
 
-    private GameQuestionDto generateBodyQuestion(List<String> names) {
+    private NameGameQuestionDto generateBodyQuestion(List<String> names) {
         Collections.shuffle(names);
         for (int i = 0; i < names.size(); i++) {
             String name = names.get(i);
@@ -131,10 +211,10 @@ public class GameService {
                     "body/" + name.replace(' ', '-') + ".png"
             );
             if (bodyUrl != null) {
-                return GameQuestionDto.builder()
-                        .name(name)
+                return NameGameQuestionDto.builder()
+                        .answerName(name)
                         .bodyUrl(bodyUrl)
-                        .namesForSelection(new ArrayList<>(names.subList(i, i + 2)))
+                        .wrongSelection(new ArrayList<>(names.subList(i + 1, i + 4)))
                         .gameCategory(GameCategory.BODY)
                         .build();
             }
@@ -142,23 +222,33 @@ public class GameService {
         throw new CustomException(CustomErrorCode.SERVER_ERROR, "body question generation error");
     }
 
-    private GameQuestionDto generateHeadshotQuestion(List<String> names) {
+    private NameGameQuestionDto generateHeadshotQuestion(List<String> names) {
         Collections.shuffle(names);
+        StringBuilder sb = new StringBuilder();
+        if (sb.isEmpty()) {
+
+        }
         for (int i = 0; i < names.size(); i++) {
             String name = names.get(i);
             String headshotUrl = s3Service.generateImgUrlOrNull(
                     "headshot/" + name.replace(' ', '-') + ".png"
             );
             if (headshotUrl != null) {
-                return GameQuestionDto.builder()
-                        .name(name)
+                return NameGameQuestionDto.builder()
+                        .answerName(name)
                         .headshotUrl(headshotUrl)
-                        .namesForSelection(new ArrayList<>(names.subList(i, i + 2)))
+                        .wrongSelection(new ArrayList<>(names.subList(i + 1, i + 4)))
                         .gameCategory(GameCategory.HEADSHOT)
                         .build();
             }
         }
         throw new CustomException(CustomErrorCode.SERVER_ERROR, "headshot question generation error");
+    }
+
+    private User extractUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(
+                () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_400)
+        );
     }
 
 }

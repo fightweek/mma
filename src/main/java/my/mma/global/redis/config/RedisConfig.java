@@ -6,6 +6,8 @@ import my.mma.admin.fighter.dto.ChosenGameFighterNamesDto;
 import my.mma.admin.fighter.dto.RankersDto;
 import my.mma.event.dto.StreamFightEventDto;
 import my.mma.global.redis.utils.RedisUtils;
+import my.mma.stream.dto.UserChatLog;
+import my.mma.stream.dto.bet_and_vote.TodayBetResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -88,6 +90,30 @@ public class RedisConfig {
     public RedisTemplate<String, ChosenGameFighterNamesDto> adminChosenGameFightersRedisTemplate()
     {
         return setRedisTemplate(ChosenGameFighterNamesDto.class);
+    }
+
+    @Bean
+    public RedisUtils<TodayBetResponse> todayBetRedisUtils(
+            @Qualifier("todayBetRedisTemplate") RedisTemplate<String, TodayBetResponse> redisTemplate) {
+        return new RedisUtils<>(redisTemplate);
+    }
+
+    @Bean
+    public RedisTemplate<String, TodayBetResponse> todayBetRedisTemplate()
+    {
+        return setRedisTemplate(TodayBetResponse.class);
+    }
+
+    @Bean
+    public RedisUtils<UserChatLog> streamChatLogRedisUtils(
+            @Qualifier("streamChatLogRedisTemplate") RedisTemplate<String, UserChatLog> redisTemplate) {
+        return new RedisUtils<>(redisTemplate);
+    }
+
+    @Bean
+    public RedisTemplate<String, UserChatLog> streamChatLogRedisTemplate()
+    {
+        return setRedisTemplate(UserChatLog.class);
     }
 
     private <T> RedisTemplate<String, T> setRedisTemplate(Class<T> clazz){

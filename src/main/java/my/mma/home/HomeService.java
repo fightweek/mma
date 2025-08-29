@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.event.dto.StreamFightEventDto;
 import my.mma.global.redis.utils.RedisUtils;
-import my.mma.global.s3.service.S3Service;
+import my.mma.global.s3.service.S3ImgService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class HomeService {
 
     private final RedisUtils<StreamFightEventDto> redisUtils;
-    private final S3Service s3Service;
+    private final S3ImgService s3Service;
 
     public HomeScreenDto home(){
         StreamFightEventDto streamFightEventDto = redisUtils.getData("current-event");
