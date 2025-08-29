@@ -1,6 +1,5 @@
 package my.mma.global.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 @Getter
@@ -9,7 +8,7 @@ import lombok.*;
 @Builder
 @ToString
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class UpdatePreferenceDto {
+public class UpdatePreferenceRequest {
 
     private UpdatePreferenceCategory category;
     private Long targetId;

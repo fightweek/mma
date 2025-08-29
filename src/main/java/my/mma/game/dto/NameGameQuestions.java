@@ -9,21 +9,21 @@ import java.util.List;
 @Setter
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor
-public class GameQuestionsDto {
+public class NameGameQuestions {
 
-    private List<GameQuestionDto> gameQuestions;
+    private List<NameGameQuestionDto> gameQuestions;
 
     @Getter
     @Setter
     @AllArgsConstructor(access = AccessLevel.PROTECTED)
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @Builder
-    public static class GameQuestionDto {
+    public static class NameGameQuestionDto {
 
         private GameCategory gameCategory;
 
         // name은 어떤 category 든지 무조간 들어가야 됨
-        private String name;
+        private String answerName;
 
         private String nickname;
 
@@ -36,7 +36,7 @@ public class GameQuestionsDto {
 
         private FightRecord fightRecord;
 
-        private List<String> namesForSelection;
+        private List<String> wrongSelection;
 
     }
 

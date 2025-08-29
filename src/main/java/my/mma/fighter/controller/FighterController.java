@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import my.mma.fighter.dto.FighterDetailDto;
 import my.mma.fighter.dto.FighterDto;
 import my.mma.fighter.service.FighterService;
-import my.mma.global.dto.UpdatePreferenceDto;
-import my.mma.global.s3.service.S3Service;
+import my.mma.global.dto.UpdatePreferenceRequest;
+import my.mma.global.s3.service.S3ImgService;
 import my.mma.global.service.UpdatePreferenceService;
 import my.mma.security.CustomUserDetails;
 import org.springframework.data.domain.Page;
@@ -28,7 +28,7 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 public class FighterController {
 
     private final FighterService fighterService;
-    private final S3Service s3Service;
+    private final S3ImgService s3Service;
     private final UpdatePreferenceService updatePreferenceService;
 
     @GetMapping("/{fighterId}")
@@ -49,7 +49,7 @@ public class FighterController {
     @PostMapping("/preference")
     public ResponseEntity<Void> updatePreference(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody UpdatePreferenceDto request
+            @RequestBody UpdatePreferenceRequest request
     ) {
         System.out.println("request = " + request);
         updatePreferenceService.updatePreference(userDetails.getUsername(),request);

@@ -15,7 +15,7 @@ import my.mma.fighter.repository.FighterRepository;
 import my.mma.global.entity.TargetType;
 import my.mma.global.repository.AlertRepository;
 import my.mma.global.repository.LikeRepository;
-import my.mma.global.s3.service.S3Service;
+import my.mma.global.s3.service.S3ImgService;
 import my.mma.user.entity.User;
 import my.mma.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -38,7 +38,7 @@ public class FighterService {
     private final LikeRepository likeRepository;
     private final AlertRepository alertRepository;
     private final UserRepository userRepository;
-    private final S3Service s3Service;
+    private final S3ImgService s3Service;
 
     public FighterDetailDto detail(String email, Long fighterId) {
         Fighter fighter = fighterRepository.findById(fighterId).orElseThrow(
