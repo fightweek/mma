@@ -2,9 +2,9 @@ package my.mma.stream.dto;
 
 import lombok.*;
 import my.mma.event.dto.StreamFightEventDto;
+import my.mma.stream.chat.dto.ChatMessageDto.ChatJoinRequest;
 import my.mma.stream.chat.dto.ChatMessageDto.ChatMessageRequest;
 import my.mma.stream.chat.dto.ChatMessageDto.ChatMessageResponse;
-import my.mma.stream.dto.bet_and_vote.VoteRateDto;
 
 public class StreamMessageDto {
 
@@ -15,9 +15,10 @@ public class StreamMessageDto {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class StreamMessageRequest{
         private RequestMessageType requestMessageType;
+        private ChatJoinRequest chatJoinRequest;
         private ChatMessageRequest chatMessageRequest;
         private StreamFightEventDto streamFightEvent;
-        private int connectionCount;
+        private Long userIdToBlock;
     }
 
     @Getter
@@ -32,7 +33,7 @@ public class StreamMessageDto {
     }
 
     public enum RequestMessageType {
-        JOIN,TALK
+        JOIN,TALK,BLOCK
     }
 
     public enum ResponseMessageType {

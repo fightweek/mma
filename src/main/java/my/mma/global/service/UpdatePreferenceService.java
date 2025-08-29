@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
 import my.mma.global.dto.UpdatePreferenceCategory;
-import my.mma.global.dto.UpdatePreferenceDto;
+import my.mma.global.dto.UpdatePreferenceRequest;
 import my.mma.global.entity.Alert;
 import my.mma.global.entity.Like;
 import my.mma.global.entity.TargetType;
@@ -29,7 +29,7 @@ public class UpdatePreferenceService {
     private final AlertRepository alertRepository;
 
     @Transactional
-    public void updatePreference(String email, UpdatePreferenceDto request) {
+    public void updatePreference(String email, UpdatePreferenceRequest request) {
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_400)
         );

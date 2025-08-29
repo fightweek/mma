@@ -15,13 +15,14 @@ import java.util.List;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class BetRequest {
+public class SingleBetRequest {
 
-    private List<SingleBetRequest> singleBets;
+    private List<SingleBetCardRequest> singleBetCards;
 
     public Bet toEntity(User user){
         return Bet.builder()
                 .user(user)
+                .succeed(null)
                 .build();
     }
 
@@ -30,25 +31,18 @@ public class BetRequest {
     @Setter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class SingleBetRequest{
+    public static class SingleBetCardRequest {
         private long fighterFightEventId;
-        private long winnerId;
-        private long loserId;
         private int seedPoint;
-        private WinMethod winMethod; // nullable
-        private Integer winRound; // nullable
+        private BetPrediction betPrediction;
 
         public BetCard toEntity(FighterFightEvent fighterFightEvent, Bet bet){
             return BetCard.builder()
                     .fighterFightEvent(fighterFightEvent)
-                    .prediction(BetPrediction.builder()
-                            .winnerId(winnerId)
-                            .loserId(loserId)
-                            .winMethod(winMethod)
-                            .winRound(winRound)
-                            .build())
+                    .betPrediction(betPrediction)
                     .seedPoint(seedPoint)
                     .bet(bet)
+                    .succeed(null)
                     .build();
         }
 

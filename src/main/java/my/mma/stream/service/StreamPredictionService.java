@@ -13,17 +13,19 @@ import my.mma.event.repository.FighterFightEventRepository;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
 import my.mma.global.redis.utils.RedisUtils;
-import my.mma.stream.dto.bet_and_vote.BetRequest;
-import my.mma.stream.dto.bet_and_vote.VoteCntDto;
-import my.mma.stream.dto.bet_and_vote.VoteRateDto;
-import my.mma.stream.dto.bet_and_vote.VoteRequest;
-import my.mma.stream.handler.GlobalWebSocketHandler;
+import my.mma.stream.dto.ReportRequest;
+import my.mma.stream.dto.bet_and_vote.*;
+import my.mma.stream.repository.ReportRepository;
 import my.mma.user.entity.User;
 import my.mma.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.Optional;
+
+import static my.mma.global.redis.prefix.RedisKeyPrefix.BET_PREFIX;
+import static my.mma.stream.dto.bet_and_vote.TodayBetResponse.SingleBetResponse;
 
 @Service
 @Slf4j
@@ -34,9 +36,10 @@ public class StreamPredictionService {
     private final UserRepository userRepository;
     private final VoteRepository voteRepository;
     private final BetRepository betRepository;
+    private final ReportRepository reportRepository;
     private final FighterFightEventRepository fighterFightEventRepository;
-    private final GlobalWebSocketHandler webSocketHandler;
-    private final RedisUtils<StreamFightEventDto> redisUtils;
+    private final RedisUtils<StreamFightEventDto> streamFightEventredisUtils;
+    private final RedisUtils<TodayBetResponse> todayBetResponseRedisUtils;
 
     @Transactional
     public VoteRateDto vote(String email, VoteRequest voteRequest) {
@@ -60,7 +63,7 @@ public class StreamPredictionService {
         }
         voteRepository.flush();
 
-        StreamFightEventDto sfe = redisUtils.getData("current-event");
+        StreamFightEventDto sfe = streamFightEventredisUtils.getData("current-event");
         VoteCntDto voteCntDto = voteRepository.countVoteByFfeIdAndFighters(ffe.getId(), ffe.getWinner().getId(), ffe.getLoser().getId());
 
         Integer fighter1Votes = voteCntDto.getWinnerVotes();
@@ -78,7 +81,7 @@ public class StreamPredictionService {
                         e.setLoserVoteRate(fighter2VoteRate);
                     }
                 });
-        redisUtils.updateData("current-event", sfe);
+        streamFightEventredisUtils.updateData("current-event", sfe);
         return VoteRateDto.builder()
                 .ffeId(ffe.getId())
                 .winnerVoteRate(fighter1VoteRate)
@@ -87,11 +90,11 @@ public class StreamPredictionService {
     }
 
     @Transactional
-    public Integer bet(String email, BetRequest betRequest) {
+    public Integer bet(String email, SingleBetRequest betRequest) {
         User user = extractUserByEmail(email);
         Bet bet = betRequest.toEntity(user);
         int totalPoint = 0;
-        for (BetRequest.SingleBetRequest sb : betRequest.getSingleBets()) {
+        for (SingleBetRequest.SingleBetCardRequest sb : betRequest.getSingleBetCards()) {
             FighterFightEvent ffe = extractFighterFightEventById(sb.getFighterFightEventId());
             BetCard betCard = sb.toEntity(ffe, bet);
             totalPoint += sb.getSeedPoint();
@@ -99,7 +102,27 @@ public class StreamPredictionService {
         }
         user.updatePoint(user.getPoint()-totalPoint);
         betRepository.save(bet);
+        TodayBetResponse todayBetResponse = todayBetResponseRedisUtils.getData(BET_PREFIX.getPrefix()+user.getId().toString());
+        if(todayBetResponse == null){
+            todayBetResponse = new TodayBetResponse();
+            todayBetResponse.addBetDto(SingleBetResponse.toDto(bet));
+            todayBetResponseRedisUtils.saveDataWithTTL(BET_PREFIX.getPrefix()+user.getId().toString(),todayBetResponse,Duration.ofHours(10));
+        }else{
+            todayBetResponse.getSingleBets().add(SingleBetResponse.toDto(bet));
+            todayBetResponseRedisUtils.saveDataWithTTL(BET_PREFIX.getPrefix()+user.getId().toString(),todayBetResponse,Duration.ofHours(10));
+        }
         return user.getPoint();
+    }
+
+    public TodayBetResponse todayBetHistory(String email) {
+        User user = extractUserByEmail(email);
+        return todayBetResponseRedisUtils.getData(BET_PREFIX.getPrefix()+user.getId().toString());
+    }
+
+    @Transactional
+    public void report(String email, ReportRequest request) {
+        User user = extractUserByEmail(email);
+        reportRepository.save(request.toEntity(user.getId()));
     }
 
     private User extractUserByEmail(String email){
@@ -112,5 +135,4 @@ public class StreamPredictionService {
         return fighterFightEventRepository.findById(ffeId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.BAD_REQUEST_400));
     }
-
 }

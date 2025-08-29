@@ -9,7 +9,7 @@ import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
 import my.mma.global.entity.TargetType;
 import my.mma.global.repository.AlertRepository;
-import my.mma.global.s3.service.S3Service;
+import my.mma.global.s3.service.S3ImgService;
 import my.mma.user.entity.User;
 import my.mma.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ import java.util.Optional;
 public class EventService {
 
     private final FightEventRepository fightEventRepository;
-    private final S3Service s3Service;
+    private final S3ImgService s3Service;
     private final AlertRepository alertRepository;
     private final UserRepository userRepository;
 

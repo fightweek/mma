@@ -1,25 +1,48 @@
 services:
-  mysql:
+  # container service name
+  my-db:
     image: mysql:latest
     container_name: mysql-container
+#    deploy:
+#      resources:
+#        limits:
+#          memory: 512m
     ports:
-      - "3307:3306"
+      - 3306:3306
     environment:
       MYSQL_ROOT_PASSWORD: 2512
       MYSQL_DATABASE: mma
       MYSQL_USER: user
       MYSQL_PASSWORD: 2512
       TZ: Asia/Seoul
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+  my-cache:
+    image: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redis_data:/data
   spring-boot-app:
     image: jinhyuntaek/mma-img
     container_name: spring-boot-container
     ports:
-      - "8080:8080"
+      - 8080:8080
+#    depends_on 속성을 통해 mysql 컨테이너부터 실행되고 나서 스프링 서버 컨테이너가 실행되는 것을 보장
     depends_on:
-      - mysql
+      - my-db
+      - my-cache
+      - flask-app
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/mma
+#      SERVER_ADDRESS: 0.0.0.0
+      #      JAVA_OPTS: "-Xmx512m -Xms256m"
+      SPRING_DATASOURCE_URL: jdbc:mysql://my-db:3306/mma
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 2512
       SPRING_JPA_HIBERNATE_DDL_AUTO: create
-      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQLDialect
+  flask-app:
+    image: flask-img
+    container_name: flask-container
+    ports:
+      - "5000:5000"

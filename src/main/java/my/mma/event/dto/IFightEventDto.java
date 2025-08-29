@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder(toBuilder = true)
-public abstract class IFightEventDto<T extends IFighterFightEvent> {
+public abstract class IFightEventDto<T extends IFighterFightEvent<? extends IFighterDto>> {
 
     protected LocalDate date;
 
