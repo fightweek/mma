@@ -2,9 +2,12 @@ package my.mma.stream.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import my.mma.global.redis.utils.RedisUtils;
+import my.mma.stream.dto.UserChatLog;
 import my.mma.stream.handler.GlobalWebSocketHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
@@ -15,6 +18,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class WebSocketConfig implements WebSocketConfigurer {
 
     private final ObjectMapper objectMapper;
+    private final RedisUtils<UserChatLog> chatLogRedisUtils;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
@@ -24,6 +28,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
 
     @Bean
     public GlobalWebSocketHandler globalWebSocketHandler(){
-        return new GlobalWebSocketHandler(objectMapper);
+        return new GlobalWebSocketHandler(chatLogRedisUtils,objectMapper);
     }
 }

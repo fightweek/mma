@@ -2,6 +2,7 @@ package my.mma;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import my.mma.admin.fighter.dto.ChosenGameFighterNamesDto;
 import my.mma.event.entity.FightEvent;
 import my.mma.event.entity.FighterFightEvent;
 import my.mma.event.entity.property.FightResult;
@@ -12,6 +13,7 @@ import my.mma.exception.CustomException;
 import my.mma.fighter.entity.FightRecord;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
+import my.mma.global.redis.utils.RedisUtils;
 import my.mma.global.utils.ModifyUtils;
 import my.mma.user.entity.User;
 import my.mma.user.repository.UserRepository;
@@ -20,6 +22,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +45,14 @@ public class InitializeFightersAndEvents {
     private final FightEventRepository fightEventRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final RedisUtils<ChosenGameFighterNamesDto> adminChosenFightersRedisUtils;
 
+    /**
+     * 스프링 애플리케이션 컨텍스트가 완전히 초기화되고 모든 빈들이 로드된 후 실행됨
+     * 즉, 애플리케이션이 시작되어 서비스 요청을 처리할 준비가 되면 실행됨
+     * @PostConstruct 와 다르게, Proxy 클래스의 생성도 마친 상태에서 실행되므로,
+     * AOP가 적용된 클래스에 대해서도 작업이 가능하다.
+     */
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
     public void initializeAll() {
@@ -53,6 +63,7 @@ public class InitializeFightersAndEvents {
                 .role("ROLE_ADMIN")
                 .point(1000)
                 .build();
+        adminChosenFightersRedisUtils.saveData("chosenFighters",new ChosenGameFighterNamesDto());
         userRepository.save(user);
         readJsonFile();
     }
@@ -73,7 +84,8 @@ public class InitializeFightersAndEvents {
         // 3-66
         JSONParser parser = new JSONParser();
         try {
-            FileReader reader = new FileReader("E:\\etc\\ufc_data.json");
+            FileReader reader = new FileReader("/my-files/ufc_data.json");
+//            FileReader reader = new FileReader("etc/ufc_data.json");
             JSONObject jsonObj = (JSONObject) parser.parse(reader);
             JSONArray fighters = (JSONArray) jsonObj.get("fighters");
             JSONArray events = (JSONArray) jsonObj.get("events");
@@ -102,7 +114,7 @@ public class InitializeFightersAndEvents {
                         .build();
                 fighterRepository.save(fighter);
                 i++;
-                if (i == 98)
+                if (i == 96)
                     break;
             }
             for (Object arr : events) {

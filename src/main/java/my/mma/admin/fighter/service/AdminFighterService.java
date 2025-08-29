@@ -1,6 +1,7 @@
 package my.mma.admin.fighter.service;
 
 import lombok.extern.slf4j.Slf4j;
+import my.mma.admin.fighter.dto.ChosenGameFighterNamesDto;
 import my.mma.admin.fighter.dto.RankersDto;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
@@ -14,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -22,15 +24,18 @@ public class AdminFighterService {
 
     private final WebClient webClient;
     private final FighterRepository fighterRepository;
-    private final RedisUtils<RankersDto> rankers;
+    private final RedisUtils<RankersDto> rankerRedisUtils;
+    private final RedisUtils<ChosenGameFighterNamesDto> adminChosenFightersRedisUtils;
 
-    public AdminFighterService(FighterRepository fighterRepository, RedisUtils<RankersDto> rankers) {
-        String pythonURI = "http://localhost:5000";
+    public AdminFighterService(FighterRepository fighterRepository, RedisUtils<RankersDto> rankers,
+                               RedisUtils<ChosenGameFighterNamesDto> chosenFighters) {
+        String pythonURI = "http://flask-app:5000";
         this.webClient = WebClient.builder()
                 .baseUrl(pythonURI)
                 .build();
         this.fighterRepository = fighterRepository;
-        this.rankers = rankers;
+        this.rankerRedisUtils = rankers;
+        this.adminChosenFightersRedisUtils = chosenFighters;
     }
 
     @Transactional
@@ -57,9 +62,16 @@ public class AdminFighterService {
                         }
                     }
             );
-            this.rankers.updateData("rankers", rankersDto);
-        }
-        throw new CustomException(CustomErrorCode.SERVER_ERROR,"ranker data is null");
+            this.rankerRedisUtils.updateData("rankers", rankersDto);
+        } else
+            throw new CustomException(CustomErrorCode.SERVER_ERROR, "ranker data is null");
+    }
+
+    @Transactional
+    public void saveAdminChosenFighters(List<String> fighterNames){
+        ChosenGameFighterNamesDto chosenFighters = adminChosenFightersRedisUtils.getData("chosenFighters");
+        chosenFighters.getNames().addAll(fighterNames);
+        adminChosenFightersRedisUtils.updateData("chosenFighters",chosenFighters);
     }
 
 }

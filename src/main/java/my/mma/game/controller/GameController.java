@@ -1,13 +1,13 @@
 package my.mma.game.controller;
 
 import lombok.RequiredArgsConstructor;
-import my.mma.game.dto.GameQuestionsDto;
+import my.mma.game.dto.GameResponse;
+import my.mma.game.dto.NameGameQuestions;
 import my.mma.game.service.GameService;
+import my.mma.security.CustomUserDetails;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,9 +16,32 @@ public class GameController {
 
     private final GameService gameService;
 
+    @GetMapping("/attempt_count")
+    public ResponseEntity<Integer> getGameAttemptCount(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return ResponseEntity.ok().body(gameService.getGameAttemptCount(userDetails.getUsername()));
+    }
+
+    @PostMapping("/subtract_attempt_count")
+    public ResponseEntity<Integer> subtractAttemptCount(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return ResponseEntity.ok().body(gameService.subtractGameAttemptCount(userDetails.getUsername()));
+    }
+
+    @PatchMapping("/update_point")
+    public ResponseEntity<Integer> updatePoint(
+            @RequestParam("newPoint") String newPoint,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        return ResponseEntity.ok().body(gameService.updatePoint(userDetails.getUsername(),Integer.parseInt(newPoint)));
+    }
+
     @GetMapping("/start")
-    public ResponseEntity<GameQuestionsDto> getGameQuestions(@RequestParam("normal") boolean isNormal){
-        return ResponseEntity.ok().body(gameService.generateGameQuestions(isNormal));
+    public ResponseEntity<GameResponse> getGameQuestions(@RequestParam("isNormal") boolean isNormal,
+                                                         @RequestParam("isImage") boolean isImage) {
+        return ResponseEntity.ok().body(gameService.generateGameQuestions(isNormal, isImage));
     }
 
 }

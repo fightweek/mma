@@ -10,6 +10,7 @@ import lombok.*;
 public class StreamUserDto {
 
     private String nickname;
+    private long id;
     private int point;
 
 }

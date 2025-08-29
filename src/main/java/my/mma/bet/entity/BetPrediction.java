@@ -17,9 +17,11 @@ import static lombok.AccessLevel.PROTECTED;
 @NoArgsConstructor(access = PROTECTED)
 public class BetPrediction {
 
-    private long winnerId;
+    // 실제 승자 x, 내가 선택한 승자
+    private String winnerName;
 
-    private long loserId;
+    // 실제 패자 x, 내가 선택한 패자
+    private String loserName;
 
     private Integer winRound;
 

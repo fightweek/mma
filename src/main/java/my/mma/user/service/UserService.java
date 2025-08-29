@@ -39,7 +39,7 @@ public class UserService {
     public UserDto getMe(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization").split(" ")[1];
         String email = jwtUtil.extractEmail(accessToken);
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.SERVER_ERROR));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.BAD_REQUEST_400));
         return UserDto.toDto(user);
     }
 
