@@ -15,19 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class HomeService {
 
     private final RedisUtils<StreamFightEventDto> redisUtils;
-    private final S3ImgService s3Service;
 
     public HomeScreenDto home(){
         StreamFightEventDto streamFightEventDto = redisUtils.getData("current-event");
         if(streamFightEventDto == null)
             return null;
         HomeScreenDto response = HomeScreenDto.toDto(streamFightEventDto);
-        response.setWinnerBodyUrl(s3Service.generateImgUrl(
-                "body/" + response.getWinnerName().replace(' ', '-') + ".png"
-        ));
-        response.setLoserBodyUrl(s3Service.generateImgUrl(
-                "body/" + response.getLoserName().replace(' ', '-') + ".png"
-        ));
         System.out.println(response.getMainCardDateTimeInfo());
         return response;
     }

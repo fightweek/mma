@@ -23,7 +23,7 @@ public class TokenVerifyRequest {
         return User.builder()
                 .role("ROLE_USER")
                 .email(email)
-                .point(0)
+                .point(1000)
 //                .nickname("guest_"+UUID.randomUUID())
                 .username(domain+"_"+providedSocialId)
                 .build();
