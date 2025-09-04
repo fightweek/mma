@@ -57,13 +57,13 @@ public class FighterService {
             fighterFightEventDtos.forEach(
                     ffe -> {
                         ffe.getWinner().setHeadshotUrl(s3Service.generateImgUrl(
-                                "headshot/" + ffe.getWinner().getName().replace(' ', '-') + ".png"));
+                                "headshot/" + ffe.getWinner().getName().replace(' ', '-') + ".png", 2));
                         ffe.getLoser().setHeadshotUrl(s3Service.generateImgUrl(
-                                "headshot/" + ffe.getLoser().getName().replace(' ', '-') + ".png"));
+                                "headshot/" + ffe.getLoser().getName().replace(' ', '-') + ".png", 2));
                     }
             );
         String headshotUrl = s3Service.generateImgUrl(
-                "headshot/" + fighter.getName().replace(' ', '-') + ".png");
+                "headshot/" + fighter.getName().replace(' ', '-') + ".png", 2);
         return FighterDetailDto.toDto(fighter, fighterFightEventDtos, headshotUrl, isLikeExists, isAlertExists);
     }
 
@@ -74,7 +74,7 @@ public class FighterService {
                         f -> {
                             FighterDto fighter = FighterDto.toDto(f);
                             fighter.setHeadshotUrl(s3Service.generateImgUrl(
-                                    "headshot/" + fighter.getName().replace(' ', '-') + ".png"));
+                                    "headshot/" + fighter.getName().replace(' ', '-') + ".png", 2));
                             return fighter;
                         }
                 )

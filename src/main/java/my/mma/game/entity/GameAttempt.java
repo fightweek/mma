@@ -22,6 +22,8 @@ public class GameAttempt {
 
     private int count;
 
+    private int adCount;
+
     @TimeToLive
     private long expiration;
 

@@ -35,19 +35,19 @@ public class S3ImgService {
     @Value("${spring.cloud.aws.s3.default-headshot}")
     private String defaultImageUrl;
 
-    public String generateImgUrl(String objectKey) {
+    public String generateImgUrl(String objectKey, int hours) {
         objectKey = objectExists(objectKey) ? objectKey : defaultImageUrl;
-        return generateUrlFromObjectKey(objectKey,6);
+        return generateUrlFromObjectKey(objectKey, hours);
     }
 
-    public String generateImgUrlOrNull(String objectKey) {
+    public String generateImgUrlOrNull(String objectKey, int hours) {
         objectKey = objectExists(objectKey) ? objectKey : null;
-        if(objectKey == null)
+        if (objectKey == null)
             return null;
-        return generateUrlFromObjectKey(objectKey,1);
+        return generateUrlFromObjectKey(objectKey, hours);
     }
 
-    private String generateUrlFromObjectKey(String objectKey, int hours){
+    private String generateUrlFromObjectKey(String objectKey, int hours) {
         GetObjectRequest aclRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
                 .key(objectKey)
