@@ -41,10 +41,10 @@ public class EventService {
                     fightEventDto.getFighterFightEvents().forEach(
                             fighterFightEventDto -> {
                                 fighterFightEventDto.getWinner().setHeadshotUrl(s3Service.generateImgUrl(
-                                        "headshot/" + fighterFightEventDto.getWinner().getName().replace(' ', '-') + ".png")
+                                        "headshot/" + fighterFightEventDto.getWinner().getName().replace(' ', '-') + ".png", 2)
                                 );
                                 fighterFightEventDto.getLoser().setHeadshotUrl(s3Service.generateImgUrl(
-                                        "headshot/" + fighterFightEventDto.getLoser().getName().replace(' ', '-') + ".png")
+                                        "headshot/" + fighterFightEventDto.getLoser().getName().replace(' ', '-') + ".png", 2)
                                 );
                             }
                     );
