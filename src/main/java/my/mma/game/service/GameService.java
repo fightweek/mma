@@ -9,10 +9,7 @@ import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
-import my.mma.game.dto.GameCategory;
-import my.mma.game.dto.GameResponse;
-import my.mma.game.dto.ImageGameQuestions;
-import my.mma.game.dto.NameGameQuestions;
+import my.mma.game.dto.*;
 import my.mma.game.dto.NameGameQuestions.NameGameQuestionDto;
 import my.mma.game.entity.GameAttempt;
 import my.mma.game.repository.GameAttemptRepository;
@@ -81,30 +78,43 @@ public class GameService {
     }
 
     // gameAttempt 존재 
-    public int getGameAttemptCount(String email) {
+    public GameAttemptResponse getGameAttemptCount(String email) {
         User user = extractUserByEmail(email);
         GameAttempt gameAttempt = gameAttemptRepository.findById(user.getId()).orElseGet(
                 () ->
                         gameAttemptRepository.save(GameAttempt.builder()
                                 .userId(user.getId())
                                 .count(10)
+                                .adCount(5)
                                 .expiration(Duration.between(
                                         LocalDateTime.now(),
                                         LocalDate.now().plusDays(1).atStartOfDay()).getSeconds()
                                 ).build())
         );
-        return gameAttempt.getCount();
+        return GameAttemptResponse.builder()
+                .count(gameAttempt.getCount())
+                .adCount(gameAttempt.getAdCount())
+                .build();
     }
 
     @Transactional
-    public int subtractGameAttemptCount(String email) {
+    public void updateGameAttemptCount(String email, boolean isSubtract) {
         User user = extractUserByEmail(email);
         GameAttempt gameAttempt = gameAttemptRepository.findById(user.getId()).orElseThrow(
                 () -> new CustomException(CustomErrorCode.NO_SUCH_EVENT_FOUND_400)
         );
-        gameAttempt.setCount(gameAttempt.getCount() - 1);
+        if (isSubtract) {
+            if (gameAttempt.getCount() == 0)
+                throw new CustomException(CustomErrorCode.BAD_REQUEST_400, "Attempt count is already expired");
+        }
+        // 광고
+        else {
+            if (gameAttempt.getAdCount() == 0)
+                throw new CustomException(CustomErrorCode.BAD_REQUEST_400, "AdCount is already expired");
+            gameAttempt.setAdCount(gameAttempt.getAdCount() - 1);
+        }
+        gameAttempt.setCount(gameAttempt.getCount() + (isSubtract ? -1 : 1));
         gameAttemptRepository.save(gameAttempt);
-        return gameAttempt.getCount();
     }
 
     @Transactional
@@ -130,7 +140,7 @@ public class GameService {
         ImageGameQuestions imageGameQuestions = new ImageGameQuestions();
         for (String name : names) {
             String headshotUrl = s3Service.generateImgUrlOrNull(
-                    "headshot/" + name.replace(' ', '-') + ".png"
+                    "headshot/" + name.replace(' ', '-') + ".png",2
             );
             if (headshotUrl != null) {
                 if (currentQuestionCnt % 4 == 0) {
@@ -208,7 +218,7 @@ public class GameService {
         for (int i = 0; i < names.size(); i++) {
             String name = names.get(i);
             String bodyUrl = s3Service.generateImgUrlOrNull(
-                    "body/" + name.replace(' ', '-') + ".png"
+                    "body/" + name.replace(' ', '-') + ".png",2
             );
             if (bodyUrl != null) {
                 return NameGameQuestionDto.builder()
@@ -231,7 +241,7 @@ public class GameService {
         for (int i = 0; i < names.size(); i++) {
             String name = names.get(i);
             String headshotUrl = s3Service.generateImgUrlOrNull(
-                    "headshot/" + name.replace(' ', '-') + ".png"
+                    "headshot/" + name.replace(' ', '-') + ".png",2
             );
             if (headshotUrl != null) {
                 return NameGameQuestionDto.builder()

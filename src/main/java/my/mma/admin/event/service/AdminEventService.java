@@ -198,28 +198,21 @@ public class AdminEventService {
 
     public void saveStreamFightEvent(FightEvent fightEvent) {
         StreamFightEventDto streamFightEvent = StreamFightEventDto.toDto(fightEvent);
-        streamFightEvent.setEarlyCardDateTimeInfo(
-                CardStartDateTimeInfoDto.toDto(
-                        CardStartDateTimeInfo.builder()
-                                .date(LocalDate.now())
-                                .time(LocalTime.now())
-                                .build())
-        );
         streamFightEvent.getFighterFightEvents().forEach(
                 ffe -> {
                     ffe.setWinnerVoteRate(0);
                     ffe.setLoserVoteRate(0);
                     ffe.getWinner().setHeadshotUrl(s3Service.generateImgUrl(
-                            "headshot/" + ffe.getWinner().getName().replace(' ', '-') + ".png")
+                            "headshot/" + ffe.getWinner().getName().replace(' ', '-') + ".png", 350)
                     );
                     ffe.getLoser().setHeadshotUrl(s3Service.generateImgUrl(
-                            "headshot/" + ffe.getLoser().getName().replace(' ', '-') + ".png")
+                            "headshot/" + ffe.getLoser().getName().replace(' ', '-') + ".png", 350)
                     );
                     ffe.getWinner().setBodyUrl(s3Service.generateImgUrl(
-                            "body/" + ffe.getWinner().getName().replace(' ', '-') + ".png")
+                            "body/" + ffe.getWinner().getName().replace(' ', '-') + ".png", 350)
                     );
                     ffe.getLoser().setBodyUrl(s3Service.generateImgUrl(
-                            "body/" + ffe.getLoser().getName().replace(' ', '-') + ".png")
+                            "body/" + ffe.getLoser().getName().replace(' ', '-') + ".png", 350)
                     );
                 }
         );

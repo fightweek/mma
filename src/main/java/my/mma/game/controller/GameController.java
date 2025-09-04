@@ -1,8 +1,8 @@
 package my.mma.game.controller;
 
 import lombok.RequiredArgsConstructor;
+import my.mma.game.dto.GameAttemptResponse;
 import my.mma.game.dto.GameResponse;
-import my.mma.game.dto.NameGameQuestions;
 import my.mma.game.service.GameService;
 import my.mma.security.CustomUserDetails;
 import org.springframework.http.ResponseEntity;
@@ -17,25 +17,27 @@ public class GameController {
     private final GameService gameService;
 
     @GetMapping("/attempt_count")
-    public ResponseEntity<Integer> getGameAttemptCount(
+    public ResponseEntity<GameAttemptResponse> getGameAttemptCount(
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
         return ResponseEntity.ok().body(gameService.getGameAttemptCount(userDetails.getUsername()));
     }
 
-    @PostMapping("/subtract_attempt_count")
-    public ResponseEntity<Integer> subtractAttemptCount(
-            @AuthenticationPrincipal CustomUserDetails userDetails
+    @PostMapping("/update_attempt_count")
+    public ResponseEntity<Void> subtractAttemptCount(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam("isSubtract") boolean isSubtract
     ) {
-        return ResponseEntity.ok().body(gameService.subtractGameAttemptCount(userDetails.getUsername()));
+        gameService.updateGameAttemptCount(userDetails.getUsername(), isSubtract);
+        return ResponseEntity.ok().body(null);
     }
 
     @PatchMapping("/update_point")
     public ResponseEntity<Integer> updatePoint(
             @RequestParam("newPoint") String newPoint,
             @AuthenticationPrincipal CustomUserDetails userDetails
-    ){
-        return ResponseEntity.ok().body(gameService.updatePoint(userDetails.getUsername(),Integer.parseInt(newPoint)));
+    ) {
+        return ResponseEntity.ok().body(gameService.updatePoint(userDetails.getUsername(), Integer.parseInt(newPoint)));
     }
 
     @GetMapping("/start")
