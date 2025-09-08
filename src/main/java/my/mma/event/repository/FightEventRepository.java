@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface FightEventRepository extends JpaRepository<FightEvent, Long> {
     @Query("select distinct f from FightEvent f join fetch f.fighterFightEvents ffe " +
             "join fetch ffe.loser join fetch ffe.winner where f.completed=:completed")
-    List<FightEvent> findAllByCompletedIsWithFighterFightEvents(@Param("completed") boolean completed);
+    List<FightEvent> findAllByCompletedWithFighterFightEvents(@Param("completed") boolean completed);
 
     @EntityGraph(attributePaths = {
             "fighterFightEvents",

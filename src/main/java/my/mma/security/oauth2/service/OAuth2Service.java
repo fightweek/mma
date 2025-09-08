@@ -37,25 +37,27 @@ public class OAuth2Service {
     @Transactional
     public TokenResponse saveUserIfNotExists(TokenVerifyRequest request) {
         String access = jwtUtil.createJwt(JwtCrateDto.toDto(
-                "access", request.getEmail(), "ROLE_USER", accessExpireMs, request.getDomain(), true
+                "access", request.email(), "ROLE_USER", accessExpireMs, request.domain(), true
         ));
         String refresh = jwtUtil.createJwt(JwtCrateDto.toDto(
-                "refresh", request.getEmail(), "ROLE_USER", refreshExpireMs, request.getDomain(), true
+                "refresh", request.email(), "ROLE_USER", refreshExpireMs, request.domain(), true
         ));
         System.out.println("refresh = " + refresh +", expireMs = "+refreshExpireMs);
-        addRefreshEntity(request.getEmail(), refresh, refreshExpireMs);
+        addRefreshEntity(request.email(), refresh, refreshExpireMs);
         // (소셜 로그인 시도) 중복 이메일 & (다른 소셜 플랫폼 or 일반 로그인 계정) -> 로그인 안 되도록 설정, 프론트는 알림 문구 띄움
-        Optional<User> userOpt = userRepository.findByEmail(request.getEmail());
+        Optional<User> userOpt = userRepository.findByEmail(request.email());
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            if (user.getUsername() == null || !user.getUsername().startsWith(request.getDomain()))
+            if (user.getUsername() == null || !user.getUsername().startsWith(request.domain()))
                 throw new CustomException(CustomErrorCode.DUPLICATED_EMAIL_403);
+            else
+                user.updateFcmToken(request.fcmToken());
         }
-        if (userRepository.findByUsername(request.getDomain() + "_" + request.getProvidedSocialId()).isEmpty()) {
+        if (userRepository.findByUsername(request.domain() + "_" + request.socialId()).isEmpty()) {
             userRepository.save(request.toEntity());
-            return TokenResponse.toDto(access, refresh, true);
+            return TokenResponse.toDto(access, refresh);
         }
-        return TokenResponse.toDto(access, refresh, false);
+        return TokenResponse.toDto(access, refresh);
     }
 
     private void addRefreshEntity(String email, String refresh, Long expiredMs) {

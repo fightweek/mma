@@ -4,11 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.admin.event.dto.CrawlerDto;
 import my.mma.admin.event.dto.CrawlerDto.EventCrawlerDto;
-import my.mma.event.dto.CardStartDateTimeInfoDto;
 import my.mma.event.dto.StreamFightEventDto;
 import my.mma.event.entity.FightEvent;
 import my.mma.event.entity.FighterFightEvent;
-import my.mma.event.entity.property.CardStartDateTimeInfo;
 import my.mma.event.repository.FightEventRepository;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
@@ -19,8 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static my.mma.fighter.entity.FightRecord.toFightRecord;
@@ -38,9 +35,10 @@ public class AdminEventService {
     private final RestTemplate restTemplate;
     private final RedisUtils<StreamFightEventDto> redisUtils;
     private final S3ImgService s3Service;
+    private final AdminNotificationService adminNotificationService;
 
     /**
-     * 차후 경기들 및 해당 경기에 참여하는 파이터 정보 모두 반환
+     * flask api: 차후 경기들 및 해당 경기에 참여하는 파이터 정보 모두 반환
      */
     @Transactional
     public void saveUpcomingEvents() {
@@ -53,7 +51,7 @@ public class AdminEventService {
 
     public void processFetchedEventData(CrawlerDto dto) {
         // DB에 존재하는 upcoming Events
-        List<FightEvent> existingUpcomingEvents = fightEventRepository.findAllByCompletedIsWithFighterFightEvents(false);
+        List<FightEvent> existingUpcomingEvents = fightEventRepository.findAllByCompletedWithFighterFightEvents(false);
         //
         List<FightEvent> crawledEvents = dto.getEvents().stream()
                 .map(EventCrawlerDto::toEntityForEventName)
@@ -83,16 +81,17 @@ public class AdminEventService {
     }
 
     private void updateFighterAndEventFromCompletedDto(CrawlerDto dto, String eventName) {
-//        updateFightersRecord(dto.getFighters());
+        updateFightersRecord(dto.getFighters());
         updateCompletedFightEvent(dto.getEvents(), eventName);
     }
 
-//    private void updateFightersRecord(List<CrawlerDto.FighterCrawlerDto> fighters) {
-//        for (CrawlerDto.FighterCrawlerDto dto : fighters) {
-//            fighterRepository.findByName(dto.getName()).ifPresent(fighter ->
-//                    fighter.updateFightRecord(dto.getRecord().split("-")));
-//        }
-//    }
+    // prev_event 경기가 끝난 fighters record 업데이트
+    private void updateFightersRecord(List<CrawlerDto.FighterCrawlerDto> fighters) {
+        for (CrawlerDto.FighterCrawlerDto dto : fighters) {
+            fighterRepository.findByName(dto.getName()).ifPresent(fighter ->
+                    fighter.updateFightRecord(dto.getRecord().split("-")));
+        }
+    }
 
     private void updateCompletedFightEvent(List<EventCrawlerDto> eventDtos, String eventName) {
         FightEvent event = fightEventRepository.findByName(eventName)
@@ -139,13 +138,13 @@ public class AdminEventService {
                     .findFirst()
                     .orElse(null);
             if (existingEvent == null) {
-                saveUpcomingEvents(dto, newEvent);
+                saveUpcomingEvent(dto, newEvent);
             } else {
                 boolean isChanged = isEventContentDifferent(dto, existingEvent, newEvent);
                 System.out.println("isChanged="+isChanged);
                 if (isChanged) {
                     fightEventRepository.delete(existingEvent);
-                    saveUpcomingEvents(dto, newEvent);
+                    saveUpcomingEvent(dto, newEvent);
                 }
             }
             if (i == 0)
@@ -180,7 +179,8 @@ public class AdminEventService {
         return false;
     }
 
-    private void saveUpcomingEvents(EventCrawlerDto dto, FightEvent event) {
+    private void saveUpcomingEvent(EventCrawlerDto dto, FightEvent event) {
+        List<Fighter> fighters = new ArrayList<>();
         for (EventCrawlerDto.Card card : dto.getCards()) {
             try {
                 Fighter winner = fighterRepository.findByName(card.getWinnerName())
@@ -188,11 +188,14 @@ public class AdminEventService {
                 Fighter loser = fighterRepository.findByName(card.getLoserName())
                         .orElseThrow(() -> new RuntimeException("No such fighter: " + card.getLoserName()));
                 FighterFightEvent fight = card.toEntity(winner, loser);
+                fighters.add(winner);
+                fighters.add(loser);
                 event.addFighterFightEvent(fight);
             } catch (Exception e) {
                 log.warn("Error linking fighters to fightEvent: {}", e.getMessage());
             }
         }
+        adminNotificationService.sendNotification(event.getName(),fighters);
         fightEventRepository.save(event);
     }
 
@@ -203,16 +206,16 @@ public class AdminEventService {
                     ffe.setWinnerVoteRate(0);
                     ffe.setLoserVoteRate(0);
                     ffe.getWinner().setHeadshotUrl(s3Service.generateImgUrl(
-                            "headshot/" + ffe.getWinner().getName().replace(' ', '-') + ".png", 350)
+                            "headshot/" + ffe.getWinner().getName().replace(' ', '-') + ".png", 168)
                     );
                     ffe.getLoser().setHeadshotUrl(s3Service.generateImgUrl(
-                            "headshot/" + ffe.getLoser().getName().replace(' ', '-') + ".png", 350)
+                            "headshot/" + ffe.getLoser().getName().replace(' ', '-') + ".png", 168)
                     );
                     ffe.getWinner().setBodyUrl(s3Service.generateImgUrl(
-                            "body/" + ffe.getWinner().getName().replace(' ', '-') + ".png", 350)
+                            "body/" + ffe.getWinner().getName().replace(' ', '-') + ".png", 168)
                     );
                     ffe.getLoser().setBodyUrl(s3Service.generateImgUrl(
-                            "body/" + ffe.getLoser().getName().replace(' ', '-') + ".png", 350)
+                            "body/" + ffe.getLoser().getName().replace(' ', '-') + ".png", 168)
                     );
                 }
         );

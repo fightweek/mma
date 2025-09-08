@@ -30,6 +30,8 @@ public class User extends BaseEntity {
 
     private int point;
 
+    private String fcmToken;
+
     public void updateEmail(String email){
         this.email = email;
     }
@@ -40,6 +42,10 @@ public class User extends BaseEntity {
 
     public void updatePoint(int point){
         this.point = point;
+    }
+
+    public void updateFcmToken(String fcmToken){
+        this.fcmToken = fcmToken;
     }
 
 
