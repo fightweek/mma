@@ -36,6 +36,13 @@ public class UserService {
         return UserDto.toDto(user);
     }
 
+    @Transactional
+    public void updateFcmToken(String email, String fcmToken) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.SERVER_ERROR));
+        user.updateFcmToken(fcmToken);
+    }
+
     public UserDto getMe(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization").split(" ")[1];
         String email = jwtUtil.extractEmail(accessToken);

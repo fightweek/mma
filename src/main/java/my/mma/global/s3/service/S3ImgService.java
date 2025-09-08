@@ -46,7 +46,6 @@ public class S3ImgService {
             return null;
         return generateUrlFromObjectKey(objectKey, hours);
     }
-
     private String generateUrlFromObjectKey(String objectKey, int hours) {
         GetObjectRequest aclRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
@@ -74,7 +73,7 @@ public class S3ImgService {
         }
     }
 
-    public List<String> uploadFile(List<MultipartFile> multipartFiles) {
+    public List<String> uploadFiles(List<MultipartFile> multipartFiles) {
         List<String> storeFileNames = new ArrayList<>();
         multipartFiles.forEach(file -> {
             String randomFileName = generateRandomFileName(file);

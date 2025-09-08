@@ -43,3 +43,4 @@ src/main/resources/application.properties
 src/main/resources/application.yml
 mysql_data
 redis_data
+etc/

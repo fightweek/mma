@@ -9,7 +9,7 @@ import java.util.concurrent.Executor;
 
 @Configuration
 @EnableAsync
-public class AsyncBetUpdateConfig {
+public class AsyncConfig {
 
     @Bean(name = "betExecutor")
     public Executor betExecutor() {
@@ -18,6 +18,17 @@ public class AsyncBetUpdateConfig {
         executor.setMaxPoolSize(8); // 최대 스레드 수
         executor.setQueueCapacity(100); // 대기 큐 크기
         executor.setThreadNamePrefix("Bet-Async-");
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = "notification")
+    public Executor notificationExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(4); // 동시에 처리할 최소 스레드 수
+        executor.setMaxPoolSize(8); // 최대 스레드 수
+        executor.setQueueCapacity(100); // 대기 큐 크기
+        executor.setThreadNamePrefix("notification");
         executor.initialize();
         return executor;
     }
