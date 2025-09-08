@@ -24,6 +24,8 @@ repositories {
 }
 
 dependencies {
+	implementation 'com.google.firebase:firebase-admin:9.5.0'
+
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
 	implementation 'org.jsoup:jsoup:1.15.3'
@@ -56,4 +58,11 @@ dependencies {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+configurations.configureEach {
+	resolutionStrategy {
+		// Netty 안전한 최신 버전으로 강제 적용
+		force 'io.netty:netty-codec-http:4.1.115.Final'
+	}
 }

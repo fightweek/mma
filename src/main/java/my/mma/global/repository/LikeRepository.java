@@ -9,6 +9,5 @@ import java.util.Optional;
 
 public interface LikeRepository extends JpaRepository<Like, Long> {
     boolean existsByUserAndTargetTypeAndTargetId(User user, TargetType targetType, Long targetId);
-
     void deleteByUserAndTargetTypeAndTargetId(User user, TargetType targetType, Long targetId);
 }

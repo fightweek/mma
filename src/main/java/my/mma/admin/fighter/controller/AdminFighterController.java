@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import my.mma.admin.fighter.service.AdminFighterService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -34,6 +31,15 @@ public class AdminFighterController {
     ) {
         fighterService.saveAdminChosenFighters(chosenFighters);
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
+    }
+
+    // 기존 이미지 덮어쓰거나 새로 넣는 작업이므로 putmapping
+    @PutMapping("/image")
+    public ResponseEntity<Void> updateImage(
+            @RequestBody Map<String,String> fighterNameMap
+    ) {
+        fighterService.updateImage(fighterNameMap.get("fighterName"));
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(null);
     }
 
 }

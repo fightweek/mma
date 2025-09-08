@@ -4,19 +4,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
-@Builder
-public class TokenResponse {
+public record TokenResponse(String accessToken, String refreshToken) {
 
-    private final String accessToken;
-    private final String refreshToken;
-
-    public static TokenResponse toDto(String accessToken, String refreshToken, boolean isCreated){
-        return TokenResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+    public static TokenResponse toDto(String accessToken, String refreshToken){
+        return new TokenResponse(accessToken, refreshToken);
     }
 
 }

@@ -28,7 +28,7 @@ public class AdminNewsService {
         List<ImageFile> imageFiles = new ArrayList<>();
         News news = request.toEntity();
         if(request.getMultipartFiles()!=null) {
-            List<String> storeFileNames = s3Service.uploadFile(request.getMultipartFiles());
+            List<String> storeFileNames = s3Service.uploadFiles(request.getMultipartFiles());
             for (String storeFileName : storeFileNames) {
                 ImageFile imageFile = ImageFile.builder()
                         .storeFileName(storeFileName)

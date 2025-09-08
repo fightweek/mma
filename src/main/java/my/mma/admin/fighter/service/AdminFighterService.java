@@ -8,12 +8,14 @@ import my.mma.exception.CustomException;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
 import my.mma.global.redis.utils.RedisUtils;
+import my.mma.global.s3.service.S3ImgService;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -26,9 +28,10 @@ public class AdminFighterService {
     private final FighterRepository fighterRepository;
     private final RedisUtils<RankersDto> rankerRedisUtils;
     private final RedisUtils<ChosenGameFighterNamesDto> adminChosenFightersRedisUtils;
+    private final S3ImgService s3ImgService;
 
     public AdminFighterService(FighterRepository fighterRepository, RedisUtils<RankersDto> rankers,
-                               RedisUtils<ChosenGameFighterNamesDto> chosenFighters) {
+                               RedisUtils<ChosenGameFighterNamesDto> chosenFighters, S3ImgService s3ImgService) {
         String pythonURI = "http://flask-app:5000";
         this.webClient = WebClient.builder()
                 .baseUrl(pythonURI)
@@ -36,6 +39,7 @@ public class AdminFighterService {
         this.fighterRepository = fighterRepository;
         this.rankerRedisUtils = rankers;
         this.adminChosenFightersRedisUtils = chosenFighters;
+        this.s3ImgService = s3ImgService;
     }
 
     @Transactional
@@ -68,10 +72,23 @@ public class AdminFighterService {
     }
 
     @Transactional
-    public void saveAdminChosenFighters(List<String> fighterNames){
+    public void saveAdminChosenFighters(List<String> fighterNames) {
         ChosenGameFighterNamesDto chosenFighters = adminChosenFightersRedisUtils.getData("chosenFighters");
         chosenFighters.getNames().addAll(fighterNames);
-        adminChosenFightersRedisUtils.updateData("chosenFighters",chosenFighters);
+        adminChosenFightersRedisUtils.updateData("chosenFighters", chosenFighters);
     }
 
+    public void updateImage(String fighterName) {
+        try {
+            webClient.put()
+                    .uri("/ufc/fighter_image")
+                    .accept(MediaType.APPLICATION_JSON)
+                    .bodyValue(Map.of("fighterName", fighterName))
+                    .retrieve()
+                    .bodyToMono(Void.class)
+                    .block();
+        } catch (Exception e) {
+            throw new CustomException(CustomErrorCode.SERVER_ERROR, "error while updating fighter image, e=" + e.getMessage());
+        }
+    }
 }

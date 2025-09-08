@@ -9,6 +9,8 @@ import my.mma.security.repository.RefreshRepository;
 import my.mma.security.JWTUtil;
 import my.mma.security.filter.JWTFilter;
 import my.mma.security.filter.LoginFilter;
+import my.mma.user.repository.UserRepository;
+import my.mma.user.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,6 +43,7 @@ public class SecurityConfig {
     private final JWTUtil jwtUtil;
     private final RefreshRepository refreshRepository;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final UserService userService;
     private final ObjectMapper objectMapper;
 
     @Bean
@@ -95,7 +98,7 @@ public class SecurityConfig {
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.addFilterBefore(new JWTFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class); //LoginFilter 전에 필터 생성
-        http.addFilterAt(new LoginFilter(authenticationManager(), jwtUtil, refreshRepository, accessExpireMs, refreshExpireMs, objectMapper), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(new LoginFilter(authenticationManager(), jwtUtil, refreshRepository, userService, accessExpireMs, refreshExpireMs, objectMapper), UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
         return http.build();
     }

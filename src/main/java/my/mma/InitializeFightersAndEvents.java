@@ -114,8 +114,8 @@ public class InitializeFightersAndEvents {
                         .build();
                 fighterRepository.save(fighter);
                 i++;
-                if (i == 96)
-                    break;
+//                if (i == 96)
+//                    break;
             }
             for (Object arr : events) {
                 JSONObject eventObj = (JSONObject) arr;
@@ -163,7 +163,7 @@ public class InitializeFightersAndEvents {
                 }
                 fightEventRepository.save(fightEvent);
                 j++;
-                if (j == 4)
+                if (j == 40)
                     break;
             }
         } catch (Exception e) {
