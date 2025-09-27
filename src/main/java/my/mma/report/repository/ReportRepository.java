@@ -1,6 +1,6 @@
-package my.mma.stream.repository;
+package my.mma.report.repository;
 
-import my.mma.stream.entity.Report;
+import my.mma.report.entity.Report;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ReportRepository extends JpaRepository<Report,Long> {

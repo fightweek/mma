@@ -15,7 +15,7 @@ public class StreamService {
 
     private final RedisUtils<StreamFightEventDto> redisUtils;
 
-    public StreamFightEventDto getTodayEvent() {
+    public StreamFightEventDto getWeeklyEvent() {
         return redisUtils.getData("current-event");
     }
 

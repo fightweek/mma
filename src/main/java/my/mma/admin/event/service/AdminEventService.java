@@ -140,6 +140,7 @@ public class AdminEventService {
             if (existingEvent == null) {
                 saveUpcomingEvent(dto, newEvent);
             } else {
+                // 기존(DB)의 다가오는 이벤트 정보 - 현재 불러온 해당 다가오는 이벤트 정보를 비교하여 바뀌었으면, 내용물 변경
                 boolean isChanged = isEventContentDifferent(dto, existingEvent, newEvent);
                 System.out.println("isChanged="+isChanged);
                 if (isChanged) {

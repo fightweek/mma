@@ -11,7 +11,5 @@ public enum WinMethod {
     U_DEC,
     M_DEC,
     S_DEC,
-    DRAW,
-    DQ;
 
 }

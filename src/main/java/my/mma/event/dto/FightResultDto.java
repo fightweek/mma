@@ -13,7 +13,7 @@ import java.time.LocalTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FightResultDto {
 
-    private String winMethod;
+    private WinMethod winMethod;
 
     private int round;
 
@@ -21,26 +21,18 @@ public class FightResultDto {
 
     private String description;
 
-    public static FightResult toFightResult(FightResultDto resultDto) {
-        String[] timeParts = resultDto.getEndTime().split(":");
-        return FightResult.builder()
-                .winMethod(
-                        resultDto.getWinMethod().contains("DEC") ? WinMethod.valueOf(resultDto.getWinMethod()) :
-                                (resultDto.getWinMethod().contains("SUB") ? WinMethod.SUB :
-                                        (resultDto.getWinMethod().contains("KO") ? WinMethod.KO_TKO : WinMethod.DQ))
-                )
-                .winDescription(resultDto.getWinMethod().contains("SUB") ? resultDto.getWinMethod().split("_")[1] : null)
-                .round(resultDto.getRound())
-                .endTime(LocalTime.of(0,Integer.parseInt(timeParts[0],Integer.parseInt(timeParts[1]))))
-                .build();
-    }
+    private boolean draw;
+
+    private boolean nc;
 
     public static FightResultDto toDto(FightResult result){
         return FightResultDto.builder()
                 .endTime(result.getEndTime().toString())
                 .round(result.getRound())
-                .winMethod(result.getWinMethod().name())
+                .winMethod(result.getWinMethod())
                 .description(result.getWinDescription())
+                .draw(result.isDraw())
+                .nc(result.isNc())
                 .build();
     }
 

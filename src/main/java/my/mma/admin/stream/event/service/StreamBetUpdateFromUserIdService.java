@@ -3,11 +3,10 @@ package my.mma.admin.stream.event.service;
 import lombok.RequiredArgsConstructor;
 import my.mma.bet.entity.BetCard;
 import my.mma.bet.repository.BetRepository;
-import my.mma.event.dto.StreamFightEventDto;
 import my.mma.event.dto.StreamFightEventDto.StreamFighterFightEventDto;
 import my.mma.global.redis.utils.RedisUtils;
-import my.mma.stream.dto.bet_and_vote.TodayBetResponse;
-import my.mma.stream.dto.bet_and_vote.TodayBetResponse.SingleBetCardResponse;
+import my.mma.bet.dto.BetResponse;
+import my.mma.bet.dto.BetResponse.SingleBetCardResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,11 +16,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StreamBetUpdateFromUserIdService {
 
-    private final RedisUtils<TodayBetResponse> todayBetRedisUtils;
+    private final RedisUtils<BetResponse> todayBetRedisUtils;
     private final BetRepository betRepository;
 
     @Transactional
-    public void updateSingleBetData(StreamFighterFightEventDto redisCard, String betPrefixWithUserId, TodayBetResponse userBet) {
+    public void updateUserBetData(StreamFighterFightEventDto redisCard, String betPrefixWithUserId, BetResponse userBet) {
         userBet.getSingleBets().forEach(
                 redisSingleBet -> {
                     betRepository.findByIdWithBetCards(redisSingleBet.getBetId()).ifPresent(
@@ -48,12 +47,12 @@ public class StreamBetUpdateFromUserIdService {
             boolean succeed;
             if (card instanceof SingleBetCardResponse) {
                 SingleBetCardResponse c = (SingleBetCardResponse) card;
-                winnerForUser = c.getBetPrediction().getWinnerName();
+                winnerForUser = c.getBetPrediction().getMyWinnerName();
                 succeed = winnerForUser.equals(actualWinner);
                 c.setSucceed(succeed);
             } else if (card instanceof BetCard) {
                 BetCard c = (BetCard) card;
-                winnerForUser = c.getBetPrediction().getWinnerName();
+                winnerForUser = c.getBetPrediction().getMyWinnerName();
                 succeed = winnerForUser.equals(actualWinner);
                 c.updateSucceed(succeed);
             }

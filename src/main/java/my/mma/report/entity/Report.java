@@ -1,4 +1,4 @@
-package my.mma.stream.entity;
+package my.mma.report.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

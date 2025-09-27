@@ -33,6 +33,10 @@ public class Bet extends BaseEntity {
 
     private Boolean succeed;
 
+    private long eventId;
+
+    private int seedPoint;
+
     @Builder.Default
     @OneToMany(mappedBy = "bet",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<BetCard> betCards = new ArrayList<>();

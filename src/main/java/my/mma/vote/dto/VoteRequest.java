@@ -1,6 +1,6 @@
-package my.mma.stream.dto.bet_and_vote;
+package my.mma.vote.dto;
 
-import my.mma.bet.entity.Vote;
+import my.mma.vote.entity.Vote;
 import my.mma.event.entity.FighterFightEvent;
 import my.mma.user.entity.User;
 

@@ -38,12 +38,6 @@ public class FighterFightEvent extends BaseEntity {
 
     private boolean title;
 
-    // draw (both are winner)
-    private boolean draw;
-
-    // no contest (no winner & loser)
-    private boolean nc;
-
     protected void addFightEvent(FightEvent fightEvent){
         this.fightEvent = fightEvent;
     }
@@ -59,8 +53,8 @@ public class FighterFightEvent extends BaseEntity {
     }
 
     public void updateDrawAndNc(boolean draw, boolean nc){
-        this.draw = draw;
-        this.nc = nc;
+        this.fightResult.setDraw(draw);
+        this.fightResult.setNc(nc);
     }
 
 }

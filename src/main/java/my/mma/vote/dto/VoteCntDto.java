@@ -1,4 +1,4 @@
-package my.mma.stream.dto.bet_and_vote;
+package my.mma.vote.dto;
 
 public interface VoteCntDto {
     Integer getWinnerVotes();

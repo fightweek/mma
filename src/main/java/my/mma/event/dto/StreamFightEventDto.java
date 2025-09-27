@@ -24,6 +24,7 @@ public class StreamFightEventDto extends IFightEventDto<StreamFighterFightEventD
 
     public static StreamFightEventDto toDto(FightEvent fightEvent) {
         return StreamFightEventDto.builder()
+                .id(fightEvent.getId())
                 .date(fightEvent.getEventDate())
                 .mainCardDateTimeInfo(fightEvent.getMainCardDateTimeInfo() != null ?
                         CardStartDateTimeInfoDto.toDto(fightEvent.getMainCardDateTimeInfo()) : null)
@@ -56,6 +57,7 @@ public class StreamFightEventDto extends IFightEventDto<StreamFighterFightEventD
 
         private double loserVoteRate;
 
+        // for streaming (upcoming) event -> result is null
         public static StreamFighterFightEventDto toDto(FighterFightEvent ffe, StreamFighterFightEventStatus status){
             return StreamFighterFightEventDto.builder()
                     .id(ffe.getId())
@@ -63,7 +65,7 @@ public class StreamFightEventDto extends IFightEventDto<StreamFighterFightEventD
                     .fightWeight(ffe.getFightWeight())
                     .winner(StreamFighterDto.toDto(ffe.getWinner()))
                     .loser(StreamFighterDto.toDto(ffe.getLoser()))
-                    .result(ffe.getFightResult() != null ? FightResultDto.toDto(ffe.getFightResult()) : null)
+                    .result(null)
                     .title(ffe.isTitle())
                     .build();
         }
@@ -97,9 +99,6 @@ public class StreamFightEventDto extends IFightEventDto<StreamFighterFightEventD
                     .birthday(fighter.getBirthday())
                     .build();
         }
-
     }
-
-
 
 }

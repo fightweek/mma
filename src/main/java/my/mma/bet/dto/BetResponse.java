@@ -1,4 +1,4 @@
-package my.mma.stream.dto.bet_and_vote;
+package my.mma.bet.dto;
 
 import lombok.*;
 import my.mma.bet.entity.Bet;

@@ -42,12 +42,13 @@ public class OAuth2Service {
         String refresh = jwtUtil.createJwt(JwtCrateDto.toDto(
                 "refresh", request.email(), "ROLE_USER", refreshExpireMs, request.domain(), true
         ));
-        System.out.println("refresh = " + refresh +", expireMs = "+refreshExpireMs);
+        System.out.println("refresh = " + refresh + ", expireMs = " + refreshExpireMs);
         addRefreshEntity(request.email(), refresh, refreshExpireMs);
         // (소셜 로그인 시도) 중복 이메일 & (다른 소셜 플랫폼 or 일반 로그인 계정) -> 로그인 안 되도록 설정, 프론트는 알림 문구 띄움
         Optional<User> userOpt = userRepository.findByEmail(request.email());
         if (userOpt.isPresent()) {
             User user = userOpt.get();
+            // username == null : 일반 회원가입 사용자 / !user.getUsername().startsWith(request.domain()) : 소셜 회원가입 사용자
             if (user.getUsername() == null || !user.getUsername().startsWith(request.domain()))
                 throw new CustomException(CustomErrorCode.DUPLICATED_EMAIL_403);
             else
