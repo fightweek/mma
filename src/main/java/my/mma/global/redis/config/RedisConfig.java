@@ -7,7 +7,7 @@ import my.mma.admin.fighter.dto.RankersDto;
 import my.mma.event.dto.StreamFightEventDto;
 import my.mma.global.redis.utils.RedisUtils;
 import my.mma.stream.dto.UserChatLog;
-import my.mma.stream.dto.bet_and_vote.TodayBetResponse;
+import my.mma.bet.dto.BetResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -93,15 +93,15 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisUtils<TodayBetResponse> todayBetRedisUtils(
-            @Qualifier("todayBetRedisTemplate") RedisTemplate<String, TodayBetResponse> redisTemplate) {
+    public RedisUtils<BetResponse> todayBetRedisUtils(
+            @Qualifier("todayBetRedisTemplate") RedisTemplate<String, BetResponse> redisTemplate) {
         return new RedisUtils<>(redisTemplate);
     }
 
     @Bean
-    public RedisTemplate<String, TodayBetResponse> todayBetRedisTemplate()
+    public RedisTemplate<String, BetResponse> todayBetRedisTemplate()
     {
-        return setRedisTemplate(TodayBetResponse.class);
+        return setRedisTemplate(BetResponse.class);
     }
 
     @Bean

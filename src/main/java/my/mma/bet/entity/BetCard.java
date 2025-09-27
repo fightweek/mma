@@ -35,9 +35,8 @@ public class BetCard extends BaseEntity {
     @Embedded
     private BetPrediction betPrediction;
 
+    // nullable (null if according fighterFightEvent is not finished yet)
     private Boolean succeed;
-
-    private int seedPoint;
 
     protected void addBet(Bet bet){
         this.bet = bet;

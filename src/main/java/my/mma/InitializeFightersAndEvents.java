@@ -50,6 +50,7 @@ public class InitializeFightersAndEvents {
     /**
      * 스프링 애플리케이션 컨텍스트가 완전히 초기화되고 모든 빈들이 로드된 후 실행됨
      * 즉, 애플리케이션이 시작되어 서비스 요청을 처리할 준비가 되면 실행됨
+     *
      * @PostConstruct 와 다르게, Proxy 클래스의 생성도 마친 상태에서 실행되므로,
      * AOP가 적용된 클래스에 대해서도 작업이 가능하다.
      */
@@ -63,7 +64,7 @@ public class InitializeFightersAndEvents {
                 .role("ROLE_ADMIN")
                 .point(1000)
                 .build();
-        adminChosenFightersRedisUtils.saveData("chosenFighters",new ChosenGameFighterNamesDto());
+        adminChosenFightersRedisUtils.saveData("chosenFighters", new ChosenGameFighterNamesDto());
         userRepository.save(user);
         readJsonFile();
     }
@@ -131,8 +132,8 @@ public class InitializeFightersAndEvents {
                     JSONObject cardObj = (JSONObject) arr2;
                     String winnerName = cardObj.get("winner").toString();
                     String loserName = cardObj.get("loser").toString();
-                    String method = cardObj.get("method").toString();
-                    String[] methodSplit = method.split("_");
+                    Object method = cardObj.get("method");
+                    Object description = cardObj.get("description");
                     String[] timeParts = cardObj.get("fight_time").toString().split(":");
                     Fighter winner = fighterRepository.findByName(winnerName).orElseThrow(
                             () -> new RuntimeException("No such fighter found " + winnerName)
@@ -146,18 +147,13 @@ public class InitializeFightersAndEvents {
                             .title(Boolean.parseBoolean(cardObj.get("is_title").toString()))
                             .fightWeight(cardObj.get("fight_weight").toString())
                             .fightResult(FightResult.builder()
-                                    .winMethod(
-                                            method.contains("DEC") ? WinMethod.valueOf(method) :
-                                                    (method.contains("SUB") ? WinMethod.SUB :
-                                                            (method.contains("KO") ? WinMethod.KO_TKO : WinMethod.DQ))
-                                    )
-                                    .winDescription((method.contains("SUB") || method.contains("KO")) ?
-                                            methodSplit.length == 2 ? methodSplit[1] : null : null)
+                                    .winMethod(method != null ? WinMethod.valueOf(method.toString()) : null)
+                                    .winDescription(description != null ? description.toString() : null)
                                     .endTime(LocalTime.of(0, Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1])))
                                     .round(Integer.parseInt(cardObj.get("round").toString()))
+                                    .draw(cardObj.get("draw").equals("true"))
+                                    .nc(cardObj.get("nc").equals("true"))
                                     .build())
-                            .draw(cardObj.get("draw").equals("true"))
-                            .nc(cardObj.get("nc").equals("true"))
                             .build();
                     fightEvent.addFighterFightEvent(fighterFightEvent);
                 }

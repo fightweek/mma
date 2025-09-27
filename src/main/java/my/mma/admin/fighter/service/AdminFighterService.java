@@ -28,7 +28,6 @@ public class AdminFighterService {
     private final FighterRepository fighterRepository;
     private final RedisUtils<RankersDto> rankerRedisUtils;
     private final RedisUtils<ChosenGameFighterNamesDto> adminChosenFightersRedisUtils;
-    private final S3ImgService s3ImgService;
 
     public AdminFighterService(FighterRepository fighterRepository, RedisUtils<RankersDto> rankers,
                                RedisUtils<ChosenGameFighterNamesDto> chosenFighters, S3ImgService s3ImgService) {
@@ -39,7 +38,6 @@ public class AdminFighterService {
         this.fighterRepository = fighterRepository;
         this.rankerRedisUtils = rankers;
         this.adminChosenFightersRedisUtils = chosenFighters;
-        this.s3ImgService = s3ImgService;
     }
 
     @Transactional

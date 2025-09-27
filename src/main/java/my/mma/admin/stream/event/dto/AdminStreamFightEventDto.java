@@ -36,6 +36,10 @@ public class AdminStreamFightEventDto {
         @JsonProperty("result")
         private FightResultDto result;
 
+        private boolean nc;
+
+        private boolean draw;
+
     }
 
 }

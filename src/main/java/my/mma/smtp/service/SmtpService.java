@@ -8,7 +8,6 @@ import my.mma.user.repository.UserRepository;
 import my.mma.smtp.dto.VerifyCodeRequest;
 import my.mma.smtp.entity.JoinCode;
 import my.mma.smtp.repository.JoinCodeRepository;
-import my.mma.user.entity.User;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,12 +21,11 @@ import java.util.Random;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class MailService {
+public class SmtpService {
 
     private final JavaMailSender mailSender;
     private final UserRepository userRepository;
     private final JoinCodeRepository joinCodeRepository;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Transactional
     public boolean sendJoinCode(
@@ -65,20 +63,11 @@ public class MailService {
 
     @Transactional
     public boolean verifyCode(VerifyCodeRequest verifyCodeDto) {
-        JoinCode joinCode = joinCodeRepository.findById(verifyCodeDto.getEmail()).orElseThrow(
-                () -> new CustomException(CustomErrorCode.NO_SUCH_EMAIL_CONFIGURED_500)
+        JoinCode joinCode = joinCodeRepository.findById(verifyCodeDto.email()).orElseThrow(
+                () -> new CustomException(CustomErrorCode.NO_SUCH_EMAIL_CONFIGURED_400)
         );
-        if (joinCode.getCode().equals(verifyCodeDto.getCode())) {
+        if (joinCode.getCode().equals(verifyCodeDto.code())) {
             joinCodeRepository.delete(joinCode);
-            userRepository.save(
-                    User.builder()
-                            .point(0)
-                            .role("ROLE_USER")
-                            .email(verifyCodeDto.getEmail())
-                            .password(bCryptPasswordEncoder.encode(verifyCodeDto.getPassword()))
-                            .nickname(verifyCodeDto.getNickname())
-                            .build()
-            );
             return true;
         }
         return false;

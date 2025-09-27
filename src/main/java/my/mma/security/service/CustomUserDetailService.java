@@ -3,8 +3,8 @@ package my.mma.security.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.security.CustomUserDetails;
-import my.mma.user.entity.User;
 import my.mma.security.oauth2.dto.TempUserDto;
+import my.mma.user.entity.User;
 import my.mma.user.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -24,7 +24,8 @@ public class CustomUserDetailService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Optional<User> findUser = userRepository.findByEmail(email);
         //UserDetails에 담아서 return하면 AutneticationManager가 검증 함
-        return findUser.map(user -> new CustomUserDetails(toDto(user))).orElse(null);
+        return findUser.map(user -> new CustomUserDetails(toDto(user)))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
     }
 
     private TempUserDto toDto(User user) {

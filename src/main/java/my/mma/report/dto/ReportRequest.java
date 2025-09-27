@@ -1,8 +1,8 @@
-package my.mma.stream.dto;
+package my.mma.report.dto;
 
 import lombok.*;
-import my.mma.stream.entity.Report;
-import my.mma.stream.entity.ReportCategory;
+import my.mma.report.entity.Report;
+import my.mma.report.entity.ReportCategory;
 
 @Getter
 @Setter

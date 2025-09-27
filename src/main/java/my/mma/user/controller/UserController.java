@@ -2,8 +2,10 @@ package my.mma.user.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import my.mma.user.dto.JoinRequest;
 import my.mma.user.dto.UserDto;
 import my.mma.user.service.UserService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +32,12 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserDto> getMe(HttpServletRequest request) {
         return ResponseEntity.ok().body(userService.getMe(request));
+    }
+
+    @PostMapping("/join")
+    public ResponseEntity<Void> join(@RequestBody JoinRequest request){
+        userService.join(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
 
 }

@@ -13,6 +13,8 @@ import java.util.List;
 @SuperBuilder(toBuilder = true)
 public abstract class IFightEventDto<T extends IFighterFightEvent<? extends IFighterDto>> {
 
+    protected long id;
+
     protected LocalDate date;
 
     protected CardStartDateTimeInfoDto mainCardDateTimeInfo;

@@ -23,8 +23,6 @@ import static my.mma.event.dto.FightEventDto.*;
 @SuperBuilder
 public class FightEventDto extends IFightEventDto<FighterFightEventDto>{
 
-    private Long id;
-
     private boolean upcoming;
 
     private boolean alert;

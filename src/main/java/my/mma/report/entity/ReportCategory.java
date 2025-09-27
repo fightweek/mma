@@ -1,4 +1,4 @@
-package my.mma.stream.entity;
+package my.mma.report.entity;
 
 public enum ReportCategory {
     SWEAR_WORD,THREAT,WRONG_INFO, IMPROPER_NICKNAME, PERSONAL_INFO_LEAK,SEXUAL_WORD, EXCESSIVE_COMMENT,

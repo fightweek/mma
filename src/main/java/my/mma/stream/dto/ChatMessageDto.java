@@ -1,4 +1,4 @@
-package my.mma.stream.chat.dto;
+package my.mma.stream.dto;
 
 import lombok.*;
 

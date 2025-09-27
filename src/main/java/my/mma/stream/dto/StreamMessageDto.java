@@ -2,9 +2,9 @@ package my.mma.stream.dto;
 
 import lombok.*;
 import my.mma.event.dto.StreamFightEventDto;
-import my.mma.stream.chat.dto.ChatMessageDto.ChatJoinRequest;
-import my.mma.stream.chat.dto.ChatMessageDto.ChatMessageRequest;
-import my.mma.stream.chat.dto.ChatMessageDto.ChatMessageResponse;
+import my.mma.stream.dto.ChatMessageDto.ChatJoinRequest;
+import my.mma.stream.dto.ChatMessageDto.ChatMessageRequest;
+import my.mma.stream.dto.ChatMessageDto.ChatMessageResponse;
 
 public class StreamMessageDto {
 

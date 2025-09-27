@@ -17,11 +17,13 @@ public class User extends BaseEntity {
     @Column(name = "user_id")
     private Long id;
 
+    @Column(unique = true)
     private String email;
 
     // 'google'/'naver'/'kakao' + 해당 도메인으로부터 발급하는 아이디(번호)
     private String username;
 
+    @Column(unique = true)
     private String nickname;
 
     private String password;

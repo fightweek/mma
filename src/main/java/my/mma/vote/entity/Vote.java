@@ -1,4 +1,4 @@
-package my.mma.bet.entity;
+package my.mma.vote.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
