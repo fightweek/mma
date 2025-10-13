@@ -2,8 +2,6 @@ package my.mma.fighter.dto;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import my.mma.event.dto.IFighterDto;
-import my.mma.fighter.entity.FightRecord;
 import my.mma.fighter.entity.Fighter;
 
 @Getter
@@ -18,7 +16,6 @@ public class FighterDto extends IFighterDto {
                 .ranking(fighter.getRanking())
                 .nickname(fighter.getNickname())
                 .record(fighter.getFightRecord())
-                .weight(fighter.getWeight())
                 .build();
     }
 

@@ -151,6 +151,7 @@ public class AdminStreamEventService {
                     break;
                 }
             }
+            // 이벤트의 모든 카드에 대한 경기가 끝난 케이스
             if (isCompleted) {
                 stopPolling();
                 log.info("=====delete current stream fight event=====");

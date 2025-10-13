@@ -1,4 +1,4 @@
-package my.mma.event.dto;
+package my.mma.fighter.dto;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -16,7 +16,6 @@ public abstract class IFighterDto {
     protected String nickname;
     protected Integer ranking;
     protected FightRecord record;
-    protected Double weight;
     protected String headshotUrl;
 
 }

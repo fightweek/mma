@@ -2,7 +2,7 @@ package my.mma.event.dto;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import my.mma.fighter.dto.FighterDto;
+import my.mma.fighter.dto.IFighterDto;
 
 import java.time.LocalDate;
 import java.util.List;

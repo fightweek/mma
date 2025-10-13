@@ -19,7 +19,7 @@ public class FirebaseInitialization {
     public void initialize(){
         try {
             FileInputStream serviceAccount = new FileInputStream
-                    ("/my-files/mma-project-7dfc2-firebase-adminsdk-fbsvc-1be46bb027.json");
+                    ("/my-files/mma-project-7dfc2-firebase-adminsdk-fbsvc-a91be35fc9.json");
             FirebaseOptions options = FirebaseOptions.builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();

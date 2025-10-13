@@ -61,7 +61,7 @@ public class FighterController {
             @RequestParam("name") String name
     ){
         String preSignedUrl = s3Service.generateImgUrl(
-                "headshot/" + name.replace(' ', '-') + ".png",2);
+                "headshot/" + name.replace(' ', '-') + ".png",1);
         Map<String, String> map = new HashMap<>();
         map.put("url",preSignedUrl);
         return ResponseEntity.ok().body(map);

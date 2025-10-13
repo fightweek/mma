@@ -21,7 +21,7 @@ public class HomeService {
         if(streamFightEventDto == null)
             return null;
         HomeScreenDto response = HomeScreenDto.toDto(streamFightEventDto);
-        System.out.println(response.getMainCardDateTimeInfo());
+        System.out.println(response.mainCardDateTimeInfo());
         return response;
     }
 

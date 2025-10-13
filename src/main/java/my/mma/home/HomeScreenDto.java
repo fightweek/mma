@@ -5,22 +5,11 @@ import my.mma.event.dto.CardStartDateTimeInfoDto;
 import my.mma.event.dto.StreamFightEventDto;
 
 // Response
-@Getter
-@Setter
 @Builder
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class HomeScreenDto {
-
-    private String eventName;
-    private CardStartDateTimeInfoDto mainCardDateTimeInfo;
-    private String winnerBodyUrl;
-    private String loserBodyUrl;
-    private String winnerName;
-    private String loserName;
-    private String fightWeight;
-    private boolean title;
-    private boolean now;
+public record HomeScreenDto(String eventName, CardStartDateTimeInfoDto mainCardDateTimeInfo,
+                            String winnerBodyUrl, String loserBodyUrl,
+                            String winnerName, String loserName,
+                            String fightWeight, boolean title, boolean now) {
 
     public static HomeScreenDto toDto(StreamFightEventDto sfe){
         return HomeScreenDto.builder()

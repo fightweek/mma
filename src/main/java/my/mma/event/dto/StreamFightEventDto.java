@@ -4,6 +4,7 @@ import lombok.*;
 import lombok.experimental.SuperBuilder;
 import my.mma.event.entity.FightEvent;
 import my.mma.event.entity.FighterFightEvent;
+import my.mma.fighter.dto.IFighterDto;
 import my.mma.fighter.entity.Fighter;
 
 import java.time.LocalDate;
@@ -16,7 +17,7 @@ import static my.mma.event.dto.StreamFighterFightEventStatus.*;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
-public class StreamFightEventDto extends IFightEventDto<StreamFighterFightEventDto>{
+public class StreamFightEventDto extends IFightEventDto<StreamFighterFightEventDto> {
 
     private LocalDate date;
 
@@ -49,7 +50,7 @@ public class StreamFightEventDto extends IFightEventDto<StreamFighterFightEventD
     @SuperBuilder
     @AllArgsConstructor(access = AccessLevel.PROTECTED)
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class StreamFighterFightEventDto extends IFighterFightEvent<StreamFighterDto>{
+    public static class StreamFighterFightEventDto extends IFighterFightEvent<StreamFighterDto> {
 
         private StreamFighterFightEventStatus status;
 
@@ -58,7 +59,7 @@ public class StreamFightEventDto extends IFightEventDto<StreamFighterFightEventD
         private double loserVoteRate;
 
         // for streaming (upcoming) event -> result is null
-        public static StreamFighterFightEventDto toDto(FighterFightEvent ffe, StreamFighterFightEventStatus status){
+        public static StreamFighterFightEventDto toDto(FighterFightEvent ffe, StreamFighterFightEventStatus status) {
             return StreamFighterFightEventDto.builder()
                     .id(ffe.getId())
                     .status(status)
@@ -86,7 +87,9 @@ public class StreamFightEventDto extends IFightEventDto<StreamFighterFightEventD
 
         private String bodyUrl;
 
-        public static StreamFighterDto toDto(Fighter fighter){
+        private Double weight;
+
+        public static StreamFighterDto toDto(Fighter fighter) {
             return StreamFighterDto.builder()
                     .id(fighter.getId())
                     .name(fighter.getName())
