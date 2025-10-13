@@ -10,6 +10,7 @@ import my.mma.event.entity.FighterFightEvent;
 import my.mma.event.repository.FightEventRepository;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
+import my.mma.global.redis.prefix.RedisKeyPrefix;
 import my.mma.global.redis.utils.RedisUtils;
 import my.mma.global.s3.service.S3ImgService;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static my.mma.fighter.entity.FightRecord.toFightRecord;
+import static my.mma.global.redis.prefix.RedisKeyPrefix.BET_PREFIX;
 
 @Service
 @Slf4j
@@ -103,8 +105,8 @@ public class AdminEventService {
                     if (card.getWinnerName().equals(match.getWinner().getName()) ||
                             card.getWinnerName().equals(match.getLoser().getName())) {
                         match.updateFightResult(card.buildFightResult());
-                        match.updateDrawAndNc(card.isDraw(),card.isNc());
-                        if(!card.getWinnerName().equals(match.getWinner().getName())){
+                        match.updateDrawAndNc(card.isDraw(), card.isNc());
+                        if (!card.getWinnerName().equals(match.getWinner().getName())) {
                             match.swapWinnerAndLoser();
                         }
                     }
@@ -131,6 +133,7 @@ public class AdminEventService {
         for (int i = 0; i < eventDtos.size(); i++) {
             EventCrawlerDto dto = eventDtos.get(i);
             FightEvent newEvent = dto.toEntityUpcomingEvent();
+            FightEvent newEventWithId;
             // 1. DB의 upcoming event에 crawling으로 불러온 upcoming event가 포함되지 않는 경우 => 이는 새로 생긴 upcoming event
             // 2. event name 이 같더라도, event 내부의 fighter fight event 내용 다를 경우 => 이는 기존 event 내용 변경된 케이스
             FightEvent existingEvent = existingEvents.stream()
@@ -138,18 +141,19 @@ public class AdminEventService {
                     .findFirst()
                     .orElse(null);
             if (existingEvent == null) {
-                saveUpcomingEvent(dto, newEvent);
+                newEventWithId = saveUpcomingEvent(dto, newEvent);
             } else {
                 // 기존(DB)의 다가오는 이벤트 정보 - 현재 불러온 해당 다가오는 이벤트 정보를 비교하여 바뀌었으면, 내용물 변경
                 boolean isChanged = isEventContentDifferent(dto, existingEvent, newEvent);
-                System.out.println("isChanged="+isChanged);
+                System.out.println("isChanged=" + isChanged);
                 if (isChanged) {
                     fightEventRepository.delete(existingEvent);
-                    saveUpcomingEvent(dto, newEvent);
-                }
+                    newEventWithId = saveUpcomingEvent(dto, newEvent);
+                } else
+                    return;
             }
             if (i == 0)
-                saveStreamFightEvent(newEvent);
+                saveStreamFightEvent(newEventWithId);
         }
     }
 
@@ -180,7 +184,7 @@ public class AdminEventService {
         return false;
     }
 
-    private void saveUpcomingEvent(EventCrawlerDto dto, FightEvent event) {
+    private FightEvent saveUpcomingEvent(EventCrawlerDto dto, FightEvent event) {
         List<Fighter> fighters = new ArrayList<>();
         for (EventCrawlerDto.Card card : dto.getCards()) {
             try {
@@ -196,8 +200,8 @@ public class AdminEventService {
                 log.warn("Error linking fighters to fightEvent: {}", e.getMessage());
             }
         }
-        adminNotificationService.sendNotification(event.getName(),fighters);
-        fightEventRepository.save(event);
+        adminNotificationService.sendNotification(event.getName(), fighters);
+        return fightEventRepository.save(event);
     }
 
     public void saveStreamFightEvent(FightEvent fightEvent) {
@@ -221,5 +225,6 @@ public class AdminEventService {
                 }
         );
         redisUtils.saveData("current-event", streamFightEvent);
+        redisUtils.deleteByPrefix(BET_PREFIX.getPrefix());
     }
 }

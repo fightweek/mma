@@ -60,4 +60,18 @@ public class RedisUtils<T> {
         redisTemplate.delete(key);
     }
 
+    public void deleteByPrefix(String prefix){
+        redisTemplate.executeWithStickyConnection(redisConnection -> {
+            try (Cursor<byte[]> cursor = redisConnection.keyCommands().scan(
+                    ScanOptions.scanOptions().match(prefix+"*").count(100).build())) {
+                while (cursor.hasNext()) {
+                    byte[] keyBytes = cursor.next();
+                    String key = new String(keyBytes, StandardCharsets.UTF_8);
+                    redisTemplate.delete(key);
+                }
+            }
+            return null;
+        });
+    }
+
 }

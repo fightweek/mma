@@ -15,6 +15,7 @@ import java.util.List;
 public class FighterDetailDto extends FighterDto{
 
     private int height;
+    protected Double weight;
     private LocalDate birthday;
     private int reach;
     private String nation;

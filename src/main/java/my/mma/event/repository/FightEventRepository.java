@@ -1,6 +1,9 @@
 package my.mma.event.repository;
 
 import my.mma.event.entity.FightEvent;
+import my.mma.fighter.entity.Fighter;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -35,11 +38,6 @@ public interface FightEventRepository extends JpaRepository<FightEvent, Long> {
     })
     Optional<FightEvent> findByNameOrderByFighterFightEventsAsc(String eventName);
 
-    @EntityGraph(attributePaths = {
-            "fighterFightEvents",
-            "fighterFightEvents.winner",
-            "fighterFightEvents.loser"
-    })
-    Optional<FightEvent> findFirstByCompletedIsFalseOrderByEventDateAsc();
+    Optional<Page<FightEvent>> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
 }
