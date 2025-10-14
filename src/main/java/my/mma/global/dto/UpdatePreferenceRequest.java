@@ -10,7 +10,6 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UpdatePreferenceRequest {
 
-    private UpdatePreferenceCategory category;
     private Long targetId;
     private boolean on;
 

@@ -14,7 +14,6 @@ import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
 import my.mma.global.entity.TargetType;
 import my.mma.global.repository.AlertRepository;
-import my.mma.global.repository.LikeRepository;
 import my.mma.global.s3.service.S3ImgService;
 import my.mma.user.entity.User;
 import my.mma.user.repository.UserRepository;
@@ -35,7 +34,6 @@ public class FighterService {
 
     private final FighterRepository fighterRepository;
     private final FighterFightEventRepository fighterFightEventRepository;
-    private final LikeRepository likeRepository;
     private final AlertRepository alertRepository;
     private final UserRepository userRepository;
     private final S3ImgService s3Service;
@@ -47,7 +45,6 @@ public class FighterService {
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_400)
         );
-        boolean isLikeExists = likeRepository.existsByUserAndTargetTypeAndTargetId(user, TargetType.FIGHTER, fighterId);
         boolean isAlertExists = alertRepository.existsByUserAndTargetTypeAndTargetId(user, TargetType.FIGHTER, fighterId);
         Optional<List<FighterFightEvent>> fighterFightEvents = fighterFightEventRepository.findByFighter(fighter);
         List<FighterFightEventDto> fighterFightEventDtos = fighterFightEvents.map(
@@ -64,7 +61,7 @@ public class FighterService {
             );
         String headshotUrl = s3Service.generateImgUrl(
                 "headshot/" + fighter.getName().replace(' ', '-') + ".png", 2);
-        return FighterDetailDto.toDto(fighter, fighterFightEventDtos, headshotUrl, isLikeExists, isAlertExists);
+        return FighterDetailDto.toDto(fighter, fighterFightEventDtos, headshotUrl, isAlertExists);
     }
 
     public Page<FighterDto> search(String name, Pageable pageable) {
