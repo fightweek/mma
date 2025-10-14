@@ -1,8 +1,6 @@
 package my.mma.admin.event.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.firebase.messaging.FcmOptions;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import my.mma.fighter.entity.Fighter;
 import my.mma.global.entity.TargetType;
 import my.mma.global.fcm.FcmMessageService;
-import my.mma.global.repository.LikeRepository;
+import my.mma.global.repository.AlertRepository;
 import my.mma.user.entity.User;
 import my.mma.user.repository.UserRepository;
 import org.springframework.scheduling.annotation.Async;
@@ -24,7 +22,7 @@ import java.util.List;
 public class AdminNotificationService {
 
     private final UserRepository userRepository;
-    private final LikeRepository likeRepository;
+    private final AlertRepository alertRepository;
     private final FcmMessageService fcmMessageService;
     private final ObjectMapper objectMapper;
 
@@ -37,7 +35,7 @@ public class AdminNotificationService {
                 continue;
             // event에 포함된 fighters 중 user가 알림 설정한 fighters
             List<String> filteredFighterNames = fighters.stream()
-                    .filter(fighter -> likeRepository.existsByUserAndTargetTypeAndTargetId(user, TargetType.FIGHTER, fighter.getId()))
+                    .filter(fighter -> alertRepository.existsByUserAndTargetTypeAndTargetId(user, TargetType.FIGHTER, fighter.getId()))
                     .map(Fighter::getName)
                     .toList();
             if(!filteredFighterNames.isEmpty()){
@@ -58,7 +56,6 @@ public class AdminNotificationService {
                 log.info("Successfully sent message: {}", message);
             }
         }
-        System.out.println("========================================");
     }
 
 }

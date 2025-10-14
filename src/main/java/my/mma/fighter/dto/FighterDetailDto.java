@@ -19,11 +19,10 @@ public class FighterDetailDto extends FighterDto{
     private LocalDate birthday;
     private int reach;
     private String nation;
-    private boolean like;
     private boolean alert;
     private List<FighterFightEventDto> fighterFightEvents;
 
-    public static FighterDetailDto toDto(Fighter fighter, List<FighterFightEventDto> fighterFightEvents, String headshotUrl, boolean like, boolean alert) {
+    public static FighterDetailDto toDto(Fighter fighter, List<FighterFightEventDto> fighterFightEvents, String headshotUrl, boolean alert) {
         FighterDetailDto detailDto = FighterDetailDto.builder()
                 .id(fighter.getId())
                 .name(fighter.getName())
@@ -36,7 +35,6 @@ public class FighterDetailDto extends FighterDto{
                 .nation(null)
                 .fighterFightEvents(fighterFightEvents)
                 .headshotUrl(headshotUrl)
-                .like(like)
                 .alert(alert)
                 .build();
         System.out.println("detailDto = " + detailDto);

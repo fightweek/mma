@@ -51,7 +51,6 @@ public class FighterController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody UpdatePreferenceRequest request
     ) {
-        System.out.println("request = " + request);
         updatePreferenceService.updatePreference(userDetails.getUsername(),request);
         return ResponseEntity.ok().body(null);
     }
