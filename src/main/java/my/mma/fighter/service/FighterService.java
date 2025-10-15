@@ -59,20 +59,20 @@ public class FighterService {
                                 "headshot/" + ffe.getLoser().getName().replace(' ', '-') + ".png", 2));
                     }
             );
-        String headshotUrl = s3Service.generateImgUrl(
-                "headshot/" + fighter.getName().replace(' ', '-') + ".png", 2);
-        return FighterDetailDto.toDto(fighter, fighterFightEventDtos, headshotUrl, isAlertExists);
+        String bodyUrl = s3Service.generateImgUrl(
+                "body/" + fighter.getName().replace(' ', '-') + ".png", 2);
+        return FighterDetailDto.toDto(fighter, fighterFightEventDtos, bodyUrl, isAlertExists);
     }
 
     public Page<FighterDto> search(String name, Pageable pageable) {
         Optional<Page<Fighter>> fighters = fighterRepository.findByNameContainingIgnoreCase(name, pageable);
         return fighters.map(
                 page -> page.map(
-                        f -> {
-                            FighterDto fighter = FighterDto.toDto(f);
-                            fighter.setHeadshotUrl(s3Service.generateImgUrl(
-                                    "headshot/" + fighter.getName().replace(' ', '-') + ".png", 2));
-                            return fighter;
+                        fighter -> {
+                            FighterDto fighterDto = FighterDto.toDto(fighter);
+                            fighterDto.setHeadshotUrl(s3Service.generateImgUrl(
+                                    "headshot/" + fighterDto.getName().replace(' ', '-') + ".png", 2));
+                            return fighterDto;
                         }
                 )
         ).orElse(null);
