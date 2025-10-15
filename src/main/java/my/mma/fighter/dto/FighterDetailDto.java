@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Getter
-@Setter
 @SuperBuilder
 @ToString
 public class FighterDetailDto extends FighterDto{
@@ -20,9 +19,10 @@ public class FighterDetailDto extends FighterDto{
     private int reach;
     private String nation;
     private boolean alert;
+    private String bodyUrl;
     private List<FighterFightEventDto> fighterFightEvents;
 
-    public static FighterDetailDto toDto(Fighter fighter, List<FighterFightEventDto> fighterFightEvents, String headshotUrl, boolean alert) {
+    public static FighterDetailDto toDto(Fighter fighter, List<FighterFightEventDto> fighterFightEvents, String bodyUrl, boolean alert) {
         FighterDetailDto detailDto = FighterDetailDto.builder()
                 .id(fighter.getId())
                 .name(fighter.getName())
@@ -34,7 +34,7 @@ public class FighterDetailDto extends FighterDto{
                 .reach(fighter.getReach())
                 .nation(null)
                 .fighterFightEvents(fighterFightEvents)
-                .headshotUrl(headshotUrl)
+                .bodyUrl(bodyUrl)
                 .alert(alert)
                 .build();
         System.out.println("detailDto = " + detailDto);
