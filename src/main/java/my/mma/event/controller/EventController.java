@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import my.mma.event.dto.FightEventDto;
 import my.mma.event.service.EventService;
 import my.mma.global.dto.UpdatePreferenceRequest;
+import my.mma.global.entity.TargetType;
 import my.mma.global.service.UpdatePreferenceService;
 import my.mma.security.CustomUserDetails;
 import org.springframework.data.domain.Page;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
-import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @RestController
@@ -54,7 +54,7 @@ public class EventController {
             @RequestBody UpdatePreferenceRequest request
     ) {
         System.out.println("request = " + request);
-        updatePreferenceService.updatePreference(userDetails.getUsername(),request);
+        updatePreferenceService.updatePreference(userDetails.getUsername(),request, TargetType.EVENT);
         return ResponseEntity.ok().body(null);
     }
 

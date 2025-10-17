@@ -3,22 +3,8 @@ package my.mma.user.dto;
 import lombok.*;
 import my.mma.user.entity.User;
 
-@Getter
-@Setter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor
 @Builder
-public class UserDto {
-
-    private Long id;
-
-    private String nickname;
-
-    private String email;
-
-    private String role;
-
-    private int point;
+public record UserDto(long id, String nickname, String email, String role, int point) {
 
     public static UserDto toDto(User user){
         return UserDto.builder()
