@@ -23,14 +23,14 @@ public class UpdatePreferenceService {
     private final AlertRepository alertRepository;
 
     @Transactional
-    public void updatePreference(String email, UpdatePreferenceRequest request) {
+    public void updatePreference(String email, UpdatePreferenceRequest request, TargetType targetType) {
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_400)
         );
         if (request.isOn()) {
             Alert alert = Alert.builder()
                     .user(user)
-                    .targetType(TargetType.FIGHTER)
+                    .targetType(targetType)
                     .targetId(request.getTargetId())
                     .build();
             alertRepository.save(alert);

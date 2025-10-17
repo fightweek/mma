@@ -23,4 +23,5 @@ public interface FighterRepository extends JpaRepository<Fighter, Long> {
 
     @Query("select f.name from Fighter f")
     List<String> findEveryNames();
+
 }

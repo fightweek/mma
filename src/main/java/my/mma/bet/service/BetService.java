@@ -6,6 +6,7 @@ import my.mma.bet.entity.Bet;
 import my.mma.bet.entity.BetCard;
 import my.mma.bet.repository.BetRepository;
 import my.mma.event.dto.StreamFightEventDto;
+import my.mma.event.entity.FightEvent;
 import my.mma.event.entity.FighterFightEvent;
 import my.mma.event.repository.FightEventRepository;
 import my.mma.event.repository.FighterFightEventRepository;
@@ -40,7 +41,10 @@ public class BetService {
     @Transactional
     public Integer bet(String email, SingleBetRequest betRequest) {
         User user = extractUserByEmail(email);
-        Bet bet = betRequest.toEntity(user);
+        FightEvent fightEvent = fightEventRepository.findById(betRequest.eventId()).orElseThrow(
+                () -> new CustomException(CustomErrorCode.BAD_REQUEST_400)
+        );
+        Bet bet = betRequest.toEntity(user, fightEvent);
         for (SingleBetRequest.SingleBetCardRequest sb : betRequest.singleBetCards()) {
             FighterFightEvent ffe = extractFighterFightEventById(sb.fighterFightEventId());
             BetCard betCard = sb.toEntity(ffe, bet);

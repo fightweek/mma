@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import my.mma.event.entity.FightEvent;
 import my.mma.fighter.entity.BaseEntity;
 import my.mma.user.entity.User;
 
@@ -31,9 +32,12 @@ public class Bet extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
+    // 이미 지난 경기에 대해 해당 경기가 nc, dq와 같은 예외 상황 발생하는 경우, 해당 배팅은 무효(null 처리)
     private Boolean succeed;
 
-    private long eventId;
+    @ManyToOne(fetch = LAZY)
+    @JoinColumn(name = "fight_event_id")
+    private FightEvent fightEvent;
 
     private int seedPoint;
 

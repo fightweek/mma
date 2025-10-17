@@ -6,6 +6,7 @@ import my.mma.fighter.dto.FighterDetailDto;
 import my.mma.fighter.dto.FighterDto;
 import my.mma.fighter.service.FighterService;
 import my.mma.global.dto.UpdatePreferenceRequest;
+import my.mma.global.entity.TargetType;
 import my.mma.global.s3.service.S3ImgService;
 import my.mma.global.service.UpdatePreferenceService;
 import my.mma.security.CustomUserDetails;
@@ -51,7 +52,7 @@ public class FighterController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody UpdatePreferenceRequest request
     ) {
-        updatePreferenceService.updatePreference(userDetails.getUsername(),request);
+        updatePreferenceService.updatePreference(userDetails.getUsername(),request, TargetType.FIGHTER);
         return ResponseEntity.ok().body(null);
     }
 
