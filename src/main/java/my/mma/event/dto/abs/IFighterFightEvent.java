@@ -1,10 +1,11 @@
-package my.mma.event.dto;
+package my.mma.event.dto.abs;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
+import my.mma.event.dto.FightResultDto;
 import my.mma.fighter.dto.IFighterDto;
 
 @Getter
@@ -13,6 +14,8 @@ import my.mma.fighter.dto.IFighterDto;
 @AllArgsConstructor
 @SuperBuilder(toBuilder = true)
 public abstract class IFighterFightEvent<T extends IFighterDto> {
+
+    private String eventName;
 
     protected Long id;
 

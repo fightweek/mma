@@ -2,6 +2,8 @@ package my.mma.event.dto;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import my.mma.event.dto.abs.IFightEventDto;
+import my.mma.event.dto.abs.IFighterFightEvent;
 import my.mma.event.entity.FightEvent;
 import my.mma.event.entity.FighterFightEvent;
 import my.mma.fighter.dto.FighterDto;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
-public class FightEventDto extends IFightEventDto<FightEventDto.FighterFightEventDto>{
+public class FightEventDto extends IFightEventDto<FightEventDto.FighterFightEventDto> {
 
     private boolean upcoming;
 
@@ -51,10 +53,9 @@ public class FightEventDto extends IFightEventDto<FightEventDto.FighterFightEven
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @AllArgsConstructor(access = AccessLevel.PROTECTED)
     @SuperBuilder
-    public static class FighterFightEventDto extends IFighterFightEvent<FighterDto>{
+    public static class FighterFightEventDto extends IFighterFightEvent<FighterDto> {
 
         private Long eventId;
-        private String eventName;
         private LocalDate eventDate;
 
         public static FighterFightEventDto toDto(FighterFightEvent fighterFightEvent) {

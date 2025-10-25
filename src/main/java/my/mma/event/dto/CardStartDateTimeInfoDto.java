@@ -7,19 +7,10 @@ import my.mma.event.entity.property.CardStartDateTimeInfo;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Getter
-@Setter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class CardStartDateTimeInfoDto {
+public record CardStartDateTimeInfoDto(LocalDate date, @JsonFormat(pattern = "HH:mm") LocalTime time) {
 
-    private LocalDate date;
-
-    @JsonFormat(pattern = "HH:mm")
-    private LocalTime time;
-
-    public CardStartDateTimeInfo toEntity(){
+    public CardStartDateTimeInfo toDto(){
         return CardStartDateTimeInfo.builder()
                 .date(this.date)
                 .time(this.time)

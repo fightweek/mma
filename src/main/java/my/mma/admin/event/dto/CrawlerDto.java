@@ -10,7 +10,6 @@ import my.mma.event.entity.property.FightResult;
 import my.mma.event.entity.FighterFightEvent;
 import my.mma.event.entity.property.WinMethod;
 import my.mma.fighter.entity.*;
-import my.mma.global.utils.ModifyUtils;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -183,9 +182,9 @@ public class CrawlerDto {
 
         public FightEvent toEntityUpcomingEvent() {
             return FightEvent.builder()
-                    .mainCardDateTimeInfo(this.mainCardDateTimeInfo != null ? this.mainCardDateTimeInfo.toEntity() : null)
-                    .prelimCardDateTimeInfo(this.mainCardDateTimeInfo != null ? this.prelimCardDateTimeInfo.toEntity() : null)
-                    .earlyCardDateTimeInfo(this.earlyCardDateTimeInfo != null ? this.earlyCardDateTimeInfo.toEntity() : null)
+                    .mainCardDateTimeInfo(this.mainCardDateTimeInfo != null ? this.mainCardDateTimeInfo.toDto() : null)
+                    .prelimCardDateTimeInfo(this.mainCardDateTimeInfo != null ? this.prelimCardDateTimeInfo.toDto() : null)
+                    .earlyCardDateTimeInfo(this.earlyCardDateTimeInfo != null ? this.earlyCardDateTimeInfo.toDto() : null)
                     .mainCardCnt(this.mainCardCnt)
                     .prelimCardCnt(this.prelimCardCnt)
                     .earlyCardCnt(this.earlyCardCnt)

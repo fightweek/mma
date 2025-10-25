@@ -8,7 +8,7 @@ import my.mma.admin.stream.event.dto.AdminStreamFightEventDto;
 import my.mma.admin.stream.event.dto.AdminStreamFightEventDto.AdminStreamFighterFightEventDto;
 import my.mma.event.dto.CardStartDateTimeInfoDto;
 import my.mma.event.dto.StreamFightEventDto;
-import my.mma.event.dto.StreamFightEventDto.StreamFighterDto;
+import my.mma.event.dto.StreamFightEventDto.FighterFightEventCardFighterDto;
 import my.mma.event.dto.StreamFightEventDto.StreamFighterFightEventDto;
 import my.mma.event.entity.FightEvent;
 import my.mma.event.repository.FightEventRepository;
@@ -73,7 +73,7 @@ public class AdminStreamEventService {
         log.info("fight event name = {}", fightEvent.getName());
         CardStartDateTimeInfoDto dateTimeInfoDto = fightEvent.getEarlyCardDateTimeInfo() != null ?
                 fightEvent.getEarlyCardDateTimeInfo() : fightEvent.getPrelimCardDateTimeInfo();
-        LocalDateTime start = LocalDateTime.of(dateTimeInfoDto.getDate(), dateTimeInfoDto.getTime()).minusMinutes(30);
+        LocalDateTime start = LocalDateTime.of(dateTimeInfoDto.date(), dateTimeInfoDto.time()).minusMinutes(30);
 
         log.info("System default timezone: {}", ZoneId.systemDefault());
         ZoneId zoneId = ZoneId.of("Asia/Seoul");
@@ -130,7 +130,7 @@ public class AdminStreamEventService {
                         redisCard.setResult(crawledCard.getResult());
                         redisCard.setStatus(PREVIOUS);
                         if (!redisCard.getWinner().getName().equals(crawledCard.getWinnerName())) {
-                            StreamFighterDto originalWinner = redisCard.getWinner();
+                            FighterFightEventCardFighterDto originalWinner = redisCard.getWinner();
                             redisCard.setWinner(redisCard.getLoser());
                             redisCard.setLoser(originalWinner);
                         }
