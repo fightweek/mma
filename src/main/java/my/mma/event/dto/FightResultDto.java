@@ -6,24 +6,9 @@ import my.mma.event.entity.property.WinMethod;
 
 import java.time.LocalTime;
 
-@Getter
-@Setter
 @Builder
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class FightResultDto {
-
-    private WinMethod winMethod;
-
-    private int round;
-
-    private String endTime;
-
-    private String description;
-
-    private boolean draw;
-
-    private boolean nc;
+public record FightResultDto(WinMethod winMethod, int round, String endTime, String description,
+                             boolean draw, boolean nc) {
 
     public static FightResultDto toDto(FightResult result){
         return FightResultDto.builder()

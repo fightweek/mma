@@ -4,10 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.event.dto.FightEventDto;
 import my.mma.event.dto.FightEventDto.FighterFightEventDto;
+import my.mma.event.dto.FighterFightEventCardDetailDto;
+import my.mma.event.dto.StreamFightEventDto.FighterFightEventCardFighterDto;
 import my.mma.event.entity.FightEvent;
+import my.mma.event.entity.FighterFightEvent;
 import my.mma.event.repository.FightEventRepository;
+import my.mma.event.repository.FighterFightEventRepository;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
+import my.mma.fighter.entity.Fighter;
 import my.mma.global.entity.TargetType;
 import my.mma.global.repository.AlertRepository;
 import my.mma.global.s3.service.S3ImgService;
@@ -29,6 +34,7 @@ import java.util.function.Function;
 public class EventService {
 
     private final FightEventRepository fightEventRepository;
+    private final FighterFightEventRepository fighterFightEventRepository;
     private final S3ImgService s3Service;
     private final AlertRepository alertRepository;
     private final UserRepository userRepository;
@@ -77,5 +83,23 @@ public class EventService {
         mainCardDto.getWinner().setHeadshotUrl(winnerHeadshotUrl);
         mainCardDto.getLoser().setHeadshotUrl(loserHeadshotUrl);
         return mainCardDto;
+    }
+
+    public FighterFightEventCardDetailDto cardDetail(Long ffeId){
+        FighterFightEvent ffe = fighterFightEventRepository.findById(ffeId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.BAD_REQUEST_400));
+
+        Fighter winner = ffe.getWinner();
+        Fighter loser = ffe.getLoser();
+
+        String winnerBodyUrl = s3Service.generateImgUrl(
+                "body/" + winner.getName().replace(' ', '-') + ".png", 2);
+        String loserBodyUrl = s3Service.generateImgUrl(
+                "body/" +loser.getName().replace(' ', '-') + ".png", 2);
+        FighterFightEventCardFighterDto winnerCardDto = FighterFightEventCardFighterDto.toDto(winner);
+        FighterFightEventCardFighterDto loserCardDto = FighterFightEventCardFighterDto.toDto(loser);
+        winnerCardDto.setBodyUrl(winnerBodyUrl);
+        loserCardDto.setBodyUrl(loserBodyUrl);
+        return new FighterFightEventCardDetailDto(winnerCardDto,loserCardDto,ffe.getFightWeight());
     }
 }

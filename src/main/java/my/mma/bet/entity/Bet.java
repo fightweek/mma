@@ -32,7 +32,7 @@ public class Bet extends BaseEntity {
     @JoinColumn(name = "user_id")
     private User user;
 
-    // 이미 지난 경기에 대해 해당 경기가 nc, dq와 같은 예외 상황 발생하는 경우, 해당 배팅은 무효(null 처리)
+    // 이미 지난 경기에 대해 해당 경기가 nc와 같은 예외 상황 발생하는 경우, 해당 배팅은 무효(null 처리)
     private Boolean succeed;
 
     @ManyToOne(fetch = LAZY)

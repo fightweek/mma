@@ -3,6 +3,7 @@ package my.mma.event.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.event.dto.FightEventDto;
+import my.mma.event.dto.FighterFightEventCardDetailDto;
 import my.mma.event.service.EventService;
 import my.mma.global.dto.UpdatePreferenceRequest;
 import my.mma.global.entity.TargetType;
@@ -46,6 +47,13 @@ public class EventController {
             @PageableDefault(sort = "eventDate", direction = DESC) Pageable pageable
     ) {
         return ResponseEntity.ok().body(eventService.search(name,pageable));
+    }
+
+    @GetMapping("/card/detail")
+    public ResponseEntity<FighterFightEventCardDetailDto> cardDetail(
+            @RequestParam(value = "cardId") String cardId
+    ){
+        return ResponseEntity.ok().body(eventService.cardDetail(Long.parseLong(cardId)));
     }
 
     @PostMapping("/preference")

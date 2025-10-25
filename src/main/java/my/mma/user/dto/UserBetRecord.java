@@ -4,6 +4,6 @@ public interface UserBetRecord {
 
     int getWin();
     int getLoss();
-    // nc, dq..
+    // nc
     int getNoContest();
 }

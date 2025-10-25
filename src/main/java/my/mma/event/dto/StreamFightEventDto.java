@@ -2,6 +2,8 @@ package my.mma.event.dto;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import my.mma.event.dto.abs.IFightEventDto;
+import my.mma.event.dto.abs.IFighterFightEvent;
 import my.mma.event.entity.FightEvent;
 import my.mma.event.entity.FighterFightEvent;
 import my.mma.fighter.dto.IFighterDto;
@@ -50,7 +52,7 @@ public class StreamFightEventDto extends IFightEventDto<StreamFighterFightEventD
     @SuperBuilder
     @AllArgsConstructor(access = AccessLevel.PROTECTED)
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
-    public static class StreamFighterFightEventDto extends IFighterFightEvent<StreamFighterDto> {
+    public static class StreamFighterFightEventDto extends IFighterFightEvent<FighterFightEventCardFighterDto> {
 
         private StreamFighterFightEventStatus status;
 
@@ -63,9 +65,10 @@ public class StreamFightEventDto extends IFightEventDto<StreamFighterFightEventD
             return StreamFighterFightEventDto.builder()
                     .id(ffe.getId())
                     .status(status)
+                    .eventName(ffe.getFightEvent().getName())
                     .fightWeight(ffe.getFightWeight())
-                    .winner(StreamFighterDto.toDto(ffe.getWinner()))
-                    .loser(StreamFighterDto.toDto(ffe.getLoser()))
+                    .winner(FighterFightEventCardFighterDto.toDto(ffe.getWinner()))
+                    .loser(FighterFightEventCardFighterDto.toDto(ffe.getLoser()))
                     .result(null)
                     .title(ffe.isTitle())
                     .build();
@@ -77,7 +80,7 @@ public class StreamFightEventDto extends IFightEventDto<StreamFighterFightEventD
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @SuperBuilder
-    public static class StreamFighterDto extends IFighterDto {
+    public static class FighterFightEventCardFighterDto extends IFighterDto {
 
         private int reach;
 
@@ -89,8 +92,8 @@ public class StreamFightEventDto extends IFightEventDto<StreamFighterFightEventD
 
         private Double weight;
 
-        public static StreamFighterDto toDto(Fighter fighter) {
-            return StreamFighterDto.builder()
+        public static FighterFightEventCardFighterDto toDto(Fighter fighter) {
+            return FighterFightEventCardFighterDto.builder()
                     .id(fighter.getId())
                     .name(fighter.getName())
                     .nickname(fighter.getNickname())
