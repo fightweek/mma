@@ -35,7 +35,7 @@ public class UpdatePreferenceService {
                     .build();
             alertRepository.save(alert);
         } else {
-            alertRepository.deleteByUserAndTargetTypeAndTargetId(user, TargetType.FIGHTER, request.getTargetId());
+            alertRepository.deleteByUserAndTargetTypeAndTargetId(user, TargetType.EVENT, request.getTargetId());
         }
     }
 

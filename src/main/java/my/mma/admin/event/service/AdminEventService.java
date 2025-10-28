@@ -15,11 +15,13 @@ import my.mma.global.redis.utils.RedisUtils;
 import my.mma.global.s3.service.S3ImgService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static my.mma.fighter.entity.FightRecord.toFightRecord;
 import static my.mma.global.redis.prefix.RedisKeyPrefix.BET_PREFIX;
@@ -35,8 +37,6 @@ public class AdminEventService {
     private final FighterRepository fighterRepository;
     private final FightEventRepository fightEventRepository;
     private final RestTemplate restTemplate;
-    private final RedisUtils<StreamFightEventDto> redisUtils;
-    private final S3ImgService s3Service;
     private final AdminNotificationService adminNotificationService;
 
     /**
@@ -51,7 +51,7 @@ public class AdminEventService {
         return restTemplate.getForObject(path, CrawlerDto.class);
     }
 
-    public void processFetchedEventData(CrawlerDto dto) {
+    private void processFetchedEventData(CrawlerDto dto) {
         // DB에 존재하는 upcoming Events
         List<FightEvent> existingUpcomingEvents = fightEventRepository.findAllByCompletedWithFighterFightEvents(false);
         //
@@ -130,10 +130,8 @@ public class AdminEventService {
     }
 
     private void saveNewUpcomingEvents(List<EventCrawlerDto> eventDtos, List<FightEvent> existingEvents) {
-        for (int i = 0; i < eventDtos.size(); i++) {
-            EventCrawlerDto dto = eventDtos.get(i);
+        for (EventCrawlerDto dto : eventDtos) {
             FightEvent newEvent = dto.toEntityUpcomingEvent();
-            FightEvent newEventWithId;
             // 1. DB의 upcoming event에 crawling으로 불러온 upcoming event가 포함되지 않는 경우 => 이는 새로 생긴 upcoming event
             // 2. event name 이 같더라도, event 내부의 fighter fight event 내용 다를 경우 => 이는 기존 event 내용 변경된 케이스
             FightEvent existingEvent = existingEvents.stream()
@@ -141,19 +139,16 @@ public class AdminEventService {
                     .findFirst()
                     .orElse(null);
             if (existingEvent == null) {
-                newEventWithId = saveUpcomingEvent(dto, newEvent);
+                saveUpcomingEvent(dto, newEvent);
             } else {
                 // 기존(DB)의 다가오는 이벤트 정보 - 현재 불러온 해당 다가오는 이벤트 정보를 비교하여 바뀌었으면, 내용물 변경
                 boolean isChanged = isEventContentDifferent(dto, existingEvent, newEvent);
                 System.out.println("isChanged=" + isChanged);
                 if (isChanged) {
                     fightEventRepository.delete(existingEvent);
-                    newEventWithId = saveUpcomingEvent(dto, newEvent);
-                } else
-                    return;
+                    saveUpcomingEvent(dto, newEvent);
+                }
             }
-            if (i == 0)
-                saveStreamFightEvent(newEventWithId);
         }
     }
 
@@ -184,7 +179,8 @@ public class AdminEventService {
         return false;
     }
 
-    private FightEvent saveUpcomingEvent(EventCrawlerDto dto, FightEvent event) {
+    private void saveUpcomingEvent(EventCrawlerDto dto, FightEvent event) {
+        System.out.println("==save upcoming event== eventName="+event.getName());
         List<Fighter> fighters = new ArrayList<>();
         for (EventCrawlerDto.Card card : dto.getCards()) {
             try {
@@ -201,30 +197,7 @@ public class AdminEventService {
             }
         }
         adminNotificationService.sendNotification(event.getName(), fighters);
-        return fightEventRepository.save(event);
+        fightEventRepository.save(event);
     }
 
-    public void saveStreamFightEvent(FightEvent fightEvent) {
-        StreamFightEventDto streamFightEvent = StreamFightEventDto.toDto(fightEvent);
-        streamFightEvent.getFighterFightEvents().forEach(
-                ffe -> {
-                    ffe.setWinnerVoteRate(0);
-                    ffe.setLoserVoteRate(0);
-                    ffe.getWinner().setHeadshotUrl(s3Service.generateImgUrl(
-                            "headshot/" + ffe.getWinner().getName().replace(' ', '-') + ".png", 168)
-                    );
-                    ffe.getLoser().setHeadshotUrl(s3Service.generateImgUrl(
-                            "headshot/" + ffe.getLoser().getName().replace(' ', '-') + ".png", 168)
-                    );
-                    ffe.getWinner().setBodyUrl(s3Service.generateImgUrl(
-                            "body/" + ffe.getWinner().getName().replace(' ', '-') + ".png", 168)
-                    );
-                    ffe.getLoser().setBodyUrl(s3Service.generateImgUrl(
-                            "body/" + ffe.getLoser().getName().replace(' ', '-') + ".png", 168)
-                    );
-                }
-        );
-        redisUtils.saveData("current-event", streamFightEvent);
-        redisUtils.deleteByPrefix(BET_PREFIX.getPrefix());
-    }
 }
