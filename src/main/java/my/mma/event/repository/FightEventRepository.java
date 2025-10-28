@@ -31,12 +31,8 @@ public interface FightEventRepository extends JpaRepository<FightEvent, Long> {
             "fighterFightEvents.loser"
     })
     Optional<FightEvent> findByName(String eventName);
-    @EntityGraph(attributePaths = {
-            "fighterFightEvents",
-            "fighterFightEvents.winner",
-            "fighterFightEvents.loser"
-    })
-    Optional<FightEvent> findByNameOrderByFighterFightEventsAsc(String eventName);
+
+    FightEvent findFirstByCompletedIsFalseOrderByEventDateAsc();
 
     Optional<Page<FightEvent>> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
