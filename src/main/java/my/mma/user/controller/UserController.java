@@ -1,6 +1,5 @@
 package my.mma.user.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import my.mma.security.CustomUserDetails;
 import my.mma.user.dto.JoinRequest;
@@ -11,6 +10,7 @@ import my.mma.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -23,15 +23,14 @@ public class UserController {
     private final UserService userService;
     private final UserProfileService userProfileService;
 
-    @GetMapping("/check_dup_nickname")
-    public ResponseEntity<Boolean> checkDuplicatedNickname(@RequestBody Map<String, String> nickname) {
-        System.out.println("nickname = " + nickname);
-        return ResponseEntity.ok(userService.checkDuplicatedNickname(nickname.get("nickname")));
+    @GetMapping("/dup_nickname")
+    public ResponseEntity<Boolean> checkDuplicatedNickname(@RequestBody Map<String, String> nicknameMap) {
+        return ResponseEntity.ok(userService.checkDuplicatedNickname(nicknameMap.get("nickname")));
     }
 
-    @PostMapping("/update_nickname")
-    public ResponseEntity<UserDto> updateNickname(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody Map<String, String> nickname) {
-        return ResponseEntity.ok().body(userService.updateNickname(userDetails.getUsername(), nickname.get("nickname")));
+    @PostMapping("/nickname")
+    public ResponseEntity<UserDto> updateNickname(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody Map<String, String> nicknameMap) {
+        return ResponseEntity.ok().body(userService.updateNickname(userDetails.getUsername(), nicknameMap.get("nickname")));
     }
 
     @GetMapping("/me")
@@ -40,7 +39,7 @@ public class UserController {
     }
 
     @PostMapping("/join")
-    public ResponseEntity<Void> join(@RequestBody JoinRequest request) {
+    public ResponseEntity<Void> join(@RequestBody @Validated JoinRequest request) {
         userService.join(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(null);
     }
