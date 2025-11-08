@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.bet.repository.BetRepository;
 import my.mma.event.dto.FightEventDto;
+import my.mma.event.dto.FightEventDto.FighterFightEventDto;
 import my.mma.event.repository.FightEventRepository;
 import my.mma.event.service.EventService;
 import my.mma.exception.CustomErrorCode;
@@ -43,30 +44,37 @@ public class UserProfileService {
         UserBetRecord userBetRecord = betRepository.getUserBetRecord(user.getId()); // nullable
         List<Alert> userAlerts = alertRepository.findByUserId(user.getId());
 
-        List<Long> fighterIds = userAlerts.stream()
-                .filter(alert -> alert.getTargetType().equals(TargetType.FIGHTER))
-                .map(Alert::getTargetId)
-                .toList();
-        List<FighterDto> alertFighters = fighterRepository.findAllById(fighterIds)
-                .stream().map(fighter -> {
-                    FighterDto fighterDto = FighterDto.toDto(fighter);
-                    fighterDto.setHeadshotUrl(s3Service.generateImgUrl(
-                            "headshot/" + fighterDto.getName().replace(' ', '-') + ".png", 2));
-                    return fighterDto;
-                }).toList();
-
-        List<Long> fightEventIds = userAlerts.stream()
-                .filter(alert -> alert.getTargetType().equals(TargetType.EVENT))
-                .map(Alert::getTargetId)
-                .toList();
-        List<FightEventDto.FighterFightEventDto> alertFightEvents = fightEventRepository.findAllById(fightEventIds)
-                .stream().map(eventService::getMainCardDto).toList();
+        List<FighterDto> alertFighters = getAlertFighters(userAlerts);
+        List<FighterFightEventDto> alertFightEvents = getAlertEvents(userAlerts);
 
         return UserProfileDto.builder()
                 .userBetRecord(userBetRecord)
                 .alertFighters(alertFighters)
                 .alertEvents(alertFightEvents)
                 .build();
+    }
+
+    private List<FighterDto> getAlertFighters(List<Alert> userAlerts) {
+        List<Long> fighterIds = userAlerts.stream()
+                .filter(alert -> alert.getTargetType().equals(TargetType.FIGHTER))
+                .map(Alert::getTargetId)
+                .toList();
+        return fighterRepository.findAllById(fighterIds)
+                .stream().map(fighter -> {
+                    FighterDto fighterDto = FighterDto.toDto(fighter);
+                    fighterDto.setHeadshotUrl(s3Service.generateImgUrl(
+                            "headshot/" + fighterDto.getName().replace(' ', '-') + ".png", 2));
+                    return fighterDto;
+                }).toList();
+    }
+
+    private List<FighterFightEventDto> getAlertEvents(List<Alert> userAlerts) {
+        List<Long> fightEventIds = userAlerts.stream()
+                .filter(alert -> alert.getTargetType().equals(TargetType.EVENT))
+                .map(Alert::getTargetId)
+                .toList();
+        return fightEventRepository.findAllById(fightEventIds)
+                .stream().map(eventService::getMainCardDto).toList();
     }
 
 }
