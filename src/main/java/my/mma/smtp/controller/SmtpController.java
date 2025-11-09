@@ -20,7 +20,7 @@ public class SmtpController {
     public ResponseEntity<Boolean> sendJoinCode(
             @RequestBody Map<String, String> emailTo
     ) {
-        if(smtpService.sendJoinCode(emailTo)){
+        if(smtpService.sendJoinCode(emailTo.get("email"))){
             return ResponseEntity.ok().body(true);
         }
         return ResponseEntity.ok().body(false);
