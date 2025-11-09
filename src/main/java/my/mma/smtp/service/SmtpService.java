@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
+import my.mma.smtp.constant.JoinCodeConstant;
 import my.mma.user.repository.UserRepository;
 import my.mma.smtp.dto.VerifyCodeRequest;
 import my.mma.smtp.entity.JoinCode;
@@ -17,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 import java.util.Random;
 
+import static my.mma.smtp.constant.JoinCodeConstant.*;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -28,15 +31,9 @@ public class SmtpService {
     private final JoinCodeRepository joinCodeRepository;
 
     @Transactional
-    public boolean sendJoinCode(
-            Map<String, String> emailTo
-    ) {
-        String email = emailTo.get("emailTo");
+    public boolean sendJoinCode(String email) {
         log.info("email = {}", email);
-        if (userRepository.findByEmail(email).isEmpty()) {
-//            if(joinCodeRepository.findById(email).isPresent()){
-//                joinCodeRepository.deleteById(email);
-//            }
+        if (!userRepository.existsByEmail(email)) {
             String joinCode = generateRandomNumber();
             SimpleMailMessage smm = new SimpleMailMessage();
             smm.setTo(email);
@@ -46,7 +43,7 @@ public class SmtpService {
             joinCodeRepository.save(JoinCode.builder()
                     .email(email)
                     .code(joinCode)
-                    .expiration(300)
+                    .expiration(EXPIRATION_SECONDS.getValue())
                     .build());
             return true;
         }
@@ -54,11 +51,7 @@ public class SmtpService {
     }
 
     private String generateRandomNumber() {
-        StringBuilder sb = new StringBuilder();
-        Random random = new Random();
-        for (int i = 0; i < 6; i++)
-            sb.append(random.nextInt(10));
-        return sb.toString();
+        return String.format("%06d", new Random().nextInt(1_000_000));
     }
 
     @Transactional
