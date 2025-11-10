@@ -10,7 +10,6 @@ import my.mma.security.JWTUtil;
 import my.mma.security.filter.JWTFilter;
 import my.mma.security.filter.LoginFilter;
 import my.mma.user.repository.UserRepository;
-import my.mma.user.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -56,7 +55,7 @@ public class SecurityConfig {
         try {
             return authenticationConfiguration.getAuthenticationManager();
         } catch (Exception e) {
-            throw new CustomException(CustomErrorCode.SERVER_ERROR);
+            throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 

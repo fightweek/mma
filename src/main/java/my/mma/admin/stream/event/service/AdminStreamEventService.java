@@ -158,7 +158,7 @@ public class AdminStreamEventService {
                 fightEventRepository.findByName(redisFightEvent.getName()).ifPresentOrElse(
                         FightEvent::updateFightEventToCompleted,
                         () -> {
-                            throw new CustomException(CustomErrorCode.SERVER_ERROR);
+                            throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR);
                         }
                 );
                 streamFightEventRedisUtils.deleteData("current-event");
@@ -181,7 +181,7 @@ public class AdminStreamEventService {
                     s3JsonFileService.uploadChatLog(
                             todayString + chatLogPrefixWithUserId + ".json", strUserChatLog);
                 } catch (JsonProcessingException e) {
-                    throw new CustomException(CustomErrorCode.SERVER_ERROR, "json parse error white save chat log " + chatLogPrefixWithUserId);
+                    throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR, "json parse error white save chat log " + chatLogPrefixWithUserId);
                 }
             });
     }

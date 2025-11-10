@@ -5,6 +5,7 @@ import my.mma.smtp.dto.VerifyCodeRequest;
 import my.mma.smtp.service.SmtpService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -16,23 +17,20 @@ public class SmtpController {
 
     private final SmtpService smtpService;
 
-    @PostMapping("/send_join_code")
+    @PostMapping("")
     public ResponseEntity<Boolean> sendJoinCode(
             @RequestBody Map<String, String> emailTo
     ) {
-        if(smtpService.sendJoinCode(emailTo.get("email"))){
-            return ResponseEntity.ok().body(true);
-        }
-        return ResponseEntity.ok().body(false);
+        return ResponseEntity.ok().body(smtpService.sendJoinCode(emailTo.get("email")));
     }
 
-    @PostMapping("/verify_code")
-    public ResponseEntity<String> verifyCode(
-            @RequestBody VerifyCodeRequest verifyCodeRequest
+    @DeleteMapping("")
+    public ResponseEntity<Void> verifyCode(
+            @RequestBody @Validated VerifyCodeRequest verifyCodeRequest
     ) {
         if (smtpService.verifyCode(verifyCodeRequest))
-            return ResponseEntity.status(HttpStatus.OK).body("verified");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("verify failed");
+            return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
 }

@@ -15,6 +15,8 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 
+import static my.mma.exception.CustomErrorCode.VALIDATION_FAILED_400;
+
 @RestControllerAdvice
 @Slf4j
 public class BasicExceptionAdvice {
@@ -60,7 +62,7 @@ public class BasicExceptionAdvice {
         log.error("ex = {}", e.getMessage());
         BasicErrorResponse response = BasicErrorResponse.builder()
                 .defaultMessages(new HashMap<>())
-                .errorMessage("Validation failed")
+                .errorMessage(VALIDATION_FAILED_400.getErrorMessage())
                 .status(HttpStatus.BAD_REQUEST)
                 .timeStamp(LocalDateTime.now())
                 .build();

@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.function.Function;
 
 @Transactional(readOnly = true)
 @Service
@@ -45,7 +44,7 @@ public class EventService {
                 fightEvent -> {
                     FightEventDto fightEventDto = FightEventDto.toDto(fightEvent);
                     if (fightEventDto.isUpcoming()) {
-                        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.SERVER_ERROR));
+                        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR));
                         fightEventDto.setAlert(alertRepository.existsByUserAndTargetTypeAndTargetId(user, TargetType.EVENT, fightEvent.getId()));
                     }
                     fightEventDto.getFighterFightEvents().forEach(

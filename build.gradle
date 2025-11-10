@@ -62,6 +62,7 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
+
 configurations.configureEach {
 	resolutionStrategy {
 		// Netty 안전한 최신 버전으로 강제 적용

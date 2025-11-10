@@ -72,7 +72,7 @@ public class JwtTokenProvider {
             throw new CustomException(UNSUPPORTED_JWT);
         } catch (Exception e) {
             // 여기에서 예외 메시지를 설정해야 합니다.
-            throw new CustomException(SERVER_ERROR);
+            throw new CustomException(INTERNAL_SERVER_ERROR);
         }
     }
 
