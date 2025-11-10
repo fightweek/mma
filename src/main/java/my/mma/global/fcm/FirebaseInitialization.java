@@ -26,9 +26,9 @@ public class FirebaseInitialization {
 
             FirebaseApp.initializeApp(options);
         } catch (FileNotFoundException e) {
-            throw new CustomException(CustomErrorCode.SERVER_ERROR,"firebase admin file not found");
+            throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR,"firebase admin file not found");
         } catch (IOException e) {
-            throw new CustomException(CustomErrorCode.SERVER_ERROR,"firebase set Credentials error");
+            throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR,"firebase set Credentials error");
         }
     }
 

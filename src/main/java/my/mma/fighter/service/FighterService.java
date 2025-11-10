@@ -40,7 +40,7 @@ public class FighterService {
 
     public FighterDetailDto detail(String email, Long fighterId) {
         Fighter fighter = fighterRepository.findById(fighterId).orElseThrow(
-                () -> new CustomException(CustomErrorCode.SERVER_ERROR)
+                () -> new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR)
         );
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_400)

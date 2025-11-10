@@ -14,7 +14,6 @@ import my.mma.fighter.entity.FightRecord;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
 import my.mma.global.redis.utils.RedisUtils;
-import my.mma.global.utils.ModifyUtils;
 import my.mma.user.entity.User;
 import my.mma.user.repository.UserRepository;
 import org.json.simple.JSONArray;
@@ -22,7 +21,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -164,7 +162,7 @@ public class InitializeFightersAndEvents {
             }
         } catch (Exception e) {
             log.error("error=", e);
-            throw new CustomException(CustomErrorCode.SERVER_ERROR);
+            throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 

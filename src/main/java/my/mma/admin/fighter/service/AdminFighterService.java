@@ -17,7 +17,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @Slf4j
@@ -66,7 +65,7 @@ public class AdminFighterService {
             );
             this.rankerRedisUtils.updateData("rankers", rankersDto);
         } else
-            throw new CustomException(CustomErrorCode.SERVER_ERROR, "ranker data is null");
+            throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR, "ranker data is null");
     }
 
     @Transactional
@@ -86,7 +85,7 @@ public class AdminFighterService {
                     .bodyToMono(Void.class)
                     .block();
         } catch (Exception e) {
-            throw new CustomException(CustomErrorCode.SERVER_ERROR, "error while updating fighter image, e=" + e.getMessage());
+            throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR, "error while updating fighter image, e=" + e.getMessage());
         }
     }
 }
