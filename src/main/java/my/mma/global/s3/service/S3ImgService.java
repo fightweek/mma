@@ -26,6 +26,9 @@ import java.util.UUID;
 @Service
 public class S3ImgService {
 
+    public static final String BODY_OBJECT_KEY_PREFIX = "body/";
+    public static final String HEADSHOT_OBJECT_KEY_PREFIX = "headshot/";
+
     private final S3Presigner s3Presigner;
     private final S3Client s3Client;
 

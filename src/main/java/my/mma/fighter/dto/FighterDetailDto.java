@@ -10,7 +10,6 @@ import java.util.List;
 
 @Getter
 @SuperBuilder
-@ToString
 public class FighterDetailDto extends FighterDto{
 
     private int height;
@@ -23,9 +22,10 @@ public class FighterDetailDto extends FighterDto{
     private List<FighterFightEventDto> fighterFightEvents;
 
     public static FighterDetailDto toDto(Fighter fighter, List<FighterFightEventDto> fighterFightEvents, String bodyUrl, boolean alert) {
-        FighterDetailDto detailDto = FighterDetailDto.builder()
+        return FighterDetailDto.builder()
                 .id(fighter.getId())
                 .name(fighter.getName())
+                .nickname(fighter.getNickname())
                 .ranking(fighter.getRanking())
                 .record(fighter.getFightRecord())
                 .weight(fighter.getWeight())
@@ -37,9 +37,6 @@ public class FighterDetailDto extends FighterDto{
                 .bodyUrl(bodyUrl)
                 .alert(alert)
                 .build();
-        System.out.println("detailDto = " + detailDto);
-        System.out.println("detailDto.getHeadshotUrl() = " + detailDto.getHeadshotUrl());
-        return detailDto;
     }
 
 }

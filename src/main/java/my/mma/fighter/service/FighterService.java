@@ -24,7 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static my.mma.global.s3.service.S3ImgService.BODY_OBJECT_KEY_PREFIX;
+import static my.mma.global.s3.service.S3ImgService.HEADSHOT_OBJECT_KEY_PREFIX;
 
 @Service
 @Slf4j
@@ -40,27 +42,20 @@ public class FighterService {
 
     public FighterDetailDto detail(String email, Long fighterId) {
         Fighter fighter = fighterRepository.findById(fighterId).orElseThrow(
-                () -> new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR)
+                () -> new CustomException(CustomErrorCode.NO_SUCH_FIGHTER_CONFIGURED_400)
         );
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_400)
         );
         boolean isAlertExists = alertRepository.existsByUserAndTargetTypeAndTargetId(user, TargetType.FIGHTER, fighterId);
-        Optional<List<FighterFightEvent>> fighterFightEvents = fighterFightEventRepository.findByFighter(fighter);
-        List<FighterFightEventDto> fighterFightEventDtos = fighterFightEvents.map(
-                ffeList -> ffeList.stream().map(FighterFightEventDto::toDto)
-                        .collect(Collectors.toList())).orElse(null);
-        if (fighterFightEventDtos != null)
-            fighterFightEventDtos.forEach(
-                    ffe -> {
-                        ffe.getWinner().setHeadshotUrl(s3Service.generateImgUrl(
-                                "headshot/" + ffe.getWinner().getName().replace(' ', '-') + ".png", 2));
-                        ffe.getLoser().setHeadshotUrl(s3Service.generateImgUrl(
-                                "headshot/" + ffe.getLoser().getName().replace(' ', '-') + ".png", 2));
-                    }
-            );
-        String bodyUrl = s3Service.generateImgUrl(
-                "body/" + fighter.getName().replace(' ', '-') + ".png", 2);
+        List<FighterFightEvent> fighterFightEvents = fighterFightEventRepository.findByFighter(fighter);
+        List<FighterFightEventDto> fighterFightEventDtos = fighterFightEvents.stream()
+                .map(FighterFightEventDto::toDto)
+                .peek(ffe -> {
+                    ffe.getWinner().setHeadshotUrl(getFighterImgUrl(ffe.getWinner().getName(), HEADSHOT_OBJECT_KEY_PREFIX));
+                    ffe.getLoser().setHeadshotUrl(getFighterImgUrl(ffe.getLoser().getName(), HEADSHOT_OBJECT_KEY_PREFIX));
+                }).toList();
+        String bodyUrl = getFighterImgUrl(fighter.getName(), BODY_OBJECT_KEY_PREFIX);
         return FighterDetailDto.toDto(fighter, fighterFightEventDtos, bodyUrl, isAlertExists);
     }
 
@@ -70,11 +65,15 @@ public class FighterService {
                 page -> page.map(
                         fighter -> {
                             FighterDto fighterDto = FighterDto.toDto(fighter);
-                            fighterDto.setHeadshotUrl(s3Service.generateImgUrl(
-                                    "headshot/" + fighterDto.getName().replace(' ', '-') + ".png", 2));
+                            fighterDto.setHeadshotUrl(getFighterImgUrl(fighterDto.getName(), HEADSHOT_OBJECT_KEY_PREFIX));
                             return fighterDto;
                         }
                 )
         ).orElse(null);
+    }
+
+    private String getFighterImgUrl(String name, String objectKey) {
+        return s3Service.generateImgUrl(
+                objectKey + name.replace(' ', '-') + ".png", 2);
     }
 }
