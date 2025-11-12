@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -41,40 +42,40 @@ public class FighterController {
 
     @GetMapping("/fighters")
     public ResponseEntity<Page<FighterDto>> search(
-            @RequestParam(value = "name",defaultValue = "") String name,
+            @RequestParam(value = "name", defaultValue = "") String name,
             @PageableDefault(sort = "name", direction = ASC) Pageable pageable
     ) {
-        return ResponseEntity.ok().body(fighterService.search(name,pageable));
+        return ResponseEntity.ok().body(fighterService.search(name, pageable));
     }
 
     @PostMapping("/preference")
     public ResponseEntity<Void> updatePreference(
             @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody UpdatePreferenceRequest request
+            @RequestBody @Validated UpdatePreferenceRequest request
     ) {
-        updatePreferenceService.updatePreference(userDetails.getUsername(),request, TargetType.FIGHTER);
+        updatePreferenceService.updatePreference(userDetails.getUsername(), request, TargetType.FIGHTER);
         return ResponseEntity.ok().body(null);
     }
 
     @GetMapping("/headshot")
-    public ResponseEntity<Map<String,String>> headshotUrl(
+    public ResponseEntity<Map<String, String>> headshotUrl(
             @RequestParam("name") String name
-    ){
+    ) {
         String preSignedUrl = s3Service.generateImgUrl(
-                "headshot/" + name.replace(' ', '-') + ".png",1);
+                "headshot/" + name.replace(' ', '-') + ".png", 1);
         Map<String, String> map = new HashMap<>();
-        map.put("url",preSignedUrl);
+        map.put("url", preSignedUrl);
         return ResponseEntity.ok().body(map);
     }
 
     @GetMapping("/body")
-    public ResponseEntity<Map<String,String>> bodyUrl(
+    public ResponseEntity<Map<String, String>> bodyUrl(
             @RequestParam("name") String name
-    ){
+    ) {
         String preSignedUrl = s3Service.generateImgUrl(
-                "body/" + name.replace(' ', '-') + ".png",1);
+                "body/" + name.replace(' ', '-') + ".png", 1);
         Map<String, String> map = new HashMap<>();
-        map.put("url",preSignedUrl);
+        map.put("url", preSignedUrl);
         return ResponseEntity.ok().body(map);
     }
 

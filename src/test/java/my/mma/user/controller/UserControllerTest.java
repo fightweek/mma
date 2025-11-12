@@ -2,6 +2,7 @@ package my.mma.user.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import my.mma.config.TestSecurityConfig;
+import my.mma.fixture.dto.auth.CustomUserDetailsFixture;
 import my.mma.security.CustomUserDetails;
 import my.mma.security.oauth2.dto.TempUserDto;
 import my.mma.user.dto.JoinRequest;
@@ -23,6 +24,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.util.HashMap;
 import java.util.Map;
 
+import static my.mma.fixture.dto.auth.CustomUserDetailsFixture.AUTH_EMAIL;
+import static my.mma.fixture.dto.auth.CustomUserDetailsFixture.createCustomUserDetails;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -58,13 +61,12 @@ class UserControllerTest {
         Map<String, String> nicknameMap = new HashMap<>();
         nicknameMap.put("nickname", validNickname);
         UserDto userDto = getUserDto();
-        Mockito.when(userService.updateNickname(validEmail, validNickname))
+        Mockito.when(userService.updateNickname(AUTH_EMAIL, validNickname))
                 .thenReturn(userDto);
-        CustomUserDetails customUserDetails = getCustomUserDetails();
 
         //when && then
         MvcResult mvcResult = mockMvc.perform(post(urlPrefix + "/nickname")
-                        .with(authentication(new UsernamePasswordAuthenticationToken(customUserDetails, null)))
+                        .with(authentication(new UsernamePasswordAuthenticationToken(createCustomUserDetails(), null)))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(nicknameMap)))
                 .andExpect(status().isOk())
@@ -82,12 +84,11 @@ class UserControllerTest {
     void getMeTest() throws Exception {
         //given
         UserDto userDto = getUserDto();
-        CustomUserDetails customUserDetails = getCustomUserDetails();
-        Mockito.when(userService.getMe(validEmail)).thenReturn(userDto);
+        Mockito.when(userService.getMe(AUTH_EMAIL)).thenReturn(userDto);
 
         //when && then
         MvcResult mvcResult = mockMvc.perform(get(urlPrefix + "/me")
-                        .with(authentication(new UsernamePasswordAuthenticationToken(customUserDetails, null)))
+                        .with(authentication(new UsernamePasswordAuthenticationToken(createCustomUserDetails(), null)))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -179,16 +180,6 @@ class UserControllerTest {
                 .point(0)
                 .role("ROLE_USER")
                 .build();
-    }
-
-    private CustomUserDetails getCustomUserDetails() {
-        TempUserDto tempUser = TempUserDto.builder()
-                .email(validEmail)
-                .nickname(validNickname)
-                .password("pwd123")
-                .role("ROLE_USER")
-                .build();
-        return new CustomUserDetails(tempUser);
     }
 
     private void assertUserDto(UserDto userDto, UserDto responseBody) {

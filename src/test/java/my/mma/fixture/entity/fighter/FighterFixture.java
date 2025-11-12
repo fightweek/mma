@@ -1,4 +1,4 @@
-package my.mma.fixture.fighter;
+package my.mma.fixture.entity.fighter;
 
 import my.mma.fighter.entity.FightRecord;
 import my.mma.fighter.entity.Fighter;

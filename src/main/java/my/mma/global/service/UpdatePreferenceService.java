@@ -27,15 +27,15 @@ public class UpdatePreferenceService {
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_400)
         );
-        if (request.isOn()) {
+        if (request.on()) {
             Alert alert = Alert.builder()
                     .user(user)
                     .targetType(targetType)
-                    .targetId(request.getTargetId())
+                    .targetId(request.targetId())
                     .build();
             alertRepository.save(alert);
         } else {
-            alertRepository.deleteByUserAndTargetTypeAndTargetId(user, TargetType.EVENT, request.getTargetId());
+            alertRepository.deleteByUserAndTargetTypeAndTargetId(user, TargetType.EVENT, request.targetId());
         }
     }
 

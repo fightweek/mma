@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static my.mma.exception.CustomErrorCode.NO_SUCH_FIGHTER_CONFIGURED_400;
-import static my.mma.fixture.fighter.FighterFixture.*;
-import static my.mma.fixture.fightevent.FightEventFixture.createUpcomingFightEventWithId;
-import static my.mma.fixture.user.UserFixture.createUserWithEmail;
+import static my.mma.fixture.entity.fighter.FighterFixture.*;
+import static my.mma.fixture.entity.fightevent.FightEventFixture.createUpcomingFightEventWithId;
+import static my.mma.fixture.entity.user.UserFixture.createUserWithEmail;
 import static my.mma.global.entity.TargetType.FIGHTER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -89,7 +89,7 @@ class FighterServiceTest {
         assertThat(fighterDetailDto.getFighterFightEvents().size()).isEqualTo(ffes.size());
     }
 
-    @DisplayName("파이터 ID와 사용자의 알림 설정 정보를 기반으로 상세 DTO를 반환한다")
+    @DisplayName("입력된 파이터 ID가 DB에 없다면, 400 예외를 던진다")
     @Test
     void throwException400_whenFighterIdNotFound() {
         //given
