@@ -1,17 +1,8 @@
 package my.mma.global.dto;
 
-import lombok.*;
+import jakarta.validation.constraints.NotNull;
 
-@Getter
-@Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
-@ToString
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class UpdatePreferenceRequest {
-
-    private Long targetId;
-    private boolean on;
+public record UpdatePreferenceRequest(@NotNull Long targetId, @NotNull Boolean on) {
 
 }
 

@@ -1,4 +1,4 @@
-package my.mma.fixture.user;
+package my.mma.fixture.entity.user;
 
 import my.mma.user.entity.User;
 

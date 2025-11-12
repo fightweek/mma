@@ -6,6 +6,7 @@ import my.mma.fighter.entity.Fighter;
 
 @Getter
 @Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
 public class FighterDto extends IFighterDto {
 

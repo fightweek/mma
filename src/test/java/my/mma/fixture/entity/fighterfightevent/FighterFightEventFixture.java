@@ -1,9 +1,8 @@
-package my.mma.fixture.fighterfightevent;
+package my.mma.fixture.entity.fighterfightevent;
 
 import my.mma.event.entity.FightEvent;
 import my.mma.event.entity.FighterFightEvent;
-
-import static my.mma.fixture.fighter.FighterFixture.*;
+import my.mma.fixture.entity.fighter.FighterFixture;
 
 public class FighterFightEventFixture {
 
@@ -11,8 +10,8 @@ public class FighterFightEventFixture {
         return FighterFightEvent.builder()
                 .id((long) id)
                 .fightEvent(fightEvent)
-                .winner(createFighter())
-                .loser(createFighter())
+                .winner(FighterFixture.createFighter())
+                .loser(FighterFixture.createFighter())
                 .title(false)
                 .fightResult(null)
                 .build();
@@ -22,8 +21,8 @@ public class FighterFightEventFixture {
         return FighterFightEvent.builder()
                 .id(1L)
                 .fightEvent(fightEvent)
-                .winner(createFighter())
-                .loser(createFighter())
+                .winner(FighterFixture.createFighter())
+                .loser(FighterFixture.createFighter())
                 .title(false)
                 .fightResult(null)
                 .build();

@@ -1,4 +1,4 @@
-package my.mma.fixture.fightevent;
+package my.mma.fixture.entity.fightevent;
 
 import my.mma.event.entity.FightEvent;
 import my.mma.event.entity.property.CardStartDateTimeInfo;
@@ -6,7 +6,7 @@ import my.mma.event.entity.property.CardStartDateTimeInfo;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import static my.mma.fixture.fighterfightevent.FighterFightEventFixture.createUpcomingFfeWithId;
+import static my.mma.fixture.entity.fighterfightevent.FighterFightEventFixture.createUpcomingFfeWithId;
 
 public class FightEventFixture {
 

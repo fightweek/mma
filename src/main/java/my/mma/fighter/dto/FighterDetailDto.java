@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
 public class FighterDetailDto extends FighterDto{
 
