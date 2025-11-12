@@ -8,11 +8,14 @@ import java.util.Random;
 
 public class FighterFixture {
 
+    public static final String NAME_PREFIX = "name-";
+    public static final String NICKNAME_PREFIX = "nickname-";
+
     public static Fighter createFighter() {
         return Fighter.builder()
                 .id(1L)
-                .name("name-" + 1)
-                .nickname("nickname-" + 1)
+                .name(NAME_PREFIX + 1)
+                .nickname(NICKNAME_PREFIX + 1)
                 .height(180)
                 .weight(155.5)
                 .reach(100)
@@ -29,8 +32,8 @@ public class FighterFixture {
     public static Fighter createFighterWithNumber(int num) {
         return Fighter.builder()
                 .id((long) num)
-                .name("name-" + num)
-                .nickname("nickname-" + num)
+                .name(NAME_PREFIX + num)
+                .nickname(NICKNAME_PREFIX + num)
                 .height(180)
                 .weight(155.5)
                 .reach(100)
