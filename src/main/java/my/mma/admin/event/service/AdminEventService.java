@@ -4,27 +4,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.admin.event.dto.CrawlerDto;
 import my.mma.admin.event.dto.CrawlerDto.EventCrawlerDto;
-import my.mma.event.dto.StreamFightEventDto;
-import my.mma.event.entity.FightEvent;
-import my.mma.event.entity.FighterFightEvent;
-import my.mma.event.repository.FightEventRepository;
+import my.mma.fightevent.entity.FightEvent;
+import my.mma.fightevent.entity.FighterFightEvent;
+import my.mma.fightevent.repository.FightEventRepository;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
-import my.mma.global.redis.prefix.RedisKeyPrefix;
-import my.mma.global.redis.utils.RedisUtils;
-import my.mma.global.s3.service.S3ImgService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static my.mma.fighter.entity.FightRecord.toFightRecord;
-import static my.mma.global.redis.prefix.RedisKeyPrefix.BET_PREFIX;
 
 @Service
 @Slf4j

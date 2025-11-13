@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import my.mma.event.entity.FighterFightEvent;
+import my.mma.fightevent.entity.FighterFightEvent;
 import my.mma.user.entity.User;
 
 import static jakarta.persistence.FetchType.LAZY;

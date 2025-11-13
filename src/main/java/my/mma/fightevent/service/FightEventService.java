@@ -1,15 +1,15 @@
-package my.mma.event.service;
+package my.mma.fightevent.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import my.mma.event.dto.FightEventDto;
-import my.mma.event.dto.FightEventDto.FighterFightEventDto;
-import my.mma.event.dto.FighterFightEventCardDetailDto;
-import my.mma.event.dto.StreamFightEventDto.FighterFightEventCardFighterDto;
-import my.mma.event.entity.FightEvent;
-import my.mma.event.entity.FighterFightEvent;
-import my.mma.event.repository.FightEventRepository;
-import my.mma.event.repository.FighterFightEventRepository;
+import my.mma.fightevent.dto.FightEventDto;
+import my.mma.fightevent.dto.FightEventDto.FighterFightEventDto;
+import my.mma.fightevent.dto.FighterFightEventCardDetailDto;
+import my.mma.fightevent.dto.StreamFightEventDto.FighterFightEventCardFighterDto;
+import my.mma.fightevent.entity.FightEvent;
+import my.mma.fightevent.entity.FighterFightEvent;
+import my.mma.fightevent.repository.FightEventRepository;
+import my.mma.fightevent.repository.FighterFightEventRepository;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
 import my.mma.fighter.entity.Fighter;
@@ -26,11 +26,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.Optional;
 
+import static my.mma.exception.CustomErrorCode.*;
+
 @Transactional(readOnly = true)
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class EventService {
+public class FightEventService {
 
     private final FightEventRepository fightEventRepository;
     private final FighterFightEventRepository fighterFightEventRepository;
@@ -39,12 +41,12 @@ public class EventService {
     private final UserRepository userRepository;
 
     public FightEventDto getSchedule(LocalDate date, String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(NO_SUCH_USER_CONFIGURED_400));
         Optional<FightEvent> schedule = fightEventRepository.findByEventDate(date);
         return schedule.map(
                 fightEvent -> {
                     FightEventDto fightEventDto = FightEventDto.toDto(fightEvent);
                     if (fightEventDto.isUpcoming()) {
-                        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR));
                         fightEventDto.setAlert(alertRepository.existsByUserAndTargetTypeAndTargetId(user, TargetType.EVENT, fightEvent.getId()));
                     }
                     fightEventDto.getFighterFightEvents().forEach(
@@ -86,7 +88,7 @@ public class EventService {
 
     public FighterFightEventCardDetailDto cardDetail(Long ffeId){
         FighterFightEvent ffe = fighterFightEventRepository.findById(ffeId)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.BAD_REQUEST_400));
+                .orElseThrow(() -> new CustomException(BAD_REQUEST_400));
 
         Fighter winner = ffe.getWinner();
         Fighter loser = ffe.getLoser();

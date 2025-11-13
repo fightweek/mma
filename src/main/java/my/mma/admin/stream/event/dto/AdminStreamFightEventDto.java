@@ -2,7 +2,7 @@ package my.mma.admin.stream.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
-import my.mma.event.dto.FightResultDto;
+import my.mma.fightevent.dto.FightResultDto;
 
 import java.util.List;
 

@@ -1,10 +1,10 @@
-package my.mma.event.controller;
+package my.mma.fightevent.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import my.mma.event.dto.FightEventDto;
-import my.mma.event.dto.FighterFightEventCardDetailDto;
-import my.mma.event.service.EventService;
+import my.mma.fightevent.dto.FightEventDto;
+import my.mma.fightevent.dto.FighterFightEventCardDetailDto;
+import my.mma.fightevent.service.FightEventService;
 import my.mma.global.dto.UpdatePreferenceRequest;
 import my.mma.global.entity.TargetType;
 import my.mma.global.service.UpdatePreferenceService;
@@ -27,7 +27,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 @RequestMapping("/event")
 public class EventController {
 
-    private final EventService eventService;
+    private final FightEventService eventService;
     private final UpdatePreferenceService updatePreferenceService;
     private Integer visitedCount = 0;
 

@@ -1,8 +1,8 @@
 package my.mma.home;
 
 import lombok.*;
-import my.mma.event.dto.CardStartDateTimeInfoDto;
-import my.mma.event.dto.StreamFightEventDto;
+import my.mma.fightevent.dto.CardStartDateTimeInfoDto;
+import my.mma.fightevent.dto.StreamFightEventDto;
 
 // Response
 @Builder

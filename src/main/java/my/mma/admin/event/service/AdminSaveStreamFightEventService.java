@@ -2,9 +2,9 @@ package my.mma.admin.event.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import my.mma.event.dto.StreamFightEventDto;
-import my.mma.event.entity.FightEvent;
-import my.mma.event.repository.FightEventRepository;
+import my.mma.fightevent.dto.StreamFightEventDto;
+import my.mma.fightevent.entity.FightEvent;
+import my.mma.fightevent.repository.FightEventRepository;
 import my.mma.global.redis.utils.RedisUtils;
 import my.mma.global.s3.service.S3ImgService;
 import org.springframework.stereotype.Service;

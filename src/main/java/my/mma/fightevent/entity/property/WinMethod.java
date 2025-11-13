@@ -1,4 +1,4 @@
-package my.mma.event.entity.property;
+package my.mma.fightevent.entity.property;
 
 import lombok.Getter;
 

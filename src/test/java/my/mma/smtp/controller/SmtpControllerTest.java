@@ -1,6 +1,7 @@
 package my.mma.smtp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import my.mma.config.TestSecurityConfig;
 import my.mma.exception.CustomErrorCode;
 import my.mma.smtp.dto.VerifyCodeRequest;
 import my.mma.smtp.service.SmtpService;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -29,8 +31,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * send_join_code
  */
-@WebMvcTest(controllers = {SmtpController.class},
-        excludeAutoConfiguration = {SecurityAutoConfiguration.class})
+@WebMvcTest(controllers = {SmtpController.class})
+@Import(TestSecurityConfig.class)
 class SmtpControllerTest {
 
     @Autowired

@@ -1,10 +1,10 @@
 package my.mma.user.service;
 
 import my.mma.bet.repository.BetRepository;
-import my.mma.event.entity.FightEvent;
-import my.mma.event.entity.FighterFightEvent;
-import my.mma.event.repository.FightEventRepository;
-import my.mma.event.service.EventService;
+import my.mma.fightevent.entity.FightEvent;
+import my.mma.fightevent.entity.FighterFightEvent;
+import my.mma.fightevent.repository.FightEventRepository;
+import my.mma.fightevent.service.FightEventService;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
 import my.mma.global.entity.Alert;
@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static my.mma.event.dto.FightEventDto.FighterFightEventDto.*;
+import static my.mma.fightevent.dto.FightEventDto.FighterFightEventDto.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,7 +47,7 @@ class UserProfileServiceTest {
     @Mock
     private S3ImgService s3ImgService;
     @Mock
-    private EventService eventService;
+    private FightEventService eventService;
 
     @InjectMocks
     private UserProfileService userProfileService;

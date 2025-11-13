@@ -1,7 +1,7 @@
 package my.mma.stream.controller;
 
 import lombok.RequiredArgsConstructor;
-import my.mma.event.dto.StreamFightEventDto;
+import my.mma.fightevent.dto.StreamFightEventDto;
 import my.mma.stream.service.StreamService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

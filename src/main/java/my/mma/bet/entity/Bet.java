@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import my.mma.event.entity.FightEvent;
+import my.mma.fightevent.entity.FightEvent;
 import my.mma.fighter.entity.BaseEntity;
 import my.mma.user.entity.User;
 

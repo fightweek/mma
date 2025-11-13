@@ -2,9 +2,9 @@ package my.mma.vote.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import my.mma.event.dto.StreamFightEventDto;
-import my.mma.event.entity.FighterFightEvent;
-import my.mma.event.repository.FighterFightEventRepository;
+import my.mma.fightevent.dto.StreamFightEventDto;
+import my.mma.fightevent.entity.FighterFightEvent;
+import my.mma.fightevent.repository.FighterFightEventRepository;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
 import my.mma.global.redis.utils.RedisUtils;

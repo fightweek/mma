@@ -6,12 +6,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.admin.stream.event.dto.AdminStreamFightEventDto;
 import my.mma.admin.stream.event.dto.AdminStreamFightEventDto.AdminStreamFighterFightEventDto;
-import my.mma.event.dto.CardStartDateTimeInfoDto;
-import my.mma.event.dto.StreamFightEventDto;
-import my.mma.event.dto.StreamFightEventDto.FighterFightEventCardFighterDto;
-import my.mma.event.dto.StreamFightEventDto.StreamFighterFightEventDto;
-import my.mma.event.entity.FightEvent;
-import my.mma.event.repository.FightEventRepository;
+import my.mma.fightevent.dto.CardStartDateTimeInfoDto;
+import my.mma.fightevent.dto.StreamFightEventDto;
+import my.mma.fightevent.dto.StreamFightEventDto.FighterFightEventCardFighterDto;
+import my.mma.fightevent.dto.StreamFightEventDto.StreamFighterFightEventDto;
+import my.mma.fightevent.entity.FightEvent;
+import my.mma.fightevent.repository.FightEventRepository;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
 import my.mma.global.redis.utils.RedisUtils;
@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 
-import static my.mma.event.dto.StreamFighterFightEventStatus.NOW;
-import static my.mma.event.dto.StreamFighterFightEventStatus.PREVIOUS;
+import static my.mma.fightevent.dto.StreamFighterFightEventStatus.NOW;
+import static my.mma.fightevent.dto.StreamFighterFightEventStatus.PREVIOUS;
 import static my.mma.global.redis.prefix.RedisKeyPrefix.CHAT_LOG_PREFIX;
 
 /**

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import my.mma.admin.fighter.dto.ChosenGameFighterNamesDto;
 import my.mma.admin.fighter.dto.RankersDto;
-import my.mma.event.dto.StreamFightEventDto;
+import my.mma.fightevent.dto.StreamFightEventDto;
 import my.mma.global.redis.utils.RedisUtils;
 import my.mma.stream.dto.UserChatLog;
 import my.mma.bet.dto.BetResponse;

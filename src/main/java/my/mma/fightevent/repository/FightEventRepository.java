@@ -1,7 +1,6 @@
-package my.mma.event.repository;
+package my.mma.fightevent.repository;
 
-import my.mma.event.entity.FightEvent;
-import my.mma.fighter.entity.Fighter;
+import my.mma.fightevent.entity.FightEvent;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;

@@ -1,4 +1,4 @@
-package my.mma.event.entity;
+package my.mma.fightevent.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
