@@ -84,8 +84,7 @@ class FighterControllerTest {
         FighterDetailDto responseBody = objectMapper.readValue(responseBodyAsString, FighterDetailDto.class);
 
         //then
-        assertThat(fighterDetailDto.getId()).isEqualTo(responseBody.getId());
-        assertThat(fighterDetailDto.getBodyUrl()).isEqualTo(responseBody.getBodyUrl());
+        assertThat(fighterDetailDto).usingRecursiveComparison().isEqualTo(responseBody);
     }
 
     @Test
@@ -118,7 +117,7 @@ class FighterControllerTest {
 
     @DisplayName("파이터의 알림 설정 여부를 toggle한다.")
     @Test
-    void updatePreferenceTest() throws Exception {
+    void updateFighterPreferenceTest() throws Exception {
         //given
         UpdatePreferenceRequest updatePreferenceRequest = new UpdatePreferenceRequest(2L, true);
         doNothing().when(updatePreferenceService).updatePreference(anyString(), eq(updatePreferenceRequest), eq(FIGHTER));

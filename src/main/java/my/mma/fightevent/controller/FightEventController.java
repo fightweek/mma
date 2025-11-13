@@ -25,11 +25,10 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/event")
-public class EventController {
+public class FightEventController {
 
     private final FightEventService eventService;
     private final UpdatePreferenceService updatePreferenceService;
-    private Integer visitedCount = 0;
 
     // get eventDate for parameter
     @GetMapping("/detail")
@@ -37,7 +36,6 @@ public class EventController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(name = "date",required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
-        System.out.println("visitedCount = " + ++visitedCount);
         return ResponseEntity.ok().body(eventService.getSchedule(date,userDetails.getUsername()));
     }
 
@@ -61,7 +59,6 @@ public class EventController {
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody UpdatePreferenceRequest request
     ) {
-        System.out.println("request = " + request);
         updatePreferenceService.updatePreference(userDetails.getUsername(),request, TargetType.EVENT);
         return ResponseEntity.ok().body(null);
     }
