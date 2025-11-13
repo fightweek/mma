@@ -1,7 +1,7 @@
 package my.mma.vote.dto;
 
 import my.mma.vote.entity.Vote;
-import my.mma.event.entity.FighterFightEvent;
+import my.mma.fightevent.entity.FighterFightEvent;
 import my.mma.user.entity.User;
 
 public record VoteRequest(long winnerId, long loserId, long fighterFightEventId) {

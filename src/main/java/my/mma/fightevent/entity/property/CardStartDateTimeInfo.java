@@ -1,6 +1,5 @@
-package my.mma.event.entity.property;
+package my.mma.fightevent.entity.property;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 

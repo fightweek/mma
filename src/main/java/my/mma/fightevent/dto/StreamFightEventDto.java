@@ -1,18 +1,18 @@
-package my.mma.event.dto;
+package my.mma.fightevent.dto;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import my.mma.event.dto.abs.IFightEventDto;
-import my.mma.event.dto.abs.IFighterFightEvent;
-import my.mma.event.entity.FightEvent;
-import my.mma.event.entity.FighterFightEvent;
+import my.mma.fightevent.dto.abs.IFightEventDto;
+import my.mma.fightevent.dto.abs.IFighterFightEvent;
+import my.mma.fightevent.entity.FightEvent;
+import my.mma.fightevent.entity.FighterFightEvent;
 import my.mma.fighter.dto.IFighterDto;
 import my.mma.fighter.entity.Fighter;
 
 import java.time.LocalDate;
 
-import static my.mma.event.dto.StreamFightEventDto.*;
-import static my.mma.event.dto.StreamFighterFightEventStatus.*;
+import static my.mma.fightevent.dto.StreamFightEventDto.*;
+import static my.mma.fightevent.dto.StreamFighterFightEventStatus.*;
 
 @Getter
 @Setter

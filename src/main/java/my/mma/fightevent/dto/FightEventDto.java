@@ -1,11 +1,11 @@
-package my.mma.event.dto;
+package my.mma.fightevent.dto;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import my.mma.event.dto.abs.IFightEventDto;
-import my.mma.event.dto.abs.IFighterFightEvent;
-import my.mma.event.entity.FightEvent;
-import my.mma.event.entity.FighterFightEvent;
+import my.mma.fightevent.dto.abs.IFightEventDto;
+import my.mma.fightevent.dto.abs.IFighterFightEvent;
+import my.mma.fightevent.entity.FightEvent;
+import my.mma.fightevent.entity.FighterFightEvent;
 import my.mma.fighter.dto.FighterDto;
 
 import java.time.LocalDate;
@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
  * 오직 클라이언트와 이벤트 정보 송수신 시 사용되는 dto
  */
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
@@ -24,11 +23,13 @@ public class FightEventDto extends IFightEventDto<FightEventDto.FighterFightEven
 
     private boolean upcoming;
 
+    @Setter
     private boolean alert;
 
     public static FightEventDto toDto(FightEvent fightEvent) {
         return FightEventDto.builder()
                 .id(fightEvent.getId())
+                .alert(false)
                 .date(fightEvent.getEventDate())
                 .mainCardDateTimeInfo(fightEvent.getMainCardDateTimeInfo() != null ?
                         CardStartDateTimeInfoDto.toDto(fightEvent.getMainCardDateTimeInfo()) : null)

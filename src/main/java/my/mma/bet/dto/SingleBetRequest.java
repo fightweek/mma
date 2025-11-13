@@ -3,8 +3,8 @@ package my.mma.bet.dto;
 import my.mma.bet.entity.Bet;
 import my.mma.bet.entity.BetCard;
 import my.mma.bet.entity.BetPrediction;
-import my.mma.event.entity.FightEvent;
-import my.mma.event.entity.FighterFightEvent;
+import my.mma.fightevent.entity.FightEvent;
+import my.mma.fightevent.entity.FighterFightEvent;
 import my.mma.user.entity.User;
 
 import java.util.List;

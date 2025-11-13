@@ -22,7 +22,7 @@ public class FighterRepositoryTest {
     @Autowired
     private FighterRepository fighterRepository;
 
-    private final int totalFighterCount = 0;
+    private final int totalFighterCount = 20;
     private final String namePrefix = "name";
 
     @BeforeEach

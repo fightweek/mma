@@ -1,8 +1,8 @@
-package my.mma.event.entity;
+package my.mma.fightevent.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import my.mma.event.entity.property.FightResult;
+import my.mma.fightevent.entity.property.FightResult;
 import my.mma.fighter.entity.BaseEntity;
 import my.mma.fighter.entity.Fighter;
 

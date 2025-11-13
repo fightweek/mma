@@ -3,7 +3,7 @@ package my.mma.stream.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import my.mma.event.dto.StreamFightEventDto;
+import my.mma.fightevent.dto.StreamFightEventDto;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
 import my.mma.global.redis.utils.RedisUtils;

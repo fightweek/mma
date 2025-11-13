@@ -1,7 +1,7 @@
 package my.mma.fixture.entity.fighterfightevent;
 
-import my.mma.event.entity.FightEvent;
-import my.mma.event.entity.FighterFightEvent;
+import my.mma.fightevent.entity.FightEvent;
+import my.mma.fightevent.entity.FighterFightEvent;
 import my.mma.fixture.entity.fighter.FighterFixture;
 
 public class FighterFightEventFixture {

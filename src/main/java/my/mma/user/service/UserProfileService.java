@@ -3,10 +3,9 @@ package my.mma.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.bet.repository.BetRepository;
-import my.mma.event.dto.FightEventDto;
-import my.mma.event.dto.FightEventDto.FighterFightEventDto;
-import my.mma.event.repository.FightEventRepository;
-import my.mma.event.service.EventService;
+import my.mma.fightevent.dto.FightEventDto.FighterFightEventDto;
+import my.mma.fightevent.repository.FightEventRepository;
+import my.mma.fightevent.service.FightEventService;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
 import my.mma.fighter.dto.FighterDto;
@@ -36,7 +35,7 @@ public class UserProfileService {
     private final FighterRepository fighterRepository;
     private final FightEventRepository fightEventRepository;
     private final S3ImgService s3Service;
-    private final EventService eventService;
+    private final FightEventService eventService;
 
     public UserProfileDto profile(String email) {
         User user = userRepository.findByEmail(email)

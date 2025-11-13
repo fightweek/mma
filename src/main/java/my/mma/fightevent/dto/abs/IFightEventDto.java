@@ -1,8 +1,8 @@
-package my.mma.event.dto.abs;
+package my.mma.fightevent.dto.abs;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import my.mma.event.dto.CardStartDateTimeInfoDto;
+import my.mma.fightevent.dto.CardStartDateTimeInfoDto;
 import my.mma.fighter.dto.IFighterDto;
 
 import java.time.LocalDate;

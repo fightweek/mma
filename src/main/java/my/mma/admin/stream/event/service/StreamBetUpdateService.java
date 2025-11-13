@@ -1,7 +1,7 @@
 package my.mma.admin.stream.event.service;
 
 import lombok.RequiredArgsConstructor;
-import my.mma.event.dto.StreamFightEventDto.StreamFighterFightEventDto;
+import my.mma.fightevent.dto.StreamFightEventDto.StreamFighterFightEventDto;
 import my.mma.global.redis.utils.RedisUtils;
 import my.mma.bet.dto.BetResponse;
 import org.springframework.scheduling.annotation.Async;

@@ -1,4 +1,4 @@
-package my.mma.event.dto;
+package my.mma.fightevent.dto;
 
 public enum StreamFighterFightEventStatus {
     PREVIOUS,NOW,UPCOMING;

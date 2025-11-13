@@ -4,11 +4,11 @@ package my.mma.admin.event.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import my.mma.event.dto.CardStartDateTimeInfoDto;
-import my.mma.event.entity.FightEvent;
-import my.mma.event.entity.property.FightResult;
-import my.mma.event.entity.FighterFightEvent;
-import my.mma.event.entity.property.WinMethod;
+import my.mma.fightevent.dto.CardStartDateTimeInfoDto;
+import my.mma.fightevent.entity.FightEvent;
+import my.mma.fightevent.entity.property.FightResult;
+import my.mma.fightevent.entity.FighterFightEvent;
+import my.mma.fightevent.entity.property.WinMethod;
 import my.mma.fighter.entity.*;
 
 import java.time.LocalDate;

@@ -1,8 +1,8 @@
-package my.mma.event.entity;
+package my.mma.fightevent.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import my.mma.event.entity.property.CardStartDateTimeInfo;
+import my.mma.fightevent.entity.property.CardStartDateTimeInfo;
 import my.mma.fighter.entity.BaseEntity;
 
 import java.time.LocalDate;

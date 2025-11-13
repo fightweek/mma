@@ -1,7 +1,7 @@
 package my.mma.vote.repository;
 
 import my.mma.vote.entity.Vote;
-import my.mma.event.entity.FighterFightEvent;
+import my.mma.fightevent.entity.FighterFightEvent;
 import my.mma.vote.dto.VoteCntDto;
 import my.mma.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;

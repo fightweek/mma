@@ -1,10 +1,8 @@
-package my.mma.event.dto;
+package my.mma.fightevent.dto;
 
 import lombok.*;
-import my.mma.event.entity.property.FightResult;
-import my.mma.event.entity.property.WinMethod;
-
-import java.time.LocalTime;
+import my.mma.fightevent.entity.property.FightResult;
+import my.mma.fightevent.entity.property.WinMethod;
 
 @Builder
 public record FightResultDto(WinMethod winMethod, int round, String endTime, String description,

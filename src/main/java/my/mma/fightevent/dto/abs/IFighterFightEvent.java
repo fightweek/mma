@@ -1,11 +1,11 @@
-package my.mma.event.dto.abs;
+package my.mma.fightevent.dto.abs;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
-import my.mma.event.dto.FightResultDto;
+import my.mma.fightevent.dto.FightResultDto;
 import my.mma.fighter.dto.IFighterDto;
 
 @Getter

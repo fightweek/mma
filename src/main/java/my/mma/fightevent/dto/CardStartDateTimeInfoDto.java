@@ -1,8 +1,8 @@
-package my.mma.event.dto;
+package my.mma.fightevent.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
-import my.mma.event.entity.property.CardStartDateTimeInfo;
+import my.mma.fightevent.entity.property.CardStartDateTimeInfo;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

@@ -1,8 +1,8 @@
 package my.mma.fighter.service;
 
-import my.mma.event.entity.FightEvent;
-import my.mma.event.entity.FighterFightEvent;
-import my.mma.event.repository.FighterFightEventRepository;
+import my.mma.fightevent.entity.FightEvent;
+import my.mma.fightevent.entity.FighterFightEvent;
+import my.mma.fightevent.repository.FighterFightEventRepository;
 import my.mma.exception.CustomException;
 import my.mma.fighter.dto.FighterDetailDto;
 import my.mma.fighter.dto.FighterDto;
@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static java.lang.Math.ceil;
 import static my.mma.exception.CustomErrorCode.NO_SUCH_FIGHTER_CONFIGURED_400;
 import static my.mma.fixture.entity.fighter.FighterFixture.*;
 import static my.mma.fixture.entity.fightevent.FightEventFixture.createUpcomingFightEventWithId;
@@ -129,7 +130,7 @@ class FighterServiceTest {
             assertThat(fighterDtos.get(i).getHeadshotUrl()).isEqualTo(imgUrl);
         }
         assertThat(fighterDtoPage.getSize()).isEqualTo(pageSize);
-        assertThat(fighterDtoPage.getTotalPages()).isEqualTo(fighterCount / pageSize);
+        assertThat(fighterDtoPage.getTotalPages()).isEqualTo((int) ceil((double) fighterCount / pageSize));
     }
 
     private static List<FighterFightEvent> getFighterFightEvents() {

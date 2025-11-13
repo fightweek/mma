@@ -2,9 +2,8 @@ package my.mma.home;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import my.mma.event.dto.StreamFightEventDto;
+import my.mma.fightevent.dto.StreamFightEventDto;
 import my.mma.global.redis.utils.RedisUtils;
-import my.mma.global.s3.service.S3ImgService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
