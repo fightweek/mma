@@ -46,7 +46,7 @@ public class AdminEventService {
 
     private void processFetchedEventData(CrawlerDto dto) {
         // DB에 존재하는 upcoming Events
-        List<FightEvent> existingUpcomingEvents = fightEventRepository.findAllByCompletedWithFighterFightEvents(false);
+        List<FightEvent> existingUpcomingEvents = fightEventRepository.findByCompletedIsFalse();
         //
         List<FightEvent> crawledEvents = dto.getEvents().stream()
                 .map(EventCrawlerDto::toEntityForEventName)
