@@ -1,6 +1,7 @@
 package my.mma.user.service;
 
 import my.mma.bet.repository.BetRepository;
+import my.mma.fightevent.dto.FightEventDto;
 import my.mma.fightevent.entity.FightEvent;
 import my.mma.fightevent.entity.FighterFightEvent;
 import my.mma.fightevent.repository.FightEventRepository;
@@ -16,6 +17,7 @@ import my.mma.user.dto.UserProfileDto;
 import my.mma.user.entity.User;
 import my.mma.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +32,7 @@ import java.util.Optional;
 
 import static my.mma.fightevent.dto.FightEventDto.FighterFightEventDto.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UserProfileServiceTest {
@@ -69,43 +72,41 @@ class UserProfileServiceTest {
     }
 
     @Test
-    void test() {
+    @DisplayName("사용자 상세 정보 반환")
+    void returnUserProfileDto_givenUserEmail() {
         //given
-        Mockito.when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
-        Mockito.when(betRepository.getUserBetRecord(user.getId())).thenReturn(getUserBetRecord());
-        Mockito.when(alertRepository.findByUserId(user.getId())).thenReturn(getAlerts());
-        Mockito.when(fighterRepository.findAllById(Mockito.any())).thenReturn(getAlertFighters());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
+        when(betRepository.getUserBetRecord(user.getId())).thenReturn(getUserBetRecord());
+        when(alertRepository.findByUserId(user.getId())).thenReturn(getAlerts());
+        when(fighterRepository.findAllById(Mockito.any())).thenReturn(getAlertFighters());
         List<FightEvent> alertFightEvents = getAlertCards();
-        Mockito.when(fightEventRepository.findAllById(Mockito.any())).thenReturn(alertFightEvents);
+        when(fightEventRepository.findAllById(Mockito.any())).thenReturn(alertFightEvents);
 
         String s3ImgUrl = "generated-s3-img-url";
-        Mockito.when(s3ImgService.generateImgUrl(Mockito.any(),Mockito.anyInt())).thenReturn(s3ImgUrl);
-        Mockito.when(eventService.getMainCardDto(alertFightEvents.get(0)))
-                .thenReturn(toDto(alertFightEvents.get(0).getFighterFightEvents().get(0)));
+        when(s3ImgService.generateImgUrl(Mockito.any(),Mockito.anyInt())).thenReturn(s3ImgUrl);
+        FightEventDto.FighterFightEventDto alertMainCardsDto = toDto(alertFightEvents.get(0).getFighterFightEvents().get(0));
+
+        when(eventService.getMainCardDto(alertFightEvents.get(0)))
+                .thenReturn(alertMainCardsDto);
 
         //when
         UserProfileDto profile = userProfileService.profile(user.getEmail());
 
         //then
-        assertThat(profile.userBetRecord().getWin()).isEqualTo(getUserBetRecord().getWin());
-        assertThat(profile.userBetRecord().getLoss()).isEqualTo(getUserBetRecord().getLoss());
-        assertThat(profile.userBetRecord().getNoContest()).isEqualTo(getUserBetRecord().getNoContest());
+        assertThat(profile.userBetRecord()).usingRecursiveComparison().isEqualTo(getUserBetRecord());
 
         assertThat(profile.alertEvents().size()).isEqualTo(1);
-        assertThat(profile.alertEvents().get(0).getEventId()).isEqualTo(alertEventId);
-        assertThat(profile.alertEvents().get(0).getEventName()).isEqualTo(alertEventName);
+        assertThat(profile.alertEvents().get(0)).usingRecursiveComparison().isEqualTo(alertMainCardsDto);
 
         assertThat(profile.alertFighters().size()).isEqualTo(2);
         assertThat(profile.alertFighters().get(0).getId()).isEqualTo(alertFighterId1);
         assertThat(profile.alertFighters().get(0).getName()).isEqualTo(fighterNamePrefix+alertFighterId1);
         assertThat(profile.alertFighters().get(0).getNickname()).isEqualTo(fighterNicknamePrefix+alertFighterId1);
         assertThat(profile.alertFighters().get(0).getHeadshotUrl()).isEqualTo(s3ImgUrl);
-
         assertThat(profile.alertFighters().get(1).getId()).isEqualTo(alertFighterId2);
         assertThat(profile.alertFighters().get(1).getName()).isEqualTo(fighterNamePrefix+alertFighterId2);
         assertThat(profile.alertFighters().get(1).getNickname()).isEqualTo(fighterNicknamePrefix+alertFighterId2);
         assertThat(profile.alertFighters().get(1).getHeadshotUrl()).isEqualTo(s3ImgUrl);
-
     }
 
     private void setupUser() {
