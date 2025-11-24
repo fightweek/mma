@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.admin.event.dto.CrawlerDto;
 import my.mma.admin.event.dto.CrawlerDto.EventCrawlerDto;
+import my.mma.exception.CustomErrorCode;
+import my.mma.exception.CustomException;
 import my.mma.fightevent.entity.FightEvent;
 import my.mma.fightevent.entity.FighterFightEvent;
 import my.mma.fightevent.repository.FightEventRepository;
@@ -17,6 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static my.mma.exception.CustomErrorCode.INTERNAL_SERVER_ERROR;
 import static my.mma.fighter.entity.FightRecord.toFightRecord;
 
 @Service
@@ -90,8 +93,7 @@ public class AdminEventService {
 
     private void updateCompletedFightEvent(List<EventCrawlerDto> eventDtos, String eventName) {
         FightEvent event = fightEventRepository.findByName(eventName)
-                .orElseThrow(() -> new RuntimeException("No such fightEvent"));
-
+                .orElseThrow(() -> new CustomException(INTERNAL_SERVER_ERROR,"No such fightEvent"));
         eventDtos.forEach(eventDto -> {
             for (EventCrawlerDto.Card card : eventDto.getCards()) {
                 for (FighterFightEvent match : event.getFighterFightEvents()) {
@@ -106,6 +108,7 @@ public class AdminEventService {
                 }
             }
         });
+        event.updateFightEventToCompleted();
     }
 
     private void saveOrUpdateFighters(List<CrawlerDto.FighterCrawlerDto> fighterDtos) {
