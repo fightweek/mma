@@ -149,8 +149,8 @@ public class InitializeFightersAndEvents {
                                     .winDescription(description != null ? description.toString() : null)
                                     .endTime(LocalTime.of(0, Integer.parseInt(timeParts[0]), Integer.parseInt(timeParts[1])))
                                     .round(Integer.parseInt(cardObj.get("round").toString()))
-                                    .draw(cardObj.get("draw").equals("true"))
-                                    .nc(cardObj.get("nc").equals("true"))
+                                    .draw(Boolean.parseBoolean(cardObj.get("draw").toString()))
+                                    .nc(Boolean.parseBoolean(cardObj.get("nc").toString()))
                                     .build())
                             .build();
                     fightEvent.addFighterFightEvent(fighterFightEvent);
