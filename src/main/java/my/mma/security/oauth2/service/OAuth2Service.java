@@ -12,11 +12,14 @@ import my.mma.security.oauth2.dto.TokenResponse;
 import my.mma.security.repository.RefreshRepository;
 import my.mma.user.repository.UserRepository;
 import my.mma.user.entity.User;
+import my.mma.user.repository.WithdrawnEmailRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+
+import static my.mma.exception.CustomErrorCode.*;
 
 @Service
 @Transactional(readOnly = true)
@@ -32,6 +35,7 @@ public class OAuth2Service {
 
     private final UserRepository userRepository;
     private final RefreshRepository refreshRepository;
+    private final WithdrawnEmailRepository withdrawnEmailRepository;
     private final JWTUtil jwtUtil;
 
     @Transactional
@@ -42,18 +46,19 @@ public class OAuth2Service {
         String refresh = jwtUtil.createJwt(JwtCrateDto.toDto(
                 "refresh", request.email(), "ROLE_USER", refreshExpireMs, request.domain(), true
         ));
-        System.out.println("refresh = " + refresh + ", expireMs = " + refreshExpireMs);
-        addRefreshEntity(request.email(), refresh, refreshExpireMs);
+        if (withdrawnEmailRepository.findById(request.email()).isPresent())
+            throw new CustomException(WITHDRAWN_USER_403);
         // (소셜 로그인 시도) 중복 이메일 & (다른 소셜 플랫폼 or 일반 로그인 계정) -> 로그인 안 되도록 설정, 프론트는 알림 문구 띄움
         Optional<User> userOpt = userRepository.findByEmail(request.email());
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             // username == null : 일반 회원가입 사용자 / !user.getUsername().startsWith(request.domain()) : 소셜 회원가입 사용자
             if (user.getUsername() == null || !user.getUsername().startsWith(request.domain()))
-                throw new CustomException(CustomErrorCode.DUPLICATED_EMAIL_403);
+                throw new CustomException(DUPLICATED_EMAIL_403);
             else
                 user.updateFcmToken(request.fcmToken());
         }
+        addRefreshEntity(request.email(), refresh, refreshExpireMs);
         if (userRepository.findByUsername(request.domain() + "_" + request.socialId()).isEmpty()) {
             userRepository.save(request.toEntity());
             return TokenResponse.toDto(access, refresh);

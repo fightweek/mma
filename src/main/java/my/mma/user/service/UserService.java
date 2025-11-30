@@ -6,11 +6,18 @@ import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
 import my.mma.user.dto.JoinRequest;
 import my.mma.user.dto.UserDto;
+import my.mma.user.dto.WithdrawalReasonDto;
 import my.mma.user.entity.User;
+import my.mma.user.entity.WithdrawalReason;
+import my.mma.user.entity.WithdrawnUserEmail;
 import my.mma.user.repository.UserRepository;
+import my.mma.user.repository.WithdrawalReasonRepository;
+import my.mma.user.repository.WithdrawnEmailRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
 
 @Service
 @Slf4j
@@ -19,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final WithdrawalReasonRepository withdrawalReasonRepository;
+    private final WithdrawnEmailRepository withdrawnEmailRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public boolean checkDuplicatedNickname(String nickname) {
@@ -32,6 +41,12 @@ public class UserService {
         return UserDto.toDto(user);
     }
 
+    @Transactional
+    public void updatePassword(String email, String password) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.BAD_REQUEST_400));
+        user.updatePassword(bCryptPasswordEncoder.encode(password));
+    }
+
     public UserDto getMe(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.BAD_REQUEST_400));
         return UserDto.toDto(user);
@@ -39,6 +54,8 @@ public class UserService {
 
     @Transactional
     public void join(JoinRequest request) {
+        if (withdrawnEmailRepository.findById(request.email()).isPresent())
+            throw new CustomException(CustomErrorCode.WITHDRAWN_USER_403);
         userRepository.findByEmail(request.email()).ifPresent(
                 user -> {
                     throw new CustomException(CustomErrorCode.DUPLICATED_EMAIL_400);
@@ -56,6 +73,24 @@ public class UserService {
                         .email(request.email())
                         .password(bCryptPasswordEncoder.encode(request.password()))
                         .nickname(request.nickname())
+                        .build()
+        );
+    }
+
+    @Transactional
+    public void delete(String email, WithdrawalReasonDto withdrawalDto) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.BAD_REQUEST_400));
+        userRepository.deleteById(user.getId());
+        System.out.println("email = " + email);
+        withdrawnEmailRepository.save(WithdrawnUserEmail.builder()
+                .email(user.getEmail())
+                .expiration(Duration.ofDays(7).toSeconds())
+                .build());
+        withdrawalReasonRepository.save(
+                WithdrawalReason.builder()
+                        .userId(user.getId())
+                        .withdrawalCategory(withdrawalDto.category())
+                        .description(withdrawalDto.description())
                         .build()
         );
     }

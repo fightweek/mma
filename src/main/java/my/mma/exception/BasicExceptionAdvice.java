@@ -1,11 +1,8 @@
 package my.mma.exception;
 
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -13,9 +10,8 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 
-import static my.mma.exception.CustomErrorCode.VALIDATION_FAILED_400;
+import static my.mma.exception.CustomErrorCode.*;
 
 @RestControllerAdvice
 @Slf4j
@@ -30,7 +26,7 @@ public class BasicExceptionAdvice {
         else
             log.error("ex = {}", e.getErrorCode().getErrorMessage());
         BasicErrorResponse response = BasicErrorResponse.builder()
-                .errorMessage(e.getErrorCode().getErrorMessage())
+                .errorCode(e.getErrorCode())
                 .status(e.getErrorCode().getStatus())
                 .timeStamp(LocalDateTime.now())
                 .build();
@@ -45,8 +41,8 @@ public class BasicExceptionAdvice {
     ) {
         log.error("ex = ", e);
         BasicErrorResponse response = BasicErrorResponse.builder()
-                .errorMessage(e.getLocalizedMessage())
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .errorCode(BAD_REQUEST_400)
+                .status(BAD_REQUEST_400.getStatus())
                 .timeStamp(LocalDateTime.now())
                 .build();
         return ResponseEntity
@@ -61,14 +57,10 @@ public class BasicExceptionAdvice {
     ) {
         log.error("ex = {}", e.getMessage());
         BasicErrorResponse response = BasicErrorResponse.builder()
-                .defaultMessages(new HashMap<>())
-                .errorMessage(VALIDATION_FAILED_400.getErrorMessage())
-                .status(HttpStatus.BAD_REQUEST)
+                .errorCode(VALIDATION_FAILED_400)
+                .status(VALIDATION_FAILED_400.getStatus())
                 .timeStamp(LocalDateTime.now())
                 .build();
-        for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
-            response.getDefaultMessages().put(fieldError.getField(), fieldError.getDefaultMessage());
-        }
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
@@ -83,8 +75,8 @@ public class BasicExceptionAdvice {
     ) {
         log.error("ex = {}", e.getMessage());
         BasicErrorResponse response = BasicErrorResponse.builder()
-                .errorMessage(e.getMessage())
-                .status(HttpStatus.NOT_FOUND)
+                .errorCode(URL_NOT_FOUND)
+                .status(URL_NOT_FOUND.getStatus())
                 .timeStamp(LocalDateTime.now())
                 .build();
         return ResponseEntity
@@ -99,8 +91,8 @@ public class BasicExceptionAdvice {
         log.error("ex = {}", e.getMessage());
         log.error("detail message = ", e);
         BasicErrorResponse response = BasicErrorResponse.builder()
-                .errorMessage(e.getMessage())
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .errorCode(SERVER_ERROR_500)
+                .status(SERVER_ERROR_500.getStatus())
                 .timeStamp(LocalDateTime.now())
                 .build();
         return ResponseEntity

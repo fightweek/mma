@@ -13,8 +13,7 @@ import java.util.Map;
 @Builder
 public class BasicErrorResponse {
 
-    private Map<String,String> defaultMessages;
-    private String errorMessage;
+    private CustomErrorCode errorCode;
     private HttpStatus status;
     private LocalDateTime timeStamp;
 

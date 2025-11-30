@@ -28,8 +28,7 @@ import static my.mma.fixture.dto.auth.CustomUserDetailsFixture.AUTH_EMAIL;
 import static my.mma.fixture.dto.auth.CustomUserDetailsFixture.createCustomUserDetails;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -65,7 +64,7 @@ class UserControllerTest {
                 .thenReturn(userDto);
 
         //when && then
-        MvcResult mvcResult = mockMvc.perform(post(urlPrefix + "/nickname")
+        MvcResult mvcResult = mockMvc.perform(patch(urlPrefix + "/nickname")
                         .with(authentication(new UsernamePasswordAuthenticationToken(createCustomUserDetails(), null)))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(nicknameMap)))
@@ -108,7 +107,7 @@ class UserControllerTest {
         Mockito.doNothing().when(userService).join(joinRequest);
 
         //when && then
-        MvcResult mvcResult = mockMvc.perform(post(urlPrefix + "/join")
+        MvcResult mvcResult = mockMvc.perform(post(urlPrefix)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(joinRequest)))
                 .andExpect(status().isCreated())
@@ -126,7 +125,7 @@ class UserControllerTest {
         Mockito.doNothing().when(userService).join(joinRequest);
 
         //when && then
-        MvcResult mvcResult = mockMvc.perform(post(urlPrefix + "/join")
+        MvcResult mvcResult = mockMvc.perform(post(urlPrefix)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(joinRequest)))
                 .andExpect(status().is4xxClientError())
@@ -144,7 +143,7 @@ class UserControllerTest {
         Mockito.doNothing().when(userService).join(joinRequest);
 
         //when && then
-        MvcResult mvcResult = mockMvc.perform(post(urlPrefix + "/join")
+        MvcResult mvcResult = mockMvc.perform(post(urlPrefix)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(joinRequest)))
                 .andExpect(status().is4xxClientError())
@@ -162,7 +161,7 @@ class UserControllerTest {
         Mockito.doNothing().when(userService).join(joinRequest);
 
         //when && then
-        MvcResult mvcResult = mockMvc.perform(post(urlPrefix + "/join")
+        MvcResult mvcResult = mockMvc.perform(post(urlPrefix)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(joinRequest)))
                 .andExpect(status().is4xxClientError())

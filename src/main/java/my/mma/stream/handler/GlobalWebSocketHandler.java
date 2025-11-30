@@ -162,7 +162,7 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
             }
         } catch (IOException e) {
             log.info("io exception while broadcasting stream fight event, e = ", e);
-            throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR);
+            throw new CustomException(CustomErrorCode.SERVER_ERROR_500);
         }
     }
 }

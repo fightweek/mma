@@ -19,7 +19,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static my.mma.exception.CustomErrorCode.INTERNAL_SERVER_ERROR;
+import static my.mma.exception.CustomErrorCode.*;
 import static my.mma.fighter.entity.FightRecord.toFightRecord;
 
 @Service
@@ -93,7 +93,7 @@ public class AdminEventService {
 
     private void updateCompletedFightEvent(List<EventCrawlerDto> eventDtos, String eventName) {
         FightEvent event = fightEventRepository.findByName(eventName)
-                .orElseThrow(() -> new CustomException(INTERNAL_SERVER_ERROR,"No such fightEvent"));
+                .orElseThrow(() -> new CustomException(BAD_REQUEST_400,"No such fightEvent"));
         eventDtos.forEach(eventDto -> {
             for (EventCrawlerDto.Card card : eventDto.getCards()) {
                 for (FighterFightEvent match : event.getFighterFightEvents()) {

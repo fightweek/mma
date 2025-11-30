@@ -1,28 +1,28 @@
-package my.mma.report.entity;
+package my.mma.user.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import my.mma.fighter.entity.BaseEntity;
 
 @Entity
-@Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-public class Report extends BaseEntity {
+public class WithdrawalReason extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "report_id")
     private Long id;
 
-    private Long reporterId;
-
-    private Long reportedId;
-
-    private Boolean reviewed;
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
-    private ReportCategory reportCategory;
+    private WithdrawalReasonCategory withdrawalCategory;
+
+    private String description;
 
 }
