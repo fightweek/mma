@@ -92,7 +92,7 @@ public class S3ImgService {
                         .build();
                 s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, file.getSize()));
             } catch (IOException e) {
-                throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR);
+                throw new CustomException(CustomErrorCode.SERVER_ERROR_500);
             }
         });
         return storeFileNames;

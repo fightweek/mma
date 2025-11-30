@@ -192,7 +192,7 @@ public class GameService {
                         .build();
             }
         }
-        throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR, "record question generation error");
+        throw new CustomException(CustomErrorCode.SERVER_ERROR_500, "record question generation error");
     }
 
     private NameGameQuestionDto generateNicknameQuestion(List<String> names) {
@@ -210,7 +210,7 @@ public class GameService {
                         .build();
             }
         }
-        throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR, "nickname question generation error");
+        throw new CustomException(CustomErrorCode.SERVER_ERROR_500, "nickname question generation error");
     }
 
     private NameGameQuestionDto generateBodyQuestion(List<String> names) {
@@ -229,7 +229,7 @@ public class GameService {
                         .build();
             }
         }
-        throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR, "body question generation error");
+        throw new CustomException(CustomErrorCode.SERVER_ERROR_500, "body question generation error");
     }
 
     private NameGameQuestionDto generateHeadshotQuestion(List<String> names) {
@@ -252,7 +252,7 @@ public class GameService {
                         .build();
             }
         }
-        throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR, "headshot question generation error");
+        throw new CustomException(CustomErrorCode.SERVER_ERROR_500, "headshot question generation error");
     }
 
     private User extractUserByEmail(String email) {

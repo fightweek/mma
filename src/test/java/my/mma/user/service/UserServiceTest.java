@@ -6,6 +6,7 @@ import my.mma.user.dto.JoinRequest;
 import my.mma.user.dto.UserDto;
 import my.mma.user.entity.User;
 import my.mma.user.repository.UserRepository;
+import my.mma.user.repository.WithdrawnEmailRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,6 +27,9 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private WithdrawnEmailRepository withdrawnEmailRepository;
 
     @Mock
     private BCryptPasswordEncoder passwordEncoder;

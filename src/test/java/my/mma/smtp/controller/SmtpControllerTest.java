@@ -126,7 +126,7 @@ class SmtpControllerTest {
         String responseBodyAsString = mvcResult.getResponse().getContentAsString();
 
         //then
-        assertThat(responseBodyAsString).contains(VALIDATION_FAILED_400.getErrorMessage());
+        assertThat(responseBodyAsString).contains(VALIDATION_FAILED_400.name());
     }
 
     @ParameterizedTest
@@ -146,7 +146,7 @@ class SmtpControllerTest {
         String responseBodyAsString = mvcResult.getResponse().getContentAsString();
 
         //then
-        assertThat(responseBodyAsString).contains(VALIDATION_FAILED_400.getErrorMessage());
+        assertThat(responseBodyAsString).contains(VALIDATION_FAILED_400.name());
     }
 
     @DisplayName("인증 코드 불일치 시 400(BAD_REQUEST) 예외 발생")

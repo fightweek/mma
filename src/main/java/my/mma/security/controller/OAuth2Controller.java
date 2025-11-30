@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import static my.mma.exception.CustomErrorCode.SOCIAL_TOKEN_VERIFY_FAILED;
+import static my.mma.exception.CustomErrorCode.SOCIAL_TOKEN_VERIFY_FAILED_400;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,7 +27,7 @@ public class OAuth2Controller {
 
     // application.yml 또는 application.properties에 넣어둔 값 주입
     @PostMapping("/social_login")
-    public ResponseEntity<TokenResponse> requestNaverToken(
+    public ResponseEntity<TokenResponse> socialLogin(
             @RequestBody TokenVerifyRequest request
     ) {
         String verifyUrl = switch (request.domain()) {
@@ -37,16 +37,11 @@ public class OAuth2Controller {
             default -> null;
         };
 
-        // form 파라미터 준비
-        // Header - Content-Type
         HttpHeaders headers = new HttpHeaders();
         System.out.println("request = " + request.accessToken());
         headers.add("Authorization", "Bearer " + request.accessToken());
-        // form 데이터 entity
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
 
-        // POST 요청 (RestTemplate)
-        assert verifyUrl != null;
         ResponseEntity<String> response = restTemplate.exchange(
                 verifyUrl,
                 HttpMethod.GET,
@@ -57,6 +52,6 @@ public class OAuth2Controller {
             System.out.println("login success");
             return ResponseEntity.ok().body(oAuth2Service.saveUserIfNotExists(request));
         }
-        throw new CustomException(SOCIAL_TOKEN_VERIFY_FAILED);
+        throw new CustomException(SOCIAL_TOKEN_VERIFY_FAILED_400);
     }
 }

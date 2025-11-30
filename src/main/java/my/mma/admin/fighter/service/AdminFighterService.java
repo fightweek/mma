@@ -65,7 +65,7 @@ public class AdminFighterService {
             );
             this.rankerRedisUtils.updateData("rankers", rankersDto);
         } else
-            throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR, "ranker data is null");
+            throw new CustomException(CustomErrorCode.SERVER_ERROR_500, "ranker data is null");
     }
 
     @Transactional
@@ -85,7 +85,7 @@ public class AdminFighterService {
                     .bodyToMono(Void.class)
                     .block();
         } catch (Exception e) {
-            throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR, "error while updating fighter image, e=" + e.getMessage());
+            throw new CustomException(CustomErrorCode.SERVER_ERROR_500, "error while updating fighter image, e=" + e.getMessage());
         }
     }
 }

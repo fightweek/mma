@@ -14,7 +14,7 @@ public class FcmMessageService {
         try {
             FirebaseMessaging.getInstance().send(message);
         } catch (FirebaseMessagingException e) {
-            throw new CustomException(CustomErrorCode.INTERNAL_SERVER_ERROR,"exception while sending message to firebase");
+            throw new CustomException(CustomErrorCode.SERVER_ERROR_500,"exception while sending message to firebase");
         }
     }
 
