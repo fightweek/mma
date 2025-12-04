@@ -1,9 +1,6 @@
 package my.mma.fightevent.service;
 
-import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
-import my.mma.fighter.dto.FighterDto;
-import my.mma.fighter.entity.Fighter;
 import my.mma.fightevent.dto.CardStartDateTimeInfoDto;
 import my.mma.fightevent.dto.FightEventDto;
 import my.mma.fightevent.dto.FightEventDto.FighterFightEventDto;
@@ -13,22 +10,15 @@ import my.mma.fightevent.entity.FighterFightEvent;
 import my.mma.fightevent.entity.property.CardStartDateTimeInfo;
 import my.mma.fightevent.repository.FightEventRepository;
 import my.mma.fightevent.repository.FighterFightEventRepository;
-import my.mma.fixture.entity.fighterfightevent.FighterFightEventFixture;
-import my.mma.fixture.entity.fightevent.FightEventFixture;
-import my.mma.fixture.entity.user.UserFixture;
-import my.mma.global.entity.TargetType;
-import my.mma.global.repository.AlertRepository;
+import my.mma.alert.repository.AlertRepository;
 import my.mma.global.s3.service.S3ImgService;
 import my.mma.user.entity.User;
 import my.mma.user.repository.UserRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -42,11 +32,9 @@ import java.util.Optional;
 
 import static java.lang.Math.ceil;
 import static my.mma.exception.CustomErrorCode.BAD_REQUEST_400;
-import static my.mma.fightevent.dto.FightEventDto.FighterFightEventDto.toDto;
-import static my.mma.fixture.entity.fighter.FighterFixture.createFighterWithNumber;
 import static my.mma.fixture.entity.fightevent.FightEventFixture.createUpcomingFightEventWithId;
 import static my.mma.fixture.entity.user.UserFixture.createUser;
-import static my.mma.global.entity.TargetType.EVENT;
+import static my.mma.alert.constant.AlertTarget.UPCOMING_EVENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -79,7 +67,7 @@ class FightEventServiceTest {
         String imgUrl = "img-url";
         when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
         when(fightEventRepository.findByEventDate(any(LocalDate.class))).thenReturn(Optional.of(fightEvent));
-        when(alertRepository.existsByUserAndTargetTypeAndTargetId(user, EVENT, fightEvent.getId())).thenReturn(isAlerted);
+        when(alertRepository.existsByUserAndAlertTargetAndTargetId(user, UPCOMING_EVENT, fightEvent.getId())).thenReturn(isAlerted);
         when(s3Service.generateImgUrl(anyString(), anyInt())).thenReturn(imgUrl);
 
         //when

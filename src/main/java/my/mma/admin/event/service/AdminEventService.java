@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.admin.event.dto.CrawlerDto;
 import my.mma.admin.event.dto.CrawlerDto.EventCrawlerDto;
-import my.mma.exception.CustomErrorCode;
+import my.mma.alert.service.UpcomingFightEventNotificationService;
 import my.mma.exception.CustomException;
 import my.mma.fightevent.entity.FightEvent;
 import my.mma.fightevent.entity.FighterFightEvent;
@@ -33,7 +33,7 @@ public class AdminEventService {
     private final FighterRepository fighterRepository;
     private final FightEventRepository fightEventRepository;
     private final RestTemplate restTemplate;
-    private final AdminNotificationService adminNotificationService;
+    private final UpcomingFightEventNotificationService upcomingFightEventNotificationService;
 
     /**
      * flask api: 차후 경기들 및 해당 경기에 참여하는 파이터 정보 모두 반환
@@ -192,7 +192,7 @@ public class AdminEventService {
                 log.warn("Error linking fighters to fightEvent: {}", e.getMessage());
             }
         }
-        adminNotificationService.sendNotification(event.getName(), fighters);
+        upcomingFightEventNotificationService.sendNotification(event.getName(), fighters);
         fightEventRepository.save(event);
     }
 

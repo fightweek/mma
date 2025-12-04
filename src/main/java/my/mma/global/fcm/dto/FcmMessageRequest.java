@@ -1,6 +1,6 @@
 package my.mma.global.fcm.dto;
 
-import my.mma.global.entity.TargetType;
+import my.mma.alert.constant.AlertTarget;
 
-public record FcmMessageRequest(String token, TargetType targetType, int targetId) {
+public record FcmMessageRequest(String token, AlertTarget targetType, int targetId) {
 }

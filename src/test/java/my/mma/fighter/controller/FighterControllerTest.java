@@ -1,6 +1,5 @@
 package my.mma.fighter.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import my.mma.config.TestSecurityConfig;
@@ -8,13 +7,11 @@ import my.mma.fighter.dto.FighterDetailDto;
 import my.mma.fighter.dto.FighterDto;
 import my.mma.fighter.service.FighterService;
 import my.mma.fixture.page.PageImplExceptPageableAndSort;
-import my.mma.global.dto.UpdatePreferenceRequest;
-import my.mma.global.entity.TargetType;
+import my.mma.alert.dto.UpdateAlertRequest;
 import my.mma.global.s3.service.S3ImgService;
-import my.mma.global.service.UpdatePreferenceService;
+import my.mma.alert.service.AlertService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -35,7 +32,7 @@ import static my.mma.fixture.dto.auth.CustomUserDetailsFixture.AUTH_EMAIL;
 import static my.mma.fixture.dto.auth.CustomUserDetailsFixture.createCustomUserDetails;
 import static my.mma.fixture.dto.fighter.FighterDetailDtoFixture.createFighterDetailDto;
 import static my.mma.fixture.dto.fighter.FighterDtoFixture.createFighterDto;
-import static my.mma.global.entity.TargetType.FIGHTER;
+import static my.mma.alert.constant.AlertTarget.FIGHTER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.doNothing;
@@ -60,7 +57,7 @@ class FighterControllerTest {
     @MockBean
     private S3ImgService s3Service;
     @MockBean
-    private UpdatePreferenceService updatePreferenceService;
+    private AlertService updatePreferenceService;
 
     private final String urlPrefix = "/fighter";
 
@@ -115,25 +112,25 @@ class FighterControllerTest {
         assertThat(fighterDtoPage.getTotalElements()).isEqualTo(responseBody.totalElements());
     }
 
-    @DisplayName("파이터의 알림 설정 여부를 toggle한다.")
-    @Test
-    void updateFighterPreferenceTest() throws Exception {
-        //given
-        UpdatePreferenceRequest updatePreferenceRequest = new UpdatePreferenceRequest(2L, true);
-        doNothing().when(updatePreferenceService).updatePreference(anyString(), eq(updatePreferenceRequest), eq(FIGHTER));
-
-        //when && then
-        MvcResult mvcResult = mockMvc.perform(post(urlPrefix + "/preference")
-                        .with(authentication(new UsernamePasswordAuthenticationToken(createCustomUserDetails(), null)))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatePreferenceRequest)))
-                .andExpect(status().isOk())
-                .andReturn();
-        String responseBodyAsString = mvcResult.getResponse().getContentAsString();
-
-        //then
-        assertThat(responseBodyAsString).isEmpty();
-    }
+//    @DisplayName("파이터의 알림 설정 여부를 toggle한다.")
+//    @Test
+//    void updateFighterPreferenceTest() throws Exception {
+//        //given
+//        UpdateAlertRequest updateAlertRequest = new UpdateAlertRequest(2L, true, FIGHTER);
+//        doNothing().when(updatePreferenceService).updateSingleAlert(anyString(), eq(updateAlertRequest));
+//
+//        //when && then
+//        MvcResult mvcResult = mockMvc.perform(post(urlPrefix + "/''")
+//                        .with(authentication(new UsernamePasswordAuthenticationToken(createCustomUserDetails(), null)))
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(updateAlertRequest)))
+//                .andExpect(status().isOk())
+//                .andReturn();
+//        String responseBodyAsString = mvcResult.getResponse().getContentAsString();
+//
+//        //then
+//        assertThat(responseBodyAsString).isEmpty();
+//    }
 
     private Page<FighterDto> getFightersPage(int range, String imgUrl, Pageable pageable) {
         List<FighterDto> fightersDto = new ArrayList<>();

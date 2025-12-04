@@ -8,9 +8,9 @@ import my.mma.fightevent.repository.FightEventRepository;
 import my.mma.fightevent.service.FightEventService;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
-import my.mma.global.entity.Alert;
-import my.mma.global.entity.TargetType;
-import my.mma.global.repository.AlertRepository;
+import my.mma.alert.entity.Alert;
+import my.mma.alert.constant.AlertTarget;
+import my.mma.alert.repository.AlertRepository;
 import my.mma.global.s3.service.S3ImgService;
 import my.mma.user.dto.UserBetRecord;
 import my.mma.user.dto.UserProfileDto;
@@ -143,7 +143,7 @@ class UserProfileServiceTest {
         Alert alert = Alert.builder()
                 .id(1L)
                 .user(user)
-                .targetType(TargetType.FIGHTER)
+                .alertTarget(AlertTarget.FIGHTER)
                 .targetId(alertFighterId1)
                 .build();
         List<Alert> alerts = new ArrayList<>();
