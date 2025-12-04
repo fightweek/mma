@@ -24,14 +24,14 @@ import static my.mma.alert.constant.AlertTarget.FIGHTER;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class UpcomingFightEventNotificationService {
+public class FighterNotificationService {
 
     private final UserRepository userRepository;
     private final UserPreferencesRepository userPreferencesRepository;
     private final AlertRepository alertRepository;
     private final FcmMessageService fcmMessageService;
 
-    @Async("upcoming fight-event notification") // 별도의 스레드풀
+    @Async("fighter notification") // 별도의 스레드풀
     public void sendNotification(String eventName, List<Fighter> fighters) {
         List<User> users = userRepository.findAll();
         for (User user : users) {
