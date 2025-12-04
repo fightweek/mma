@@ -22,7 +22,7 @@ public class AsyncConfig {
         return executor;
     }
 
-    @Bean(name = "upcoming fight-event notification")
+    @Bean(name = "fighter notification")
     public Executor notificationExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(4); // 동시에 처리할 최소 스레드 수
