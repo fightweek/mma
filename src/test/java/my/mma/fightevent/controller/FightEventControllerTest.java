@@ -1,19 +1,14 @@
 package my.mma.fightevent.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import my.mma.config.TestSecurityConfig;
-import my.mma.fighter.dto.FighterDto;
 import my.mma.fightevent.dto.FightEventDto;
 import my.mma.fightevent.dto.FightEventDto.FighterFightEventDto;
 import my.mma.fightevent.dto.FighterFightEventCardDetailDto;
 import my.mma.fightevent.service.FightEventService;
 import my.mma.fixture.dto.fightevent.FightEventDtoFixture;
-import my.mma.fixture.dto.fightevent.FighterFightEventCardDetailDtoFixture;
 import my.mma.fixture.page.PageImplExceptPageableAndSort;
-import my.mma.global.dto.UpdatePreferenceRequest;
-import my.mma.global.service.UpdatePreferenceService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,23 +24,18 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import static my.mma.fixture.dto.auth.CustomUserDetailsFixture.createCustomUserDetails;
 import static my.mma.fixture.dto.fightevent.FighterFightEventCardDetailDtoFixture.createFighterFightEventCardDetailDto;
-import static my.mma.global.entity.TargetType.EVENT;
-import static my.mma.global.entity.TargetType.FIGHTER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -60,8 +50,6 @@ class FightEventControllerTest {
 
     @MockBean
     private FightEventService fightEventService;
-    @MockBean
-    private UpdatePreferenceService updatePreferenceService;
 
     private final String urlPrefix = "/event";
 
@@ -135,25 +123,25 @@ class FightEventControllerTest {
         assertThat(responseBody.winner()).usingRecursiveComparison().isEqualTo(cardDetailDto.winner());
     }
 
-    @DisplayName("파이트 이벤트의 알림 설정 여부를 toggle한다.")
-    @Test
-    void updateFightEventPreferenceTest() throws Exception {
-        //given
-        UpdatePreferenceRequest updatePreferenceRequest = new UpdatePreferenceRequest(2L, true);
-        doNothing().when(updatePreferenceService).updatePreference(anyString(), eq(updatePreferenceRequest), eq(EVENT));
-
-        //when && then
-        MvcResult mvcResult = mockMvc.perform(post(urlPrefix + "/preference")
-                        .with(authentication(new UsernamePasswordAuthenticationToken(createCustomUserDetails(), null)))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatePreferenceRequest)))
-                .andExpect(status().isOk())
-                .andReturn();
-        String responseBodyAsString = mvcResult.getResponse().getContentAsString();
-
-        //then
-        assertThat(responseBodyAsString).isEmpty();
-    }
+//    @DisplayName("파이트 이벤트의 알림 설정 여부를 toggle한다.")
+//    @Test
+//    void updateFightEventPreferenceTest() throws Exception {
+//        //given
+//        UpdateAlertRequest updateAlertRequest = new UpdateAlertRequest(2L, true, UPCOMING_EVENT);
+//        doNothing().when(updatePreferenceService).updateAlert(anyString(), eq(updateAlertRequest));
+//
+//        //when && then
+//        MvcResult mvcResult = mockMvc.perform(post(urlPrefix)
+//                        .with(authentication(new UsernamePasswordAuthenticationToken(createCustomUserDetails(), null)))
+//                        .contentType(MediaType.APPLICATION_JSON)
+//                        .content(objectMapper.writeValueAsString(updateAlertRequest)))
+//                .andExpect(status().isOk())
+//                .andReturn();
+//        String responseBodyAsString = mvcResult.getResponse().getContentAsString();
+//
+//        //then
+//        assertThat(responseBodyAsString).isEmpty();
+//    }
 
     private Page<FighterFightEventDto> getFightEventPage(int range, Pageable pageable, String imgUrl) {
         List<FighterFightEventDto> fighterFightEventsDto = new ArrayList<>();

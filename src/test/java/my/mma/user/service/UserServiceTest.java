@@ -5,6 +5,7 @@ import my.mma.exception.CustomException;
 import my.mma.user.dto.JoinRequest;
 import my.mma.user.dto.UserDto;
 import my.mma.user.entity.User;
+import my.mma.alert.repository.UserPreferencesRepository;
 import my.mma.user.repository.UserRepository;
 import my.mma.user.repository.WithdrawnEmailRepository;
 import org.assertj.core.api.Assertions;
@@ -30,6 +31,8 @@ class UserServiceTest {
 
     @Mock
     private WithdrawnEmailRepository withdrawnEmailRepository;
+    @Mock
+    private UserPreferencesRepository userPreferencesRepository;
 
     @Mock
     private BCryptPasswordEncoder passwordEncoder;

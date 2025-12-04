@@ -2,16 +2,17 @@ package my.mma.security.oauth2.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import my.mma.exception.CustomErrorCode;
+import my.mma.alert.entity.UserPreferences;
+import my.mma.alert.repository.UserPreferencesRepository;
 import my.mma.exception.CustomException;
 import my.mma.security.JWTUtil;
 import my.mma.security.dto.JwtCrateDto;
 import my.mma.security.entity.Refresh;
-import my.mma.security.oauth2.dto.TokenVerifyRequest;
 import my.mma.security.oauth2.dto.TokenResponse;
+import my.mma.security.oauth2.dto.TokenVerifyRequest;
 import my.mma.security.repository.RefreshRepository;
-import my.mma.user.repository.UserRepository;
 import my.mma.user.entity.User;
+import my.mma.user.repository.UserRepository;
 import my.mma.user.repository.WithdrawnEmailRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,7 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-import static my.mma.exception.CustomErrorCode.*;
+import static my.mma.exception.CustomErrorCode.DUPLICATED_EMAIL_403;
+import static my.mma.exception.CustomErrorCode.WITHDRAWN_USER_403;
 
 @Service
 @Transactional(readOnly = true)
@@ -36,6 +38,7 @@ public class OAuth2Service {
     private final UserRepository userRepository;
     private final RefreshRepository refreshRepository;
     private final WithdrawnEmailRepository withdrawnEmailRepository;
+    private final UserPreferencesRepository userPreferencesRepository;
     private final JWTUtil jwtUtil;
 
     @Transactional
@@ -60,7 +63,10 @@ public class OAuth2Service {
         }
         addRefreshEntity(request.email(), refresh, refreshExpireMs);
         if (userRepository.findByUsername(request.domain() + "_" + request.socialId()).isEmpty()) {
-            userRepository.save(request.toEntity());
+            User user = userRepository.save(request.toEntity());
+            userPreferencesRepository.save(UserPreferences.builder()
+                    .user(user)
+                    .build());
             return TokenResponse.toDto(access, refresh);
         }
         return TokenResponse.toDto(access, refresh);

@@ -10,11 +10,10 @@ import my.mma.fightevent.entity.FightEvent;
 import my.mma.fightevent.entity.FighterFightEvent;
 import my.mma.fightevent.repository.FightEventRepository;
 import my.mma.fightevent.repository.FighterFightEventRepository;
-import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
 import my.mma.fighter.entity.Fighter;
-import my.mma.global.entity.TargetType;
-import my.mma.global.repository.AlertRepository;
+import my.mma.alert.constant.AlertTarget;
+import my.mma.alert.repository.AlertRepository;
 import my.mma.global.s3.service.S3ImgService;
 import my.mma.user.entity.User;
 import my.mma.user.repository.UserRepository;
@@ -47,7 +46,7 @@ public class FightEventService {
                 fightEvent -> {
                     FightEventDto fightEventDto = FightEventDto.toDto(fightEvent);
                     if (fightEventDto.isUpcoming()) {
-                        fightEventDto.setAlert(alertRepository.existsByUserAndTargetTypeAndTargetId(user, TargetType.EVENT, fightEvent.getId()));
+                        fightEventDto.setAlert(alertRepository.existsByUserAndAlertTargetAndTargetId(user, AlertTarget.UPCOMING_EVENT, fightEvent.getId()));
                     }
                     fightEventDto.getFighterFightEvents().forEach(
                             fighterFightEventDto -> {

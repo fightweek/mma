@@ -12,8 +12,8 @@ import my.mma.fighter.dto.FighterDetailDto;
 import my.mma.fighter.dto.FighterDto;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
-import my.mma.global.entity.TargetType;
-import my.mma.global.repository.AlertRepository;
+import my.mma.alert.constant.AlertTarget;
+import my.mma.alert.repository.AlertRepository;
 import my.mma.global.s3.service.S3ImgService;
 import my.mma.user.entity.User;
 import my.mma.user.repository.UserRepository;
@@ -47,7 +47,7 @@ public class FighterService {
         User user = userRepository.findByEmail(email).orElseThrow(
                 () -> new CustomException(CustomErrorCode.NO_SUCH_USER_CONFIGURED_400)
         );
-        boolean isAlertExists = alertRepository.existsByUserAndTargetTypeAndTargetId(user, TargetType.FIGHTER, fighterId);
+        boolean isAlertExists = alertRepository.existsByUserAndAlertTargetAndTargetId(user, AlertTarget.FIGHTER, fighterId);
         List<FighterFightEvent> fighterFightEvents = fighterFightEventRepository.findByFighter(fighter);
         List<FighterFightEventDto> fighterFightEventDtos = fighterFightEvents.stream()
                 .map(FighterFightEventDto::toDto)

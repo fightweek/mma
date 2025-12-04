@@ -10,9 +10,9 @@ import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
 import my.mma.fighter.dto.FighterDto;
 import my.mma.fighter.repository.FighterRepository;
-import my.mma.global.entity.Alert;
-import my.mma.global.entity.TargetType;
-import my.mma.global.repository.AlertRepository;
+import my.mma.alert.entity.Alert;
+import my.mma.alert.constant.AlertTarget;
+import my.mma.alert.repository.AlertRepository;
 import my.mma.global.s3.service.S3ImgService;
 import my.mma.user.dto.UserBetRecord;
 import my.mma.user.dto.UserProfileDto;
@@ -55,7 +55,7 @@ public class UserProfileService {
 
     private List<FighterDto> getAlertFighters(List<Alert> userAlerts) {
         List<Long> fighterIds = userAlerts.stream()
-                .filter(alert -> alert.getTargetType().equals(TargetType.FIGHTER))
+                .filter(alert -> alert.getAlertTarget().equals(AlertTarget.FIGHTER))
                 .map(Alert::getTargetId)
                 .toList();
         return fighterRepository.findAllById(fighterIds)
@@ -69,7 +69,7 @@ public class UserProfileService {
 
     private List<FighterFightEventDto> getAlertEvents(List<Alert> userAlerts) {
         List<Long> fightEventIds = userAlerts.stream()
-                .filter(alert -> alert.getTargetType().equals(TargetType.EVENT))
+                .filter(alert -> alert.getAlertTarget().equals(AlertTarget.UPCOMING_EVENT))
                 .map(Alert::getTargetId)
                 .toList();
         return fightEventRepository.findAllById(fightEventIds)

@@ -1,26 +1,30 @@
-package my.mma.global.entity;
+package my.mma.alert.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import my.mma.alert.constant.AlertTarget;
 import my.mma.fighter.entity.BaseEntity;
 import my.mma.user.entity.User;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static lombok.AccessLevel.PROTECTED;
 
-@Table(name = "likes", uniqueConstraints = {
-        @UniqueConstraint(name = "user_target_unique", columnNames = {"user_id", "target_type", "target_id"})
+@Table(name = "alerts", uniqueConstraints = {
+        @UniqueConstraint(name = "user_target_unique",columnNames = {"user_id","target_type","target_id"})
 })
 @Entity
+@AllArgsConstructor(access = PROTECTED)
 @NoArgsConstructor(access = PROTECTED)
 @Getter
-@AllArgsConstructor
 @Builder
-public class Like extends BaseEntity {
+public class Alert extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = IDENTITY)
-    @Column(name = "like_id")
+    @Column(name="alert_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -28,7 +32,7 @@ public class Like extends BaseEntity {
     private User user;
 
     @Enumerated(EnumType.STRING)
-    private TargetType targetType;
+    private AlertTarget alertTarget;
 
     private Long targetId;
 

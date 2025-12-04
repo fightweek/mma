@@ -8,7 +8,7 @@ import my.mma.fighter.dto.FighterDetailDto;
 import my.mma.fighter.dto.FighterDto;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
-import my.mma.global.repository.AlertRepository;
+import my.mma.alert.repository.AlertRepository;
 import my.mma.global.s3.service.S3ImgService;
 import my.mma.user.entity.User;
 import my.mma.user.repository.UserRepository;
@@ -33,7 +33,7 @@ import static my.mma.exception.CustomErrorCode.NO_SUCH_FIGHTER_CONFIGURED_400;
 import static my.mma.fixture.entity.fighter.FighterFixture.*;
 import static my.mma.fixture.entity.fightevent.FightEventFixture.createUpcomingFightEventWithId;
 import static my.mma.fixture.entity.user.UserFixture.createUserWithEmail;
-import static my.mma.global.entity.TargetType.FIGHTER;
+import static my.mma.alert.constant.AlertTarget.FIGHTER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -67,7 +67,7 @@ class FighterServiceTest {
         String imgUrl = "img-url";
 
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-        when(alertRepository.existsByUserAndTargetTypeAndTargetId(user, FIGHTER, fighterId)).thenReturn(isAlertExists);
+        when(alertRepository.existsByUserAndAlertTargetAndTargetId(user, FIGHTER, fighterId)).thenReturn(isAlertExists);
         when(fighterRepository.findById(fighterId)).thenReturn(Optional.of(fighter));
         when(fighterFightEventRepository.findByFighter(fighter)).thenReturn(ffes);
         when(s3Service.generateImgUrl(anyString(), anyInt())).thenReturn(imgUrl);
