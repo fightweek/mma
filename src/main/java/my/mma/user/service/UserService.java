@@ -47,6 +47,16 @@ public class UserService {
         return UserDto.toDto(user);
     }
 
+    public boolean checkIsSocial(String email){
+        User user = getUser(email);
+        return user.getPassword() == null;
+    }
+
+    public boolean checkPassword(String email, String password){
+        User user = getUser(email);
+        return bCryptPasswordEncoder.matches(password, user.getPassword());
+    }
+
     @Transactional
     public void updatePassword(String email, String password) {
         User user = getUser(email);

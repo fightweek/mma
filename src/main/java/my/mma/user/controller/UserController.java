@@ -35,12 +35,33 @@ public class UserController {
     }
 
     @PatchMapping("/nickname")
-    public ResponseEntity<UserDto> updateNickname(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody Map<String, String> nicknameMap) {
+    public ResponseEntity<UserDto> updateNickname(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody Map<String, String> nicknameMap
+    ) {
         return ResponseEntity.ok().body(userService.updateNickname(userDetails.getUsername(), nicknameMap.get("nickname")));
     }
 
+    @GetMapping("/is_social")
+    public ResponseEntity<Boolean> checkIsSocial(
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        return ResponseEntity.ok().body(userService.checkIsSocial(userDetails.getUsername()));
+    }
+
+    @GetMapping("/password")
+    public ResponseEntity<Boolean> checkPassword(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody Map<String, String> passwordMap
+    ){
+        return ResponseEntity.ok().body(userService.checkPassword(userDetails.getUsername(),passwordMap.get("password")));
+    }
+
     @PatchMapping("/password")
-    public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestBody Map<String, String> passwordMap) {
+    public ResponseEntity<Void> updatePassword(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody Map<String, String> passwordMap
+    ) {
         userService.updatePassword(userDetails.getUsername(), passwordMap.get("password"));
         return ResponseEntity.ok().body(null);
     }
@@ -52,8 +73,10 @@ public class UserController {
     }
 
     @DeleteMapping("")
-    public ResponseEntity<Void> delete(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                       @RequestBody WithdrawalReasonDto withdrawalDto) {
+    public ResponseEntity<Void> delete(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestBody WithdrawalReasonDto withdrawalDto
+    ) {
         userService.delete(userDetails.getUsername(), withdrawalDto);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(null);
     }
