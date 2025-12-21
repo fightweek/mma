@@ -7,11 +7,8 @@ import java.util.List;
 import java.util.Set;
 
 @Getter
-@Setter
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
-@NoArgsConstructor
 public class ChosenGameFighterNamesDto {
 
-    private Set<String> names = new HashSet<>();
+    private final Set<String> names = new HashSet<>();
 
 }

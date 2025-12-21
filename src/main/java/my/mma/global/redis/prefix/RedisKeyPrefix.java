@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum RedisKeyPrefix {
 
     CHAT_LOG_PREFIX("chat:"),
-    BET_PREFIX("bet:");
+    BET_PREFIX("bet:"),
+    BLOCKED_USERS_PREFIX("blocked:");
 
     private final String prefix;
 
