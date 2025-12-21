@@ -234,10 +234,6 @@ public class GameService {
 
     private NameGameQuestionDto generateHeadshotQuestion(List<String> names) {
         Collections.shuffle(names);
-        StringBuilder sb = new StringBuilder();
-        if (sb.isEmpty()) {
-
-        }
         for (int i = 0; i < names.size(); i++) {
             String name = names.get(i);
             String headshotUrl = s3Service.generateImgUrlOrNull(

@@ -3,10 +3,11 @@ package my.mma.stream.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import my.mma.fightevent.dto.StreamFightEventDto;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
+import my.mma.fightevent.dto.StreamFightEventDto;
 import my.mma.global.redis.utils.RedisUtils;
+import my.mma.stream.dto.BlockedUserIdsDto;
 import my.mma.stream.dto.ChatMessageDto.ChatJoinRequest;
 import my.mma.stream.dto.ChatMessageDto.ChatMessageRequest;
 import my.mma.stream.dto.ChatMessageDto.ChatMessageResponse;
@@ -24,12 +25,11 @@ import org.springframework.web.socket.handler.TextWebSocketHandler;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static my.mma.global.redis.prefix.RedisKeyPrefix.BLOCKED_USERS_PREFIX;
 import static my.mma.global.redis.prefix.RedisKeyPrefix.CHAT_LOG_PREFIX;
 import static my.mma.stream.dto.StreamMessageDto.ResponseMessageType.*;
 
@@ -39,8 +39,8 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
 
     private final Set<WebSocketSession> sessions = ConcurrentHashMap.newKeySet();
     private final Map<String, StreamUserDto> userMap = new ConcurrentHashMap<>();
-    private final Map<Long, Set<Long>> blockedUsersMap = new ConcurrentHashMap<>();
     private final RedisUtils<UserChatLog> chatLogRedisUtils;
+    private final RedisUtils<BlockedUserIdsDto> blockedUsersRedisUtils;
     private final ObjectMapper objectMapper;
 
     @Override
@@ -90,20 +90,22 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
 
     private void handleBlock(String sessionId, Long userIdToBlock) {
         StreamUserDto user = userMap.get(sessionId);
-        blockedUsersMap
-                .computeIfAbsent(user.getId(), userId -> new HashSet<>())
-                .add(userIdToBlock);
+        BlockedUserIdsDto blockedUserIdsDto =
+                blockedUsersRedisUtils.getData(BLOCKED_USERS_PREFIX.getPrefix() + user.id());
+        if (blockedUserIdsDto == null) {
+            blockedUserIdsDto = new BlockedUserIdsDto();
+        }
+        blockedUserIdsDto.getBlockedUserIds().add(userIdToBlock);
+        blockedUsersRedisUtils.saveData(BLOCKED_USERS_PREFIX.getPrefix() + user.id(), blockedUserIdsDto);
     }
 
     private void handleTalk(String sessionId, ChatMessageRequest chatRequest) throws IOException {
         StreamUserDto user = userMap.get(sessionId);
-        if (user.getPoint() != chatRequest.getPoint())
-            userMap.get(sessionId).setPoint(chatRequest.getPoint());
         StreamMessageResponse response = StreamMessageResponse.builder()
                 .responseMessageType(TALK)
                 .chatMessageResponse(ChatMessageResponse.builder()
-                        .userId(user.getId())
-                        .nickname(user.getNickname())
+                        .userId(user.id())
+                        .nickname(user.nickname())
                         .message(chatRequest.getMessage())
                         .point(chatRequest.getPoint())
                         .build()
@@ -116,10 +118,14 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
                  * stream room 나갔다가 (소켓 연결 끊기고 나서 다시 들어오는 경우 : sessionId -> userMap 통해 userId 꺼내므로
                  * blockedUsersMap에 여전히 차단 목록 남음
                  */
-                Set<Long> blockedTargetsForWs = blockedUsersMap.getOrDefault(userMap.get(ws.getId()).getId(),
-                        Collections.emptySet());
-                if (!blockedTargetsForWs.contains(user.getId()))
+                StreamUserDto receiver = userMap.get(ws.getId());
+                if (receiver == null)
+                    continue;
+                BlockedUserIdsDto blocked = blockedUsersRedisUtils
+                        .getData(BLOCKED_USERS_PREFIX.getPrefix() + receiver.id());
+                if (blocked == null || !blocked.getBlockedUserIds().contains(user.id())) {
                     ws.sendMessage(new TextMessage(objectMapper.writeValueAsString(response)));
+                }
             }
         }
         saveChatMessage(chatRequest, user);
@@ -138,15 +144,15 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
         ChatMessage chatMessage = ChatMessage.builder().message(chatRequest.getMessage())
                 .time(LocalTime.now())
                 .build();
-        UserChatLog userChatLog = chatLogRedisUtils.getData(CHAT_LOG_PREFIX.getPrefix() + user.getId());
+        UserChatLog userChatLog = chatLogRedisUtils.getData(CHAT_LOG_PREFIX.getPrefix() + user.id());
         if (userChatLog == null) {
             userChatLog = UserChatLog.builder()
-                    .nickname(user.getNickname())
+                    .nickname(user.nickname())
                     .build();
         }
         userChatLog.addMessage(chatMessage);
         chatLogRedisUtils.saveDataWithTTL(
-                CHAT_LOG_PREFIX.getPrefix() + user.getId(), userChatLog, Duration.ofHours(10));
+                CHAT_LOG_PREFIX.getPrefix() + user.id(), userChatLog, Duration.ofHours(10));
     }
 
     public void broadcastFightEvent(StreamFightEventDto fe) {
@@ -165,4 +171,5 @@ public class GlobalWebSocketHandler extends TextWebSocketHandler {
             throw new CustomException(CustomErrorCode.SERVER_ERROR_500);
         }
     }
+
 }

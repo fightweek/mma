@@ -6,6 +6,7 @@ import my.mma.admin.fighter.dto.ChosenGameFighterNamesDto;
 import my.mma.admin.fighter.dto.RankersDto;
 import my.mma.fightevent.dto.StreamFightEventDto;
 import my.mma.global.redis.utils.RedisUtils;
+import my.mma.stream.dto.BlockedUserIdsDto;
 import my.mma.stream.dto.UserChatLog;
 import my.mma.bet.dto.BetResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -114,6 +115,18 @@ public class RedisConfig {
     public RedisTemplate<String, UserChatLog> streamChatLogRedisTemplate()
     {
         return setRedisTemplate(UserChatLog.class);
+    }
+
+    @Bean
+    public RedisUtils<BlockedUserIdsDto> blockedUsersRedisUtils(
+            @Qualifier("blockedUsersRedisTemplate") RedisTemplate<String, BlockedUserIdsDto> redisTemplate) {
+        return new RedisUtils<>(redisTemplate);
+    }
+
+    @Bean
+    public RedisTemplate<String, BlockedUserIdsDto> blockedUsersRedisTemplate()
+    {
+        return setRedisTemplate(BlockedUserIdsDto.class);
     }
 
     private <T> RedisTemplate<String, T> setRedisTemplate(Class<T> clazz){

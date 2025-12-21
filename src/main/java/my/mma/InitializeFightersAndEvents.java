@@ -13,7 +13,9 @@ import my.mma.exception.CustomException;
 import my.mma.fighter.entity.FightRecord;
 import my.mma.fighter.entity.Fighter;
 import my.mma.fighter.repository.FighterRepository;
+import my.mma.global.redis.prefix.RedisKeyPrefix;
 import my.mma.global.redis.utils.RedisUtils;
+import my.mma.stream.dto.BlockedUserIdsDto;
 import my.mma.user.entity.User;
 import my.mma.user.repository.UserRepository;
 import org.json.simple.JSONArray;
@@ -29,8 +31,11 @@ import java.io.FileReader;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
+import static my.mma.global.redis.prefix.RedisKeyPrefix.BLOCKED_USERS_PREFIX;
 import static my.mma.global.utils.ModifyUtils.toKg;
 
 @Slf4j
@@ -44,6 +49,7 @@ public class InitializeFightersAndEvents {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RedisUtils<ChosenGameFighterNamesDto> adminChosenFightersRedisUtils;
+    private final RedisUtils<BlockedUserIdsDto> blockedUsersRedisUtils;
 
     /**
      * 스프링 애플리케이션 컨텍스트가 완전히 초기화되고 모든 빈들이 로드된 후 실행됨
@@ -55,16 +61,35 @@ public class InitializeFightersAndEvents {
     @Transactional
     @EventListener(ApplicationReadyEvent.class)
     public void initializeAll() {
-        User user = User.builder()
+        User user = userRepository.save(User.builder()
                 .email("jht1234@naver.com")
                 .password(bCryptPasswordEncoder.encode("pwd123"))
                 .nickname("진현택")
                 .role("ROLE_ADMIN")
                 .point(1000)
-                .build();
+                .build());
+        setBlockedUsers(user);
         adminChosenFightersRedisUtils.saveData("chosenFighters", new ChosenGameFighterNamesDto());
-        userRepository.save(user);
         readJsonFile();
+    }
+
+    private void setBlockedUsers(User user) {
+        Set<Long> blockedUserIds = new HashSet<>();
+        for (int i = 0; i < 20; i++) {
+            User blockedUser = userRepository.save(User.builder()
+                    .email("pwd4321" + i + "@naver.com")
+                    .password(bCryptPasswordEncoder.encode("pwd123"))
+                    .nickname("nickname-" + i)
+                    .role("ROLE_USER")
+                    .point(1000)
+                    .build());
+            userRepository.save(blockedUser);
+            blockedUserIds.add(blockedUser.getId());
+        }
+        BlockedUserIdsDto blockedUserIdsDto = new BlockedUserIdsDto();
+        blockedUserIdsDto.getBlockedUserIds().addAll(blockedUserIds);
+        blockedUsersRedisUtils.saveData(BLOCKED_USERS_PREFIX.getPrefix() + user.getId(),
+                blockedUserIdsDto);
     }
 
     /**
