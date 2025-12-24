@@ -6,6 +6,8 @@ import my.mma.alert.constant.AlertTarget;
 import my.mma.alert.entity.UserPreferences;
 import my.mma.exception.CustomErrorCode;
 import my.mma.exception.CustomException;
+import my.mma.security.entity.PasswordResetToken;
+import my.mma.security.repository.PasswordResetTokenRepository;
 import my.mma.user.dto.JoinRequest;
 import my.mma.user.dto.UserDto;
 import my.mma.user.dto.WithdrawalReasonDto;
@@ -24,6 +26,8 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
+import static my.mma.exception.CustomErrorCode.BAD_REQUEST_400;
+
 @Service
 @Slf4j
 @Transactional(readOnly = true)
@@ -34,6 +38,7 @@ public class UserService {
     private final WithdrawalReasonRepository withdrawalReasonRepository;
     private final WithdrawnEmailRepository withdrawnEmailRepository;
     private final UserPreferencesRepository userPreferencesRepository;
+    private final PasswordResetTokenRepository resetTokenRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public boolean checkDuplicatedNickname(String nickname) {
@@ -55,6 +60,13 @@ public class UserService {
     public boolean checkPassword(String email, String password){
         User user = getUser(email);
         return bCryptPasswordEncoder.matches(password, user.getPassword());
+    }
+
+    public void verifyPasswordResetToken(String email, String resetToken){
+        PasswordResetToken resetTokenEntity = resetTokenRepository.findById(resetToken)
+                .orElseThrow(() -> new CustomException(BAD_REQUEST_400));
+        if(!resetTokenEntity.email().equals(email))
+            throw new CustomException(BAD_REQUEST_400);
     }
 
     @Transactional
@@ -114,7 +126,7 @@ public class UserService {
     }
 
     private User getUser(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.BAD_REQUEST_400));
+        return userRepository.findByEmail(email).orElseThrow(() -> new CustomException(BAD_REQUEST_400));
     }
 
 }

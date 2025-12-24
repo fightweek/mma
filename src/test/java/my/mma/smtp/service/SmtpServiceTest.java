@@ -1,6 +1,8 @@
 package my.mma.smtp.service;
 
 import my.mma.exception.CustomException;
+import my.mma.smtp.dto.EmailVerificationCodeRequest;
+import my.mma.smtp.dto.EmailVerificationSendResult;
 import my.mma.smtp.dto.VerifyCodeRequest;
 import my.mma.smtp.entity.JoinCode;
 import my.mma.smtp.repository.JoinCodeRepository;
@@ -18,6 +20,8 @@ import java.util.Optional;
 import static java.util.Optional.ofNullable;
 import static my.mma.exception.CustomErrorCode.NO_SUCH_EMAIL_CONFIGURED_400;
 import static my.mma.smtp.constant.JoinCodeConstant.EXPIRATION_SECONDS;
+import static my.mma.smtp.dto.EmailVerificationSendResult.EMAIL_ALREADY_EXISTS;
+import static my.mma.smtp.dto.EmailVerificationSendResult.SUCCESS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -35,26 +39,28 @@ class SmtpServiceTest {
     @InjectMocks
     private SmtpService smtpService;
 
-    @DisplayName("아직 가입되지 않은 이메일 계정으로 sendJoinCode() 요청 시 true 반환")
+    @DisplayName("아직 가입되지 않은 이메일 계정으로 sendJoinCode() 요청 시 SUCCESS 반환")
     @Test
     void sendJoinCode() {
         //given
         String email = "email123@google.com";
+        EmailVerificationCodeRequest request = new EmailVerificationCodeRequest(email,true);
         when(userRepository.existsByEmail(email)).thenReturn(false);
 
         //when && then
-        assertThat(smtpService.sendJoinCode(email)).isEqualTo(true);
+        assertThat(smtpService.sendEmailVerificationCode(request)).isEqualTo(SUCCESS);
     }
 
-    @DisplayName("이미 회원가입된 이메일 계정으로 sendJoinCode() 요청 시 false 반환")
+    @DisplayName("이미 회원가입된 이메일 계정으로 sendJoinCode() 요청 시 EMAIL_ALREADY_EXISTS 반환")
     @Test
-    void sendJoinCode_whenEmailAlreadyExists_ThenReturnFalse(){
+    void sendJoinCode_whenEmailAlreadyExists_ThenReturnEMAIL_ALREADY_EXISTS(){
         //given
         String email = "email123@naver.com";
+        EmailVerificationCodeRequest request = new EmailVerificationCodeRequest(email,true);
         when(userRepository.existsByEmail(anyString())).thenReturn(true);
 
         //when && then
-        assertThat(smtpService.sendJoinCode(email)).isEqualTo(false);
+        assertThat(smtpService.sendEmailVerificationCode(request)).isEqualTo(EMAIL_ALREADY_EXISTS);
     }
 
     @DisplayName("서버로부터 받은 smtp 코드 올바르게 입력한 경우, verifyCode() 호출 시 true 반환")

@@ -13,6 +13,7 @@ import my.mma.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -88,9 +89,10 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(registry ->
                 registry.requestMatchers("/", "/login", "/join", "/reissue", "/auth/social_login",
-                                "/smtp/**","/user/dup_nickname","/user/join",
+                                "/smtp/**","/user/dup_nickname","/user/password-reset",
                         "/ws/**"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.POST,"/user").permitAll()
                         .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated());
         http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

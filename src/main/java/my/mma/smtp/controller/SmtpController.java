@@ -1,14 +1,15 @@
 package my.mma.smtp.controller;
 
 import lombok.RequiredArgsConstructor;
+import my.mma.smtp.dto.EmailVerificationSendResult;
+import my.mma.smtp.dto.PasswordResetTokenResponse;
+import my.mma.smtp.dto.EmailVerificationCodeRequest;
 import my.mma.smtp.dto.VerifyCodeRequest;
 import my.mma.smtp.service.SmtpService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,14 +18,14 @@ public class SmtpController {
 
     private final SmtpService smtpService;
 
-    @PostMapping("")
-    public ResponseEntity<Boolean> sendJoinCode(
-            @RequestBody Map<String, String> emailTo
+    @PostMapping("/verification-code-transmission")
+    public ResponseEntity<EmailVerificationSendResult> sendEmailVerificationCode(
+            @RequestBody @Validated EmailVerificationCodeRequest request
     ) {
-        return ResponseEntity.ok().body(smtpService.sendJoinCode(emailTo.get("email")));
+        return ResponseEntity.ok().body(smtpService.sendEmailVerificationCode(request));
     }
 
-    @DeleteMapping("")
+    @PostMapping("/code-verification")
     public ResponseEntity<Void> verifyCode(
             @RequestBody @Validated VerifyCodeRequest verifyCodeRequest
     ) {
@@ -33,4 +34,13 @@ public class SmtpController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
     }
 
+    @PostMapping("/password-reset-token")
+    public ResponseEntity<PasswordResetTokenResponse> verifyCodeAndCreateResetToken(
+            @RequestBody @Validated VerifyCodeRequest verifyCodeRequest
+    ) {
+        if (!smtpService.verifyCode(verifyCodeRequest))
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        PasswordResetTokenResponse response = smtpService.createPasswordResetToken(verifyCodeRequest.email());
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 }

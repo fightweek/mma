@@ -2,10 +2,7 @@ package my.mma.user.controller;
 
 import lombok.RequiredArgsConstructor;
 import my.mma.security.CustomUserDetails;
-import my.mma.user.dto.JoinRequest;
-import my.mma.user.dto.WithdrawalReasonDto;
-import my.mma.user.dto.UserDto;
-import my.mma.user.dto.UserProfileDto;
+import my.mma.user.dto.*;
 import my.mma.user.service.UserProfileService;
 import my.mma.user.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -45,7 +42,7 @@ public class UserController {
     @GetMapping("/is_social")
     public ResponseEntity<Boolean> checkIsSocial(
             @AuthenticationPrincipal CustomUserDetails userDetails
-    ){
+    ) {
         return ResponseEntity.ok().body(userService.checkIsSocial(userDetails.getUsername()));
     }
 
@@ -53,8 +50,8 @@ public class UserController {
     public ResponseEntity<Boolean> checkPassword(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody Map<String, String> passwordMap
-    ){
-        return ResponseEntity.ok().body(userService.checkPassword(userDetails.getUsername(),passwordMap.get("password")));
+    ) {
+        return ResponseEntity.ok().body(userService.checkPassword(userDetails.getUsername(), passwordMap.get("password")));
     }
 
     @PatchMapping("/password")
@@ -63,6 +60,16 @@ public class UserController {
             @RequestBody Map<String, String> passwordMap
     ) {
         userService.updatePassword(userDetails.getUsername(), passwordMap.get("password"));
+        return ResponseEntity.ok().body(null);
+    }
+
+    // mapper for user who's finding password
+    @PatchMapping("/password-reset")
+    public ResponseEntity<Void> resetPassword(
+            @RequestBody @Validated ResetPasswordRequest request
+    ) {
+        userService.verifyPasswordResetToken(request.email(), request.resetToken());
+        userService.updatePassword(request.email(), request.password());
         return ResponseEntity.ok().body(null);
     }
 

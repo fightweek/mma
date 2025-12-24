@@ -2,7 +2,8 @@ package my.mma.smtp.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import my.mma.config.TestSecurityConfig;
-import my.mma.exception.CustomErrorCode;
+import my.mma.smtp.dto.EmailVerificationCodeRequest;
+import my.mma.smtp.dto.EmailVerificationSendResult;
 import my.mma.smtp.dto.VerifyCodeRequest;
 import my.mma.smtp.service.SmtpService;
 import org.junit.jupiter.api.DisplayName;
@@ -10,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
@@ -22,15 +22,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static my.mma.exception.CustomErrorCode.VALIDATION_FAILED_400;
+import static my.mma.smtp.dto.EmailVerificationSendResult.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * send_join_code
- */
 @WebMvcTest(controllers = {SmtpController.class})
 @Import(TestSecurityConfig.class)
 class SmtpControllerTest {
@@ -49,21 +46,20 @@ class SmtpControllerTest {
     void sendJoinCode_whenSendJoinCodeIsTrue() throws Exception {
         //given
         String email = "email123@google.com";
-        Map<String, String> emailMap = new HashMap<>();
-        emailMap.put("email", email);
-        when(smtpService.sendJoinCode(email)).thenReturn(true);
+        EmailVerificationCodeRequest request = new EmailVerificationCodeRequest(email, true);
+        when(smtpService.sendEmailVerificationCode(request)).thenReturn(SUCCESS);
 
         //when && then
-        MvcResult mvcResult = mockMvc.perform(post("/smtp")
+        MvcResult mvcResult = mockMvc.perform(post("/smtp/verification-code-transmission")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(emailMap)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andReturn();
         String responseBodyAsString = mvcResult.getResponse().getContentAsString();
-        boolean isSent = objectMapper.readValue(responseBodyAsString,Boolean.class);
+        EmailVerificationSendResult res = objectMapper.readValue(responseBodyAsString,EmailVerificationSendResult.class);
 
         //then
-        assertThat(isSent).isTrue();
+        assertThat(res).isEqualTo(SUCCESS);
     }
 
     @DisplayName("인증 코드 전송하지 않은 경우(이미 가입된 이메일 계정) 응답(false)")
@@ -71,21 +67,20 @@ class SmtpControllerTest {
     void dontSendJoinCode_whenSendJoinCodeIsFalse() throws Exception {
         //given
         String email = "email123@google.com";
-        Map<String, String> emailMap = new HashMap<>();
-        emailMap.put("email", email);
-        when(smtpService.sendJoinCode(email)).thenReturn(false);
+        EmailVerificationCodeRequest request = new EmailVerificationCodeRequest(email, true);
+        when(smtpService.sendEmailVerificationCode(request)).thenReturn(EMAIL_ALREADY_EXISTS);
 
         //when && then
-        MvcResult mvcResult = mockMvc.perform(post("/smtp")
+        MvcResult mvcResult = mockMvc.perform(post("/smtp/verification-code-transmission")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(emailMap)))
+                        .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andReturn();
         String responseBodyAsString = mvcResult.getResponse().getContentAsString();
-        boolean isSent = objectMapper.readValue(responseBodyAsString,Boolean.class);
+        EmailVerificationSendResult res = objectMapper.readValue(responseBodyAsString,EmailVerificationSendResult.class);
 
         //then
-        assertThat(isSent).isFalse();
+        assertThat(res).isEqualTo(EMAIL_ALREADY_EXISTS);
     }
 
     @DisplayName("인증 코드 검증 완료 시 정상 응답")
@@ -98,7 +93,7 @@ class SmtpControllerTest {
         when(smtpService.verifyCode(verifyCodeRequest)).thenReturn(true);
 
         //when && then
-        MvcResult mvcResult = mockMvc.perform(delete("/smtp")
+        MvcResult mvcResult = mockMvc.perform(post("/smtp/code-verification")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(verifyCodeRequest)))
                 .andExpect(status().isOk())
@@ -118,7 +113,7 @@ class SmtpControllerTest {
         VerifyCodeRequest verifyCodeRequest = getVerifyCodeRequest(email, joinCode);
 
         //when && then
-        MvcResult mvcResult = mockMvc.perform(delete("/smtp")
+        MvcResult mvcResult = mockMvc.perform(post("/smtp/code-verification")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(verifyCodeRequest)))
                 .andExpect(status().isBadRequest())
@@ -138,7 +133,7 @@ class SmtpControllerTest {
         VerifyCodeRequest verifyCodeRequest = getVerifyCodeRequest(email, joinCode);
 
         //when && then
-        MvcResult mvcResult = mockMvc.perform(delete("/smtp")
+        MvcResult mvcResult = mockMvc.perform(post("/smtp/code-verification")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(verifyCodeRequest)))
                 .andExpect(status().isBadRequest())
@@ -159,7 +154,7 @@ class SmtpControllerTest {
         when(smtpService.verifyCode(verifyCodeRequest)).thenReturn(false);
 
         //when && then
-        mockMvc.perform(delete("/smtp")
+        mockMvc.perform(post("/smtp/code-verification")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(verifyCodeRequest)))
                 .andExpect(status().isBadRequest());
