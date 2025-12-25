@@ -3,6 +3,8 @@ package my.mma;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import my.mma.admin.fighter.dto.ChosenGameFighterNamesDto;
+import my.mma.announcement.entity.Announcement;
+import my.mma.announcement.repository.AnnounceRepository;
 import my.mma.fightevent.entity.FightEvent;
 import my.mma.fightevent.entity.FighterFightEvent;
 import my.mma.fightevent.entity.property.FightResult;
@@ -31,9 +33,7 @@ import java.io.FileReader;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 import static my.mma.global.redis.prefix.RedisKeyPrefix.BLOCKED_USERS_PREFIX;
 import static my.mma.global.utils.ModifyUtils.toKg;
@@ -47,6 +47,7 @@ public class InitializeFightersAndEvents {
     private final FighterRepository fighterRepository;
     private final FightEventRepository fightEventRepository;
     private final UserRepository userRepository;
+    private final AnnounceRepository announceRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final RedisUtils<ChosenGameFighterNamesDto> adminChosenFightersRedisUtils;
     private final RedisUtils<BlockedUserIdsDto> blockedUsersRedisUtils;
@@ -69,6 +70,7 @@ public class InitializeFightersAndEvents {
                 .point(1000)
                 .build());
         setBlockedUsers(user);
+        saveAnnouncements();
         adminChosenFightersRedisUtils.saveData("chosenFighters", new ChosenGameFighterNamesDto());
         readJsonFile();
     }
@@ -90,6 +92,26 @@ public class InitializeFightersAndEvents {
         blockedUserIdsDto.getBlockedUserIds().addAll(blockedUserIds);
         blockedUsersRedisUtils.saveData(BLOCKED_USERS_PREFIX.getPrefix() + user.getId(),
                 blockedUserIdsDto);
+    }
+
+    private void saveAnnouncements() {
+        List<Announcement> announcements = new ArrayList<>();
+        for (int i = 0; i < 55; i++) {
+            StringBuilder sb = new StringBuilder();
+            if (i % 2 == 0)
+                for (int j = 0; j < 100; j++) {
+                    sb.append("This is announcement ").append(i).append("\\'s").append("content");
+                }
+            else
+                sb.append("This is announcement ").append(i).append("\\'s").append("content");
+            Announcement announcement = Announcement.builder()
+                    .title("Announcement-" + i)
+                    .content(sb.toString())
+                    .pinned(i % 3 == 0)
+                    .build();
+            announcements.add(announcement);
+        }
+        announceRepository.saveAll(announcements);
     }
 
     /**
